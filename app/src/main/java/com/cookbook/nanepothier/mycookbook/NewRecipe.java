@@ -40,7 +40,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     //private SaveTask saveTask;
 
     private Spinner spinner;
-    private ArrayList<String> listIngredients;
+    public static ArrayList<String> listIngredients;
 
     //private String user;
 
@@ -61,6 +61,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         Toolbar toolbar = (Toolbar) findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
 
+        listIngredients = new ArrayList<String>();
 
         recipeNameView = (EditText) findViewById(R.id.recipe_name);
         primCategoryView = (EditText) findViewById(R.id.category);
@@ -71,19 +72,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         caloriesView = (EditText) findViewById(R.id.calories);
         instructView = (EditText) findViewById(R.id.editText);
 
-
-        listIngredients = new ArrayList<>();
-
         spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(this);
 
-
         getIngredients();
-
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, listIngredients);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
 
 
     }
@@ -97,31 +89,23 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
-
+    // retrieve ingredients from database
     public void getIngredients(){
 
         GetIngredientsTask task = new GetIngredientsTask();
         task.execute((String) null);
-
     }
 
+    private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
 
+        for(int z = 0; z < ingredients.size(); z++){
 
-
-    private String parseJSON(String jsonData){
-
-        String stringResult = "";
-
-        try{
-
-            JSONObject json = new JSONObject(jsonData);
-            stringResult = json.getString("success");
-
-        }catch(Exception e){
-            e.printStackTrace();
+            System.out.println("Back in main activity: " + ingredients.get(z));
         }
 
-        return stringResult;
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, ingredients);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
     }
 
 
@@ -402,7 +386,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             try{
 
-                listIngredients = parseJSONArray(data);
+                listIngredients = ParseJSON.parseJSONArray(data);
+
+                for(int x = 0; x < listIngredients.size(); x++ ){
+                    System.out.println("Ing: " + listIngredients.get(x));
+                }
+
+                NewRecipe.this.onBackgroundTaskObtainedIngredients(listIngredients);
 
                 //System.out.println("in string form: " + stringResult);
             }catch(Exception e){
@@ -411,11 +401,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         }
 
+        /*
         private ArrayList<String> parseJSONArray(String jsonData){
 
-            String stringResult = "";
+            String ingredientText;
             ArrayList<String> listIng = new ArrayList<String>();
-            JSONObject object = new JSONObject();
+            JSONObject jObject;
 
             System.out.println("trying to parse json array");
 
@@ -427,19 +418,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 for(int x = 0; x < json.length(); x++){
 
-                    //object = json.getJSONObject(x);
-                    //listIng.add(json.getString(x));
-
-                    JSONObject jObject = json.getJSONObject(x);
+                    jObject = json.getJSONObject(x);
                     String s = jObject.getString("ingredient");
                     s = s.substring(2, s.length() - 2);
 
-                    //String ing = json.getString(x);
-
-                    //System.out.println("another object string: " + ing);
                     System.out.println("string of object: " + s);
 
-                    //listIng.add(jObject.getString("ingredient_name"));
+                    listIng.add(s);
 
                 }
 
@@ -449,6 +434,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             return listIng;
         }
+        */
 
 
     }

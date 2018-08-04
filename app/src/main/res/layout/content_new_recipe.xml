@@ -72,19 +72,21 @@
                            android:layout_width="147dp"
                            android:layout_height="wrap_content"
                            android:id="@+id/spinner"
+                           android:layout_weight="0.5"
                    />
 
                    <EditText
                             android:layout_width="20dp"
                             android:layout_height="wrap_content"
                             android:id="@+id/quantity1"
+                            android:layout_weight="0.5"
                    />
 
                    <Spinner
                             android:layout_width="20dp"
                             android:layout_height="wrap_content"
                             android:id="@+id/measurement1"
-
+                            android:layout_weight="0.5"
                    />
 
                </TableRow>
@@ -95,18 +97,21 @@
                            android:layout_width="149dp"
                            android:layout_height="wrap_content"
                            android:id="@+id/spinner2"
+
                    />
 
                    <EditText
                            android:layout_width="20dp"
                            android:layout_height="wrap_content"
                            android:id="@+id/quantity2"
+
                    />
 
                    <Spinner
                            android:layout_width="20dp"
                            android:layout_height="wrap_content"
                            android:id="@+id/measurement2"
+
 
                    />
 
