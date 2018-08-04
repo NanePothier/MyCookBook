@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.cookbook.nanepothier.mycookbook.NewRecipe">
+
+
+
+    <item
+        android:id="@+id/save_action"
+        android:title="Save"
+        app:showAsAction="never"
+        />
+
+    <item
+            android:id="@+id/cancel_action"
+            android:title="Cancel"
+            app:showAsAction="never"
+    />
+
+</menu>

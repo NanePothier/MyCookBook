@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">MyCookBook</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_cookbook">Cookbook</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_create_account">Create Account</string>
+    <string name="or">OR</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_view_recipe">ViewRecipe</string>
+
+    <!-- Strings related to account creation -->
+    <string name="creation_heading"><u>Create A Cookbook Account</u></string>
+    <string name="first_name">First</string>
+    <string name="last_name">Last</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">ConfirmP</string>
+    <string name="username_email">Email</string>
+
+    <!--Strings related to new recipe page-->
+    <string name="recipe_name">Recipe Name:</string>
+    <string name="ingredient">Ingredients:</string>
+    <string name="quantity">Qty:</string>
+    <string name="unit">Unit:</string>
+    <string name="prep_time">Preparation Time:</string>
+    <string name="oven_time">Oven Time:</string>
+    <string name="oven_temp">Oven Temperature:</string>
+    <string name="servings">Servings:</string>
+    <string name="category">Category:</string>
+    <string name="calories">Calories/Serving</string>
+    <string name="instructions">Instructions</string>
+
+</resources>

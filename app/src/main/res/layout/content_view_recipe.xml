@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ViewRecipe"
+        tools:showIn="@layout/activity_view_recipe"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+                tools:text="RecipeName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/recipe_name"
+                android:textSize="20dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Primary Category:"
+                android:id="@+id/prim_cat_label"
+                tools:layout_editor_absoluteY="206dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                tools:text="Baked Goods"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/primCategory_view"
+                android:layout_weight="1"
+                tools:layout_editor_absoluteY="206dp"
+                tools:layout_editor_absoluteX="151dp"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No. of Servings:"
+                android:id="@+id/servings_label_view"
+                tools:layout_editor_absoluteY="238dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                tools:text="8"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/servings_view"
+                android:layout_weight="1"
+                tools:layout_editor_absoluteY="238dp"
+                tools:layout_editor_absoluteX="151dp"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Preparation Time:"
+                android:id="@+id/prep_time_label_view"
+                tools:layout_editor_absoluteY="275dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                tools:text="60"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/prep_time_view"
+                android:layout_weight="1"
+                tools:layout_editor_absoluteY="275dp"
+                tools:layout_editor_absoluteX="151dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oven Time:"
+                android:id="@+id/oven_time_label_view"
+                tools:layout_editor_absoluteY="305dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5555"
+                android:id="@+id/oven_time_view"
+                tools:layout_editor_absoluteY="305dp"
+                tools:layout_editor_absoluteX="151dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Oven Temperature:"
+                android:id="@+id/oven_temp_label_view"
+                tools:layout_editor_absoluteY="335dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="oventemp"
+                android:id="@+id/oven_temp_view"
+                tools:layout_editor_absoluteY="335dp"
+                tools:layout_editor_absoluteX="151dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Calories per Serving:"
+                android:id="@+id/calories_label_view"
+                tools:layout_editor_absoluteY="367dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="calo"
+                android:id="@+id/calories_view"
+                tools:layout_editor_absoluteY="367dp"
+                tools:layout_editor_absoluteX="151dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Instructions:"
+                android:id="@+id/instructions_label_view"
+                tools:layout_editor_absoluteY="399dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1. whisk eggs. add flour"
+                android:id="@+id/instructions_view"
+                tools:layout_editor_absoluteY="418dp"
+                tools:layout_editor_absoluteX="16dp"/>
+
+
+
+
+</android.support.constraint.ConstraintLayout>
+    </ScrollView>
+
+</LinearLayout>
