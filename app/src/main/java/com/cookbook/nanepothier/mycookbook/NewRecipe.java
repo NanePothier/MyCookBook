@@ -16,11 +16,15 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import javax.sql.*;
+import java.sql.*;
+
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -34,22 +38,16 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private EditText ovenTimeView;
     private EditText ovenTempView;
     private EditText caloriesView;
-    private EditText instructView;
-
-
-    //private SaveTask saveTask;
+    private EditText instructionView;
+    private EditText amountView;
+    private EditText amountView2;
+    private SaveTask saveTask;
 
     private Spinner spinner;
+    private Spinner spinnerMeasurements;
+    private ArrayList<String> measurements;
     public static ArrayList<String> listIngredients;
-
-    //private String user;
-
-
-    //private InputStream inputStream = null;
-    //private OutputStream outputStream = null;
-    //HttpURLConnection connection;
-    //URL url = null;
-    //String result = "";
+    private ArrayList<Spinner> measurementSpinners;
 
 
 
@@ -61,8 +59,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         Toolbar toolbar = (Toolbar) findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
 
-        listIngredients = new ArrayList<String>();
-
+        // EditTexts
         recipeNameView = (EditText) findViewById(R.id.recipe_name);
         primCategoryView = (EditText) findViewById(R.id.category);
         servingsView = (EditText) findViewById(R.id.servings);
@@ -70,14 +67,46 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         ovenTimeView = (EditText) findViewById(R.id.oven_time);
         ovenTempView = (EditText) findViewById(R.id.oven_temp);
         caloriesView = (EditText) findViewById(R.id.calories);
-        instructView = (EditText) findViewById(R.id.editText);
+        instructionView = (EditText) findViewById(R.id.editText);
+        amountView = (EditText) findViewById(R.id.quantity1);
+        amountView2 = (EditText) findViewById(R.id.quantity2);
+
+        // ArrayLists
+        listIngredients = new ArrayList<String>();
+        measurements = new ArrayList<>();
+        measurementSpinners = new ArrayList<>();
+
+
 
         spinner = (Spinner) findViewById(R.id.spinner);
         spinner.setOnItemSelectedListener(this);
 
+        spinnerMeasurements = (Spinner) findViewById((R.id.measurement1));
+        spinnerMeasurements.setOnItemSelectedListener(this);
+
+        measurements.add("pound");
+        measurements.add("oz");
+
+        measurementSpinners.add(spinnerMeasurements);
+
+        // setMeasurementSpinners(measurementSpinners);
+
+        ArrayAdapter<String> adapterMeasurements = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, measurements);
+        adapterMeasurements.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMeasurements.setAdapter(adapterMeasurements);
+
         getIngredients();
 
+    }
 
+    public void setMeasurementSpinners(ArrayList<Spinner> measurementSpinners, ArrayList<String> measurements){
+
+        for(int x = 0; x < measurementSpinners.size(); x++){
+
+            ArrayAdapter<String> adapterMeasurements = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, measurements);
+            adapterMeasurements.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            measurementSpinners.get(x).setAdapter(adapterMeasurements);
+        }
     }
 
     @Override
@@ -109,9 +138,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
+    // called when item in spinner is selected
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
 
+        System.out.println("Item was selected ");
     }
 
     @Override
@@ -120,7 +151,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
-    //method invoked by appbar
+    // method invoked by appbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 
@@ -155,7 +186,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
-    //check if required fields are filled out
+    // check if required fields are filled out
     protected boolean checkRequiredFields() {
 
         if(recipeNameView.getText().length() > 0) {
@@ -170,20 +201,19 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     public class SaveTask extends AsyncTask<String, Void, String> {
 
         String recipeName;
+
+        // TODO: store objects in arraylist that store ingredient, amount and measurement
         ArrayList<String> ingredients = new ArrayList<>();
         String primCategory;
         Integer prepTime, ovenTime, ovenTemp, servings, calories, numIngredients;
         String instructions;
-        String taskIndicator;
+        String uniqueID;
+        String user;
 
 
-        //constructor used for ingredient retrieval
-        public SaveTask(){
-        }
+        public SaveTask(String user, String rName, ArrayList<String> ing, String primCat, Integer pTime, Integer oTime, Integer oTemp, Integer servings, Integer calories, Integer numIng, String instruct){
 
-        //constructor for saving recipe
-        public SaveTask(String rName, ArrayList<String> ing, String primCat, Integer pTime, Integer oTime, Integer oTemp, Integer servings, Integer calories, Integer numIng, String instruct){
-
+            this.user = user;
             recipeName = rName;
             ingredients = ing;
             primCategory = primCat;
@@ -199,22 +229,33 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         @Override
         protected String doInBackground(String... params){
 
-            String user;
+            String recipe;
             InputStream inputStream = null;
             OutputStream outputStream = null;
             HttpURLConnection connection;
             URL url = null;
             String result = "";
 
-
                 try{
                     url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/save_recipe.php");
 
                     JSONObject jsonObject = new JSONObject();
-                    //jsonObject.put("user", mEmail);
-                    //jsonObject.put("password", mPassword);
+                    uniqueID = UUID.randomUUID().toString();
 
-                    user = jsonObject.toString();
+                    jsonObject.put("userEmail", user);
+                    jsonObject.put("unique", uniqueID);
+                    jsonObject.put("name", recipeName);
+                    jsonObject.put("ingredientObject", ingredients);
+                    jsonObject.put("primCategory", primCategory);
+                    jsonObject.put("prepTime", prepTime);
+                    jsonObject.put("ovenTime", ovenTime);
+                    jsonObject.put("ovenTemp", ovenTemp);
+                    jsonObject.put("servings", servings);
+                    jsonObject.put("calories", calories);
+                    jsonObject.put("numIngredients", numIngredients);
+                    jsonObject.put("instructions", instructions);
+
+                    recipe = jsonObject.toString();
 
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setReadTimeout(10000);
@@ -222,7 +263,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     connection.setRequestMethod("POST");
                     connection.setDoInput(true);
                     connection.setDoOutput(true);
-                    connection.setFixedLengthStreamingMode(user.getBytes().length);
+                    connection.setFixedLengthStreamingMode(recipe.getBytes().length);
 
                     connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                     connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
@@ -230,7 +271,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     connection.connect();
 
                     outputStream = new BufferedOutputStream(connection.getOutputStream());
-                    outputStream.write(user.getBytes());
+                    outputStream.write(recipe.getBytes());
                     outputStream.flush();
 
 
@@ -274,21 +315,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         }
 
-        private String parseJSON(String jsonData){
-
-            String stringResult = "";
-
-            try{
-
-                JSONObject json = new JSONObject(jsonData);
-                stringResult = json.getString("successIndicator");
-
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            return stringResult;
-        }
     }
 
     public class GetIngredientsTask extends AsyncTask<String, Void, String>{
@@ -298,24 +324,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         @Override
         protected String doInBackground(String... args){
 
-            String message;
-            String a = "hello";
             InputStream inputStream = null;
             OutputStream outputStream = null;
             HttpURLConnection connection;
             URL url = null;
-            StringBuilder result2 = null;
             String result = "";
 
         try{
 
             url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_ingredients.php");
-
-            //JSONObject jsonObject = new JSONObject();
-
-            //jsonObject.put("first", a);
-
-            //message = jsonObject.toString();
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setReadTimeout(10000);
@@ -323,18 +340,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             connection.setRequestMethod("POST");
             connection.setDoInput(true);
             connection.setDoOutput(true);
-            //connection.setFixedLengthStreamingMode(message.getBytes().length);
-
-            //connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-            //connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
             System.out.println("now maybe");
 
             connection.connect();
-
-            //outputStream = new BufferedOutputStream(connection.getOutputStream());
-            //outputStream.write(message.getBytes());
-            //outputStream.flush();
 
             System.out.println("connection established");
 
@@ -355,30 +364,20 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             System.out.println("result string: " + result);
 
-            //Log.d(TAGN, result);
-
-            //recipeNameView.setText(result);
-
-            //'ingredient'=>$row['ingredient_name']
 
         }catch(Exception ioe){
             ioe.printStackTrace();
         }finally{
 
             try{
-                //outputStream.close();
-                //inputStream.close();
+                inputStream.close();
 
             }catch(Exception ie){
                 ie.printStackTrace();
             }
         }
 
-        //System.out.println(" returned from php: " + parseJSON(result));
-        //listIngredients = parseJSONArray(result);
-
             return result;
-
         }
 
         @Override
@@ -401,43 +400,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         }
 
-        /*
-        private ArrayList<String> parseJSONArray(String jsonData){
-
-            String ingredientText;
-            ArrayList<String> listIng = new ArrayList<String>();
-            JSONObject jObject;
-
-            System.out.println("trying to parse json array");
-
-            try{
-
-                JSONArray json = new JSONArray(jsonData);
-
-                System.out.println("json array: " + json);
-
-                for(int x = 0; x < json.length(); x++){
-
-                    jObject = json.getJSONObject(x);
-                    String s = jObject.getString("ingredient");
-                    s = s.substring(2, s.length() - 2);
-
-                    System.out.println("string of object: " + s);
-
-                    listIng.add(s);
-
-                }
-
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            return listIng;
-        }
-        */
-
-
     }
-
 
 }
