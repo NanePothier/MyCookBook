@@ -30,6 +30,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     private final String TAGN = "***********view";
 
+    private String userEmail = "haleyiron@gmail.com";
+    private Integer numIngredients = 1;
 
     private EditText recipeNameView;
     private EditText primCategoryView;
@@ -142,7 +144,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
 
-        System.out.println("Item was selected ");
+        System.out.println("Item was selected in spinner " + parent.getItemIdAtPosition(pos));
     }
 
     @Override
@@ -159,19 +161,36 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         switch(item.getItemId()){
 
+            // when user clicks save
             case R.id.save_action:
 
-                /*
-                valid = checkRequiredFields();
+                // check that required fields are filled
+                // valid = checkRequiredFields();
+                valid = true;
+
+                // get text entered into textfields
+                String recipeName = recipeNameView.getText().toString();
+                String ingredient = spinner.getSelectedItem().toString();
+                String category = primCategoryView.getText().toString();
+                Integer prepTime = Integer.parseInt(prepTimeView.getText().toString());
+                Integer ovenTime = Integer.parseInt(ovenTimeView.getText().toString());
+                Integer ovenTemp = Integer.parseInt(ovenTempView.getText().toString());
+                Integer servings = Integer.parseInt(servingsView.getText().toString());
+                Integer calories = Integer.parseInt(caloriesView.getText().toString());
+                String instructions = instructionView.getText().toString();
+
+                System.out.println(" Selected ingredient: " + ingredient);
 
                 if(valid) {
 
-                    //saveTask = new SaveTask();
-                    //saveTask.execute((String) null);
+                    // execute new asynchronous save task
+                    saveTask = new SaveTask(userEmail, recipeName, ingredient, category, prepTime
+                                            , ovenTime, ovenTemp, servings, calories,
+                                            numIngredients, instructions);
+                    saveTask.execute((String) null);
 
                     return true;
                 }
-                */
 
                 return true;
 
@@ -204,6 +223,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         // TODO: store objects in arraylist that store ingredient, amount and measurement
         ArrayList<String> ingredients = new ArrayList<>();
+        String ingredient;
         String primCategory;
         Integer prepTime, ovenTime, ovenTemp, servings, calories, numIngredients;
         String instructions;
@@ -211,11 +231,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         String user;
 
 
-        public SaveTask(String user, String rName, ArrayList<String> ing, String primCat, Integer pTime, Integer oTime, Integer oTemp, Integer servings, Integer calories, Integer numIng, String instruct){
+        public SaveTask(String user, String rName, String ingredient, String primCat, Integer pTime, Integer oTime,
+                        Integer oTemp, Integer servings, Integer calories, Integer numIng, String instruct){
 
             this.user = user;
             recipeName = rName;
-            ingredients = ing;
+            //ingredients = ing;
+            this.ingredient = ingredient;
             primCategory = primCat;
             prepTime = pTime;
             ovenTime = oTime;
@@ -239,13 +261,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 try{
                     url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/save_recipe.php");
 
+                    // generate json object to pass data
                     JSONObject jsonObject = new JSONObject();
+
+                    // create unique id for this recipe
                     uniqueID = UUID.randomUUID().toString();
+                    System.out.println("Unique ID generated: " + uniqueID);
 
                     jsonObject.put("userEmail", user);
                     jsonObject.put("unique", uniqueID);
                     jsonObject.put("name", recipeName);
-                    jsonObject.put("ingredientObject", ingredients);
+                    jsonObject.put("ingredientObject", ingredient);
                     jsonObject.put("primCategory", primCategory);
                     jsonObject.put("prepTime", prepTime);
                     jsonObject.put("ovenTime", ovenTime);
@@ -270,6 +296,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                     connection.connect();
 
+                    System.out.println("connection made I think ");
+
                     outputStream = new BufferedOutputStream(connection.getOutputStream());
                     outputStream.write(recipe.getBytes());
                     outputStream.flush();
@@ -278,6 +306,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     int responseCode = connection.getResponseCode();
 
                     if(responseCode == HttpURLConnection.HTTP_OK){
+
+                        System.out.println("retrieving input ");
 
                         inputStream = connection.getInputStream();
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -307,13 +337,24 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
 
         @Override
-        protected void onPostExecute(String data){
+        protected void onPostExecute(String result){
 
-            String finalResult;
-            //finalResult = parseJSON(data);
+            System.out.println(" final result before calling parsejson" + result);
 
+            String finalResult = ParseJSON.parseJSON(result);
 
-        }
+            System.out.println("final result: " + finalResult);
+
+            if(finalResult.equals("success12345")){
+
+                System.out.println("Everything was stored successfully. ");
+
+                //startActivity(new Intent(NewRecipe.this, MainActivity.class));
+            }else{
+
+                System.out.println("Storing of data was not successful");
+            }
+        } // end onPostExecute
 
     }
 

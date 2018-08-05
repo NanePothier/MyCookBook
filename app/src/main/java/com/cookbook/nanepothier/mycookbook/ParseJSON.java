@@ -40,7 +40,7 @@ public class ParseJSON {
         try{
 
             JSONObject json = new JSONObject(jsonData);
-            stringResult = json.getString("success");
+            stringResult = json.getString("successIndicator");
 
         }catch(Exception e){
             e.printStackTrace();
