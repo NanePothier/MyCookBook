@@ -1,5 +1,7 @@
 <?php
 
+    error_log("Not working!", 3, "./log_errors.log");
+
     $json = file_get_contents('php://input');
     $object = json_decode($json);
     

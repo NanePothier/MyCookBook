@@ -268,6 +268,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     uniqueID = UUID.randomUUID().toString();
                     System.out.println("Unique ID generated: " + uniqueID);
 
+                    System.out.println("Recipe data being passed: " + user + " " + recipeName + " " + ingredient + " " + primCategory);
+                    System.out.println(" More data: " + prepTime + " " + ovenTime + " " + ovenTemp);
+
                     jsonObject.put("userEmail", user);
                     jsonObject.put("unique", uniqueID);
                     jsonObject.put("name", recipeName);
@@ -282,6 +285,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     jsonObject.put("instructions", instructions);
 
                     recipe = jsonObject.toString();
+
+                    System.out.println("Recipe in string format: " + recipe);
 
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setReadTimeout(10000);
