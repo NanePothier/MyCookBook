@@ -38,7 +38,7 @@
     <string name="oven_temp">Oven Temperature:</string>
     <string name="servings">Servings:</string>
     <string name="category">Category:</string>
-    <string name="calories">Calories/Serving</string>
-    <string name="instructions">Instructions</string>
+    <string name="calories">Calories/Serving:</string>
+    <string name="instructions">Instructions:</string>
 
 </resources>

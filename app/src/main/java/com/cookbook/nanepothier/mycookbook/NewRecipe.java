@@ -171,6 +171,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 // get text entered into textfields
                 String recipeName = recipeNameView.getText().toString();
                 String ingredient = spinner.getSelectedItem().toString();
+                ArrayList<String> ingredients = new ArrayList<>();
+                ingredients.add(ingredient);
                 String category = primCategoryView.getText().toString();
                 Integer prepTime = Integer.parseInt(prepTimeView.getText().toString());
                 Integer ovenTime = Integer.parseInt(ovenTimeView.getText().toString());
@@ -179,12 +181,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 Integer calories = Integer.parseInt(caloriesView.getText().toString());
                 String instructions = instructionView.getText().toString();
 
-                System.out.println(" Selected ingredient: " + ingredient);
+                System.out.println(" Selected ingredient: " + ingredients.get(0));
 
                 if(valid) {
 
                     // execute new asynchronous save task
-                    saveTask = new SaveTask(userEmail, recipeName, ingredient, category, prepTime
+                    saveTask = new SaveTask(userEmail, recipeName, ingredients, category, prepTime
                                             , ovenTime, ovenTemp, servings, calories,
                                             numIngredients, instructions);
                     saveTask.execute((String) null);
@@ -231,13 +233,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         String user;
 
 
-        public SaveTask(String user, String rName, String ingredient, String primCat, Integer pTime, Integer oTime,
+        public SaveTask(String user, String rName, ArrayList<String> ingredients, String primCat, Integer pTime, Integer oTime,
                         Integer oTemp, Integer servings, Integer calories, Integer numIng, String instruct){
 
             this.user = user;
             recipeName = rName;
             //ingredients = ing;
-            this.ingredient = ingredient;
+            this.ingredients = ingredients;
             primCategory = primCat;
             prepTime = pTime;
             ovenTime = oTime;
@@ -274,7 +276,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     jsonObject.put("userEmail", user);
                     jsonObject.put("unique", uniqueID);
                     jsonObject.put("name", recipeName);
-                    jsonObject.put("ingredientObject", ingredient);
+                    jsonObject.put("ingredientObject", ingredients);
                     jsonObject.put("primCategory", primCategory);
                     jsonObject.put("prepTime", prepTime);
                     jsonObject.put("ovenTime", ovenTime);

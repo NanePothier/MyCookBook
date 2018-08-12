@@ -1,14 +1,19 @@
 <?php
 
-    error_log("Not working!", 3, "./log_errors.log");
+    require('./log_errors.log');
+
+    error_log('Not working!', 3, '/S0280202/public_html/android_connect/log_errors.log');
 
     $json = file_get_contents('php://input');
     $object = json_decode($json);
+
+    //error_log($object->userEmail, 1, 'nane.pothier@gmail.com');
     
     // get data from passed object
     $user_email = $object->userEmail;
     $unique_ID = $object->unique;
     $recipe_name = $object->name;
+    $ingredients = array();
     $ingredients = $object->ingredientObject;
     $prim_category = $object->primCategory;
     $prep_time = $object->prepTime;
@@ -25,23 +30,35 @@
 
     include 'db_connect.php';
 
-    $recipe_query = "INSERT INTO recipes VALUES('$unique_ID')";
-    $recipe_result = mysqli_query($link, $recipe_query);
-
-    /*
     // store recipe
-    $recipe_query = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', '$total_time', 
-                                                '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now())";
+    $recipe_query = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', 10, '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now())";
     $recipe_result = mysqli_query($link, $recipe_query);
 
     // store ingredients
-    $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', '$ingredients')";
+
+    // $arraySize = count($ingredients);
+
+    // error_log($ingredients, 1, 'nane.pothier@gmail.com');
+
+    /*
+    for($x = 0; $x < $arraySize; $x++){
+
+        $value = $ingredients[0];
+
+        error_log($value, 1, 'nane.pothier@gmail.com');
+
+        $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', '$value', 2, 'pounds', 'crushed')";
+        $ingredient_result = mysqli_query($link, $recipe_ingredient_query);
+    }
+    */
+    
+    $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', 'Melon', 2, 'pounds', 'crushed')";
     $ingredient_result = mysqli_query($link, $recipe_ingredient_query);
 
     // store user recipe connection
     $user_query = "INSERT INTO userrecipes VALUES('$user_email', '$unique_ID')";
     $user_recipe_result = mysqli_query($link, $user_query);
-
+    
     // store recipe and category connection
     $category_query = "INSERT INTO recipecategory VALUES('$unique_ID', '$prim_category', 'y')";
     $category_result = mysqli_query($link, $category_query);
@@ -49,7 +66,7 @@
     // store user and category connection
     $user_category_query = "INSERT INTO usercategory VALUES('$user_email', '$prim_category')";
     $user_category_result = mysqli_query($link, $user_category_query);
-    */
+    
     
     // check if queries were successful
     if(!empty($recipe_result)){
