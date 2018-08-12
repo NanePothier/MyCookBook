@@ -33,6 +33,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private String userEmail = "haleyiron@gmail.com";
     private Integer numIngredients = 1;
 
+    // views
     private EditText recipeNameView;
     private EditText primCategoryView;
     private EditText servingsView;
@@ -43,12 +44,23 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private EditText instructionView;
     private EditText amountView;
     private EditText amountView2;
+
     private SaveTask saveTask;
 
+    // spinners
     private Spinner spinner;
+    private Spinner spinner2;
+
     private Spinner spinnerMeasurements;
-    private ArrayList<String> measurements;
+    private Spinner spinnerMeasurements2;
+
+    private Spinner categorySpinner;
+
+    // array lists
+    private ArrayList<String> USMeasurements;
+    private ArrayList<String> MetricMeasurements;
     public static ArrayList<String> listIngredients;
+    private ArrayList<Spinner> ingredientSpinners;
     private ArrayList<Spinner> measurementSpinners;
 
 
@@ -63,7 +75,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         // EditTexts
         recipeNameView = (EditText) findViewById(R.id.recipe_name);
-        primCategoryView = (EditText) findViewById(R.id.category);
+        //primCategoryView = (EditText) findViewById(R.id.category);
         servingsView = (EditText) findViewById(R.id.servings);
         prepTimeView = (EditText) findViewById(R.id.prep_time);
         ovenTimeView = (EditText) findViewById(R.id.oven_time);
@@ -75,40 +87,60 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         // ArrayLists
         listIngredients = new ArrayList<String>();
-        measurements = new ArrayList<>();
+        USMeasurements = new ArrayList<>();
+        MetricMeasurements = new ArrayList<>();
         measurementSpinners = new ArrayList<>();
-
-
+        ingredientSpinners = new ArrayList<>();
 
         spinner = (Spinner) findViewById(R.id.spinner);
+        spinner2 = (Spinner) findViewById(R.id.spinner2);
         spinner.setOnItemSelectedListener(this);
+        spinner2.setOnItemSelectedListener(this);
 
-        spinnerMeasurements = (Spinner) findViewById((R.id.measurement1));
+        spinnerMeasurements = (Spinner) findViewById(R.id.measurement1);
+        spinnerMeasurements2 = (Spinner) findViewById(R.id.measurement2);
         spinnerMeasurements.setOnItemSelectedListener(this);
+        spinnerMeasurements2.setOnItemSelectedListener(this);
 
-        measurements.add("pound");
-        measurements.add("oz");
+        //categorySpinner = (Spinner) findViewById(R.id.category_spinner);
+
+        createUSMeasurementList();
+
+        ingredientSpinners.add(spinner);
+        ingredientSpinners.add(spinner2);
 
         measurementSpinners.add(spinnerMeasurements);
+        measurementSpinners.add(spinnerMeasurements2);
 
-        // setMeasurementSpinners(measurementSpinners);
-
-        ArrayAdapter<String> adapterMeasurements = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, measurements);
-        adapterMeasurements.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMeasurements.setAdapter(adapterMeasurements);
+        setSpinners(measurementSpinners, USMeasurements);
 
         getIngredients();
-
+        // getCategories();
     }
 
-    public void setMeasurementSpinners(ArrayList<Spinner> measurementSpinners, ArrayList<String> measurements){
+    public void setSpinners(ArrayList<Spinner> spinners, ArrayList<String> stringList){
 
-        for(int x = 0; x < measurementSpinners.size(); x++){
+        for(int x = 0; x < spinners.size(); x++){
 
-            ArrayAdapter<String> adapterMeasurements = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, measurements);
-            adapterMeasurements.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            measurementSpinners.get(x).setAdapter(adapterMeasurements);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, stringList);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinners.get(x).setAdapter(adapter);
         }
+    }
+
+    public void createUSMeasurementList(){
+
+        USMeasurements.add("pound");
+        USMeasurements.add("oz");
+        USMeasurements.add("cup");
+    }
+
+    public void createMetricMeasurementList(){
+
+        MetricMeasurements.add("g");
+        MetricMeasurements.add("kg");
+        MetricMeasurements.add("ml");
+        MetricMeasurements.add("L");
     }
 
     @Override
@@ -123,7 +155,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // retrieve ingredients from database
     public void getIngredients(){
 
-        GetIngredientsTask task = new GetIngredientsTask();
+        GetItemsTask task = new GetItemsTask("ing");
+        task.execute((String) null);
+    }
+
+    public void getCategories(){
+
+        GetItemsTask task = new GetItemsTask("cat");
         task.execute((String) null);
     }
 
@@ -134,9 +172,19 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             System.out.println("Back in main activity: " + ingredients.get(z));
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, ingredients);
+        setSpinners(ingredientSpinners, ingredients);
+    }
+
+    private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
+
+        for(int z = 0; z < categories.size(); z++){
+
+            System.out.println("Back in main activity categories: " + categories.get(z));
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        categorySpinner.setAdapter(adapter);
     }
 
 
@@ -153,6 +201,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
 
+    // TODO: change category to spinner item
     // method invoked by appbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
@@ -173,7 +222,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 String ingredient = spinner.getSelectedItem().toString();
                 ArrayList<String> ingredients = new ArrayList<>();
                 ingredients.add(ingredient);
-                String category = primCategoryView.getText().toString();
+                //String category = primCategoryView.getText().toString();
+                String category = "Salads";
                 Integer prepTime = Integer.parseInt(prepTimeView.getText().toString());
                 Integer ovenTime = Integer.parseInt(ovenTimeView.getText().toString());
                 Integer ovenTemp = Integer.parseInt(ovenTempView.getText().toString());
@@ -365,9 +415,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     }
 
-    public class GetIngredientsTask extends AsyncTask<String, Void, String>{
+    public class GetItemsTask extends AsyncTask<String, Void, String>{
 
-        ArrayList<String> listIngredients = new ArrayList<String>();
+        ArrayList<String> listItems = new ArrayList<String>();
+        String itemIndicator;
+        String fileURL;
+
+        public GetItemsTask(String indicator){
+            itemIndicator = indicator;
+        }
 
         @Override
         protected String doInBackground(String... args){
@@ -380,7 +436,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         try{
 
-            url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_ingredients.php");
+            if(itemIndicator.equals("ing")){
+                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_ingredients.php");
+            }else if(itemIndicator.equals("cat")){
+                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_categories.php");
+            }
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setReadTimeout(10000);
@@ -433,13 +493,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             try{
 
-                listIngredients = ParseJSON.parseJSONArray(data);
+                listItems = ParseJSON.parseJSONArray(data);
 
-                for(int x = 0; x < listIngredients.size(); x++ ){
-                    System.out.println("Ing: " + listIngredients.get(x));
+                for(int x = 0; x < listItems.size(); x++ ){
+                    System.out.println("Ing: " + listItems.get(x));
                 }
 
-                NewRecipe.this.onBackgroundTaskObtainedIngredients(listIngredients);
+                if(itemIndicator.equals("ing")){
+                    NewRecipe.this.onBackgroundTaskObtainedIngredients(listItems);
+                }else if(itemIndicator.equals("cat")){
+                    NewRecipe.this.onBackgroundTaskObtainedCategories(listItems);
+                }
 
                 //System.out.println("in string form: " + stringResult);
             }catch(Exception e){
