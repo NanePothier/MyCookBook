@@ -6,9 +6,9 @@ import java.util.ArrayList;
 
 public class ParseJSON {
 
-    public static ArrayList<String> parseJSONArray(String jsonData){
+    public static ArrayList<String> parseJSONArray(String jsonData, String placeholder){
 
-        ArrayList<String> listIng = new ArrayList<String>();
+        ArrayList<String> listItems = new ArrayList<String>();
 
         try{
 
@@ -18,10 +18,10 @@ public class ParseJSON {
             for(int x = 0; x < json.length(); x++){
 
                 JSONObject jObject = json.getJSONObject(x);
-                String s = jObject.getString("ingredient");
+                String s = jObject.getString(placeholder);
                 s = s.substring(2, s.length() - 2);
 
-                listIng.add(s);
+                listItems.add(s);
             }
 
         }catch(Exception e){
@@ -30,7 +30,7 @@ public class ParseJSON {
 
         System.out.println("Done parsing JSON array");
 
-        return listIng;
+        return listItems;
     }
 
     public static String parseJSON(String jsonData){

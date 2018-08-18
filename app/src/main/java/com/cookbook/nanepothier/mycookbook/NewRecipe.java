@@ -2,6 +2,7 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -46,6 +47,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private EditText amountView2;
 
     private SaveTask saveTask;
+    private GetItemsTask ingTask;
+    private GetItemsTask catTask;
 
     // spinners
     private Spinner spinner;
@@ -102,7 +105,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         spinnerMeasurements.setOnItemSelectedListener(this);
         spinnerMeasurements2.setOnItemSelectedListener(this);
 
-        //categorySpinner = (Spinner) findViewById(R.id.category_spinner);
+        categorySpinner = (Spinner) findViewById(R.id.category_spinner);
 
         createUSMeasurementList();
 
@@ -115,7 +118,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         setSpinners(measurementSpinners, USMeasurements);
 
         getIngredients();
-        // getCategories();
+        getCategories();
     }
 
     public void setSpinners(ArrayList<Spinner> spinners, ArrayList<String> stringList){
@@ -155,14 +158,24 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // retrieve ingredients from database
     public void getIngredients(){
 
-        GetItemsTask task = new GetItemsTask("ing");
-        task.execute((String) null);
+        ingTask = new GetItemsTask("ing");
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            ingTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+        }else{
+            ingTask.execute((String) null);
+        }
     }
 
     public void getCategories(){
 
-        GetItemsTask task = new GetItemsTask("cat");
-        task.execute((String) null);
+        catTask = new GetItemsTask("cat");
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            catTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+        }else{
+            catTask.execute((String) null);
+        }
     }
 
     private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
@@ -182,7 +195,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             System.out.println("Back in main activity categories: " + categories.get(z));
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
     }
@@ -219,11 +232,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 // get text entered into textfields
                 String recipeName = recipeNameView.getText().toString();
-                String ingredient = spinner.getSelectedItem().toString();
+
                 ArrayList<String> ingredients = new ArrayList<>();
-                ingredients.add(ingredient);
-                //String category = primCategoryView.getText().toString();
-                String category = "Salads";
+
+                for(int i = 0; i < ingredientSpinners.size(); i++){
+                    ingredients.add(ingredientSpinners.get(i).getSelectedItem().toString());
+                }
+
+                String category = categorySpinner.getSelectedItem().toString();
+                // String category = "Salads";
                 Integer prepTime = Integer.parseInt(prepTimeView.getText().toString());
                 Integer ovenTime = Integer.parseInt(ovenTimeView.getText().toString());
                 Integer ovenTemp = Integer.parseInt(ovenTempView.getText().toString());
@@ -274,7 +291,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         String recipeName;
 
         // TODO: store objects in arraylist that store ingredient, amount and measurement
-        ArrayList<String> ingredients = new ArrayList<>();
+        ArrayList<String> ingredients;
         String ingredient;
         String primCategory;
         Integer prepTime, ovenTime, ovenTemp, servings, calories, numIngredients;
@@ -438,8 +455,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             if(itemIndicator.equals("ing")){
                 url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_ingredients.php");
+                System.out.println("setting url for ingredients");
             }else if(itemIndicator.equals("cat")){
                 url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_categories.php");
+                System.out.println("setting url for categories task");
             }
 
             connection = (HttpURLConnection) url.openConnection();
@@ -493,25 +512,28 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             try{
 
-                listItems = ParseJSON.parseJSONArray(data);
+                if(itemIndicator.equals("ing")){
+                    listItems = ParseJSON.parseJSONArray(data, "ingredient");
+                }else if(itemIndicator.equals("cat")){
+                    listItems = ParseJSON.parseJSONArray(data, "category");
+                }
 
                 for(int x = 0; x < listItems.size(); x++ ){
-                    System.out.println("Ing: " + listItems.get(x));
+                    System.out.println("Item: " + listItems.get(x));
                 }
 
                 if(itemIndicator.equals("ing")){
                     NewRecipe.this.onBackgroundTaskObtainedIngredients(listItems);
                 }else if(itemIndicator.equals("cat")){
+                    System.out.println("Calling categoies function to pass data back");
                     NewRecipe.this.onBackgroundTaskObtainedCategories(listItems);
                 }
 
                 //System.out.println("in string form: " + stringResult);
-            }catch(Exception e){
+            }catch(Exception e) {
 
             }
-
         }
-
     }
 
 }

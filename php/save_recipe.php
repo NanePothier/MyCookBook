@@ -30,9 +30,14 @@
 
     include 'db_connect.php';
 
+    $sql = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', 10, '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now());";
+    $sql .= "INSERT INTO recipeingredients VALUES('$unique_ID', '$value', 2, 'pounds', 'crushed')";
+
+    $recipe_result = mysqli_multi_query($link, $sql);
+
     // store recipe
-    $recipe_query = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', 10, '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now())";
-    $recipe_result = mysqli_query($link, $recipe_query);
+    // $recipe_query = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', 10, '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now())";
+    // $recipe_result = mysqli_query($link, $recipe_query);
 
     // store ingredients
 
@@ -52,9 +57,11 @@
     }
     */
     
-    $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', 'Melon', 2, 'pounds', 'crushed')";
+    /*
+    $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', 'Melon', 3.0, 'pounds', 'crushed')";
     $ingredient_result = mysqli_query($link, $recipe_ingredient_query);
-
+    */
+    /*
     // store user recipe connection
     $user_query = "INSERT INTO userrecipes VALUES('$user_email', '$unique_ID')";
     $user_recipe_result = mysqli_query($link, $user_query);
@@ -66,21 +73,24 @@
     // store user and category connection
     $user_category_query = "INSERT INTO usercategory VALUES('$user_email', '$prim_category')";
     $user_category_result = mysqli_query($link, $user_category_query);
-    
+    */
     
     // check if queries were successful
     if(!empty($recipe_result)){
 
-        $success_string = $success_string + '1';
+        $success_string = $success_string.'one';
         $response["successIndicator"] = $success_string;
     }
 
+    /*
     if(!empty($ingredient_result)){
 
-        $success_string = $success_string + '2';
+        $success_string = $success_string.'two';
         $response["successIndicator"] = $success_string;
     }
+    */
 
+    /*
     if(!empty($user_recipe_result)){
 
         $success_string = $success_string + '3';
@@ -98,6 +108,7 @@
         $success_string = $success_string + '5';
         $response["successIndicator"] = $success_string;
     }
+    */
 
     echo json_encode($response);
     
