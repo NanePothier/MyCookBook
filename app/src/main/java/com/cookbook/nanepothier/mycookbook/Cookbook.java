@@ -1,5 +1,7 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -18,7 +21,8 @@ import java.util.ArrayList;
 
 public class Cookbook extends AppCompatActivity {
 
-    private ArrayList<String> arrayRecipes;
+    private ArrayList<String> arrayRecipeNames;
+    private ArrayList<String> arrayUserCategories;
     private String user = "";
 
     @Override
@@ -28,8 +32,8 @@ public class Cookbook extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -37,104 +41,155 @@ public class Cookbook extends AppCompatActivity {
             }
         });
 
-        arrayRecipes = new ArrayList<>();
-
+        arrayRecipeNames = new ArrayList<>();
+        arrayUserCategories = new ArrayList<>();
         getRecipeNames();
+        getUserCategories();
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        ListView listView = (ListView) findViewById(R.id.list_view);
 
         LinearLayoutManager linearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipes);
+        RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipeNames);
 
-        recyclerView.setLayoutManager(linearManager);
-        recyclerView.setAdapter(recipeAdapter);
+
 
     }//onCreate
 
     public void getRecipeNames(){
 
-        String message;
-        InputStream inputStream = null;
-        OutputStream outputStream = null;
-        HttpURLConnection connection;
-        URL url = null;
-        StringBuilder result2 = null;
-        String result = "";
+        GetItemsTask nameTask = new GetItemsTask("rec");
 
-        try{
-            url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/getRecipeNames.php");
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            nameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+        }else{
+            nameTask.execute((String) null);
+        }
+    }
 
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("user", user);
-            message = jsonObject.toString();
+    public void getUserCategories(){
 
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setReadTimeout(10000);
-            connection.setConnectTimeout(15000);
-            connection.setRequestMethod("POST");
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setFixedLengthStreamingMode(message.getBytes().length);
-            connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-            connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+        GetItemsTask userCatTask = new GetItemsTask("cat");
 
-            connection.connect();
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            userCatTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+        }else{
+            userCatTask.execute((String) null);
+        }
+    }
 
-            outputStream = new BufferedOutputStream(connection.getOutputStream());
-            outputStream.write(message.getBytes());
-            outputStream.flush();
+    public void onBackgroundTaskObtainedRecipeNames(ArrayList<String> names){
+        arrayRecipeNames = names;
+    }
 
-            int responseCode = connection.getResponseCode();
+    public void onBackgroundTaskObtainedUserCategories(ArrayList<String> categories){
+        arrayUserCategories = categories;
+    }
 
-            if(responseCode == HttpURLConnection.HTTP_OK){
 
-                inputStream = connection.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
+    public class GetItemsTask extends AsyncTask<String, Void, String> {
 
-                while((line = reader.readLine())!= null){
-                    result += line;
+        ArrayList<String> listItems = new ArrayList<String>();
+        String itemIndicator;
+        String fileURL;
+
+        public GetItemsTask(String indicator){
+            itemIndicator = indicator;
+        }
+
+        @Override
+        protected String doInBackground(String... args){
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            HttpURLConnection connection;
+            URL url = null;
+            String result = "";
+
+            try{
+
+                if(itemIndicator.equals("rec")){
+                    url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/get_recipe_names.php");
+                    System.out.println("setting url for ingredients");
+                }else if(itemIndicator.equals("cat")){
+                    url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_categories.php");
+                    System.out.println("setting url for categories task");
+                }
+
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setReadTimeout(10000);
+                connection.setConnectTimeout(15000);
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+
+                System.out.println("now maybe");
+
+                connection.connect();
+
+                System.out.println("connection established");
+
+                int responseCode = connection.getResponseCode();
+
+
+                if(responseCode == HttpURLConnection.HTTP_OK){
+
+                    System.out.println("Connection is ok");
+                    inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+
+                    while((line = reader.readLine())!= null){
+                        result += line;
+                    }
+                }
+
+                System.out.println("result string: " + result);
+
+
+            }catch(Exception ioe){
+                ioe.printStackTrace();
+            }finally{
+
+                try{
+                    inputStream.close();
+
+                }catch(Exception ie){
+                    ie.printStackTrace();
                 }
             }
 
-            parseJsonArray(result);
+            return result;
+        }
 
-
-        }catch(Exception ioe){
-            ioe.printStackTrace();
-        }finally{
+        @Override
+        protected void onPostExecute(String data){
 
             try{
-                outputStream.close();
-                inputStream.close();
 
-            }catch(IOException ie){
-                ie.printStackTrace();
-            }
-        }
+                if(itemIndicator.equals("rec")){
+                    listItems = ParseJSON.parseJSONArray(data, "ingredient");
+                }else if(itemIndicator.equals("cat")){
+                    listItems = ParseJSON.parseJSONArray(data, "category");
+                }
 
-    }
+                for(int x = 0; x < listItems.size(); x++ ){
+                    System.out.println("Item: " + listItems.get(x));
+                }
 
-    private void parseJsonArray(String jsonData){
+                if(itemIndicator.equals("rec")){
+                    Cookbook.this.onBackgroundTaskObtainedRecipeNames(listItems);
+                }else if(itemIndicator.equals("cat")){
+                    System.out.println("Calling categoies function to pass data back");
+                    Cookbook.this.onBackgroundTaskObtainedUserCategories(listItems);
+                }
 
-        String stringResult = "";
-        JSONObject object = new JSONObject();
-
-        try{
-
-            JSONArray json = new JSONArray(jsonData);
-
-            for(int x = 0; x < json.length(); x++){
-
-                //object = json.getJSONObject(x);
-                arrayRecipes.add(json.getString(x));
+                //System.out.println("in string form: " + stringResult);
+            }catch(Exception e) {
 
             }
-
-        }catch(Exception e){
-            e.printStackTrace();
         }
     }
+
 
 
 

@@ -2,7 +2,6 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +24,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_recipe,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_recipe_name,parent,false);
 
         return new ViewHolder(view);
     }
