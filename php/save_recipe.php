@@ -31,13 +31,10 @@
     include 'db_connect.php';
 
     $sql = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', 10, '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now());";
-    $sql .= "INSERT INTO recipeingredients VALUES('$unique_ID', '$value', 2, 'pounds', 'crushed')";
-
+    $sql .= "INSERT INTO recipecategory VALUES('$unique_ID', '$prim_category', 'y');";
+    $sql .= "INSERT INTO userrecipes VALUES('$user_email', '$unique_ID')";
+    
     $recipe_result = mysqli_multi_query($link, $sql);
-
-    // store recipe
-    // $recipe_query = "INSERT INTO recipes VALUES('$unique_ID', '$recipe_name', '$servings', '$prep_time', 10, '$oven_time', '$oven_temp', '$num_ingredients', '$calories', '$instructions', now())";
-    // $recipe_result = mysqli_query($link, $recipe_query);
 
     // store ingredients
 
@@ -56,11 +53,14 @@
         $ingredient_result = mysqli_query($link, $recipe_ingredient_query);
     }
     */
+    $qu = 3;
+    $ing = "Banana";
+    $pr = "pounds";
+    $pu = "crushed";
     
-    /*
-    $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', 'Melon', 3.0, 'pounds', 'crushed')";
+    $recipe_ingredient_query = "INSERT INTO recipeingredients VALUES('$unique_ID', 'Banana', '2', 'pounds', 'crush')";
     $ingredient_result = mysqli_query($link, $recipe_ingredient_query);
-    */
+    
     /*
     // store user recipe connection
     $user_query = "INSERT INTO userrecipes VALUES('$user_email', '$unique_ID')";
@@ -89,20 +89,17 @@
         $response["successIndicator"] = $success_string;
     }
     */
-
     /*
     if(!empty($user_recipe_result)){
 
         $success_string = $success_string + '3';
         $response["successIndicator"] = $success_string;
     }
-
     if(!empty($category_result)){
 
         $success_string = $success_string + '4';
         $response["successIndicator"] = $success_string;
     }
-
     if(!empty($user_category_result)){
 
         $success_string = $success_string + '5';
