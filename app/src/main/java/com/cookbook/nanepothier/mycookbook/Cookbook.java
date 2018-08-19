@@ -72,10 +72,12 @@ public class Cookbook extends AppCompatActivity {
 
     public void populateRecyclerView(){
         arrayHeaderRecipeModels = new ArrayList<>();
+        String categoryName;
 
         for(int x = 0; x < arrayUserCategories.size(); x++){
 
-            arrayHeaderRecipeModels.add(new HeaderRecipeModel(arrayUserCategories.get(x), categoryRecipesMap.get(x)));
+            categoryName = arrayUserCategories.get(x);
+            arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, categoryRecipesMap.get(categoryName)));
         }
 
         SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels);
