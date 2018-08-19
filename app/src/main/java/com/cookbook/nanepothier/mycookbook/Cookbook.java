@@ -18,12 +18,16 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class Cookbook extends AppCompatActivity {
 
     private ArrayList<String> arrayRecipeNames;
     private ArrayList<String> arrayUserCategories;
+    private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
+    private Map<String, ArrayList<String>> categoryRecipesMap;
     private String user = "";
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,19 +45,42 @@ public class Cookbook extends AppCompatActivity {
             }
         });
 
+        // retrieve user recipes and categories recipes belong to
         arrayRecipeNames = new ArrayList<>();
         arrayUserCategories = new ArrayList<>();
         getRecipeNames();
         getUserCategories();
 
-        ListView listView = (ListView) findViewById(R.id.list_view);
-
-        LinearLayoutManager linearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipeNames);
+        setUpRecyclerView();
+        populateRecyclerView();
 
 
+
+
+
+        // LinearLayoutManager linearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        // RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipeNames);
 
     }//onCreate
+
+    public void setUpRecyclerView(){
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(linearLayoutManager);
+    }
+
+    public void populateRecyclerView(){
+        arrayHeaderRecipeModels = new ArrayList<>();
+
+        for(int x = 0; x < arrayUserCategories.size(); x++){
+
+            arrayHeaderRecipeModels.add(new HeaderRecipeModel(arrayUserCategories.get(x), categoryRecipesMap.get(x)));
+        }
+
+        SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels);
+        recyclerView.setAdapter(recyclerViewAdapter);
+    }
 
     public void getRecipeNames(){
 
