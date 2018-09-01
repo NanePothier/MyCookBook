@@ -1,6 +1,7 @@
 package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ public class AccountCreation extends AppCompatActivity {
     private EditText emailView;
     private EditText passwordView;
     private EditText passwordViewConfirm;
+    private boolean firstNameFirstTime, lastNameFirstTime, emailFirstTime;
+    private boolean passwordFirstTime, passwordConfirmFirstTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +39,111 @@ public class AccountCreation extends AppCompatActivity {
         passwordView = (EditText) findViewById(R.id.password);
         passwordViewConfirm = (EditText) findViewById(R.id.password_confirm);
 
-
+        firstNameFirstTime = true;
+        lastNameFirstTime = true;
+        emailFirstTime = true;
+        passwordFirstTime = true;
+        passwordConfirmFirstTime = true;
 
         Button createBtn = (Button) findViewById(R.id.create_btn);
         createBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
                 storeInfo();
+            }
+        });
+
+        firstNameView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                firstNameView.setTextColor(Color.BLACK);
+
+                if(hasFocus && firstNameFirstTime){
+                    firstNameView.setText("");
+                    firstNameFirstTime = false;
+                }
+
+                if(!hasFocus){
+
+                    firstNameView.setText("First Name");
+                    firstNameView.setTextColor(Color.GRAY);
+                    firstNameFirstTime = true;
+                }
+            }
+        });
+
+        lastNameView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && lastNameFirstTime){
+                    lastNameView.setText("");
+                    lastNameView.setTextColor(Color.BLACK);
+                    lastNameFirstTime = false;
+                }
+
+                if(!hasFocus){
+
+                    lastNameView.setText("Last Name");
+                    lastNameView.setTextColor(Color.GRAY);
+                    lastNameFirstTime = true;
+                }
+            }
+        });
+
+        emailView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && emailFirstTime){
+                    emailView.setText("");
+                    emailView.setTextColor(Color.BLACK);
+                    emailFirstTime = false;
+                }
+
+                if(!hasFocus){
+
+                    emailView.setText("Email");
+                    emailView.setTextColor(Color.GRAY);
+                    emailFirstTime = true;
+                }
+            }
+        });
+
+        passwordView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && emailFirstTime){
+                    passwordView.setText("");
+                    passwordFirstTime = false;
+                }
+
+                if(!hasFocus){
+
+                    passwordView.setText("Password");
+                    passwordView.setTextColor(Color.GRAY);
+                    passwordFirstTime = true;
+                }
+            }
+        });
+
+        passwordViewConfirm.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && emailFirstTime){
+                    passwordViewConfirm.setText("");
+                    passwordConfirmFirstTime = false;
+                }
+
+                if(!hasFocus){
+
+                    passwordViewConfirm.setText("Confirm Password");
+                    passwordViewConfirm.setTextColor(Color.GRAY);
+                    passwordConfirmFirstTime = true;
+                }
             }
         });
 
@@ -138,7 +239,7 @@ public class AccountCreation extends AppCompatActivity {
             String result = "";
 
             try{
-                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/create_account.php");
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/CreateAccount");
 
                 JSONObject jsonObject = new JSONObject();
 
@@ -166,7 +267,6 @@ public class AccountCreation extends AppCompatActivity {
                 outputStream.write(message.getBytes());
                 outputStream.flush();
 
-
                 int responseCode = connection.getResponseCode();
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
@@ -192,51 +292,30 @@ public class AccountCreation extends AppCompatActivity {
                     ie.printStackTrace();
                 }
             }
-
             return result;
         }
 
         @Override
         protected void onPostExecute(String data){
 
-
-            String finalResult = parseJSON(data);
-            lastNameView.setText(finalResult);
+            String finalResult = ParseJSON.parseJSON(data);
+            System.out.println("Final result after parsing: " + finalResult);
 
             if(finalResult.equals("success")){
-                //firstNameView.setText("success");
+
                 startActivity(new Intent(AccountCreation.this, Login.class));
             }else if(finalResult.equals("exists")){
-                //firstNameView.setText(finalResult);
+
                 emailView.setError("Email already exists.");
                 emailView.requestFocus();
                 emailView.setText("");
-
             }else{
                 firstNameView.setError("Unable to create account. Please try again.");
                 firstNameView.requestFocus();
             }
-
-
         }
 
-        private String parseJSON(String jsonData){
-
-            String stringResult = "";
-
-            try{
-
-                JSONObject json = new JSONObject(jsonData);
-                stringResult = json.getString("successIndicator");
-
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            return stringResult;
-        }
     }
-
 }
 
 

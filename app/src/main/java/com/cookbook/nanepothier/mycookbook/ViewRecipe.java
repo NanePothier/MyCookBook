@@ -125,7 +125,9 @@ public class ViewRecipe extends AppCompatActivity {
             String result = "";
 
             try{
-                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_recipe.php");
+
+
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/retrieve_recipe");
 
                 // generate json object to pass data
                 JSONObject jsonObject = new JSONObject();
@@ -148,7 +150,7 @@ public class ViewRecipe extends AppCompatActivity {
 
                 System.out.println("now maybe");
 
-                connection.connect();
+                // connection.connect();
 
                 System.out.println("connection established");
 
@@ -158,6 +160,7 @@ public class ViewRecipe extends AppCompatActivity {
 
                 int responseCode = connection.getResponseCode();
 
+                System.out.println("made it to here");
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
@@ -172,6 +175,8 @@ public class ViewRecipe extends AppCompatActivity {
                 }
 
                 System.out.println("result string: " + result);
+
+
 
 
             }catch(Exception ioe){

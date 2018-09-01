@@ -251,7 +251,7 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             String result = "";
 
             try{
-                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/validate_user.php");
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/ValidateUser");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user", mEmail);

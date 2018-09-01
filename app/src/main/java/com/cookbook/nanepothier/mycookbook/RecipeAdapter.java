@@ -24,7 +24,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_recipe_name,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_recipe_name, parent,false);
 
         return new ViewHolder(view);
     }
@@ -61,7 +61,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecipeAdapter.ViewHolder
         public ViewHolder(View itemView) {
             super(itemView);
 
-            recipe_name = itemView.findViewById(R.id.recipename);
+            recipe_name = itemView.findViewById(R.id.item_recipe_name);
 
             linLayout = (LinearLayout) itemView.findViewById(R.id.linearlayoutrecipeitem);
         }
