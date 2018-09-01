@@ -276,7 +276,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 outputStream.write(user.getBytes());
                 outputStream.flush();
 
-
                 int responseCode = connection.getResponseCode();
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
@@ -311,35 +310,25 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             userLoginTask = null;
             showProgress(false);
 
-            String finalResult = parseJSON(jsonData);
-            mEmailView.setText(finalResult);
+            String finalResult = ParseJSON.parseJSON(jsonData);
 
-            if(finalResult.equals("success")){
-                mPasswordView.setText("yippiii");
+            System.out.println("Response from servlet: " + finalResult);
+
+            if(finalResult.equals("match")){
+                System.out.println("Success on logging in");
                 //Intent intent = new Intent(Login.this, MainActivity.class);
                 //intent.putExtra("user", user);
                 //startActivity(intent);
-            }else{
+            }else if(finalResult.equals("wrong_password")){
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
+                mPasswordView.setText("");
+            }else if(finalResult.equals("user_does_not_exist")){
+                mEmailView.requestFocus();
+                mEmailView.setError("Account with this email address does not exist");
+            }else{
+                System.out.println("Error");
             }
-
-        }
-
-        private String parseJSON(String jsonData){
-
-            String stringResult = "";
-
-            try{
-
-                JSONObject json = new JSONObject(jsonData);
-                stringResult = json.getString("successIndicator");
-
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            return stringResult;
         }
 
         @Override
