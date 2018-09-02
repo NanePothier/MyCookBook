@@ -21,6 +21,7 @@ public class ViewRecipe extends AppCompatActivity {
 
     private String recipeName;
     private String userEmail;
+    private String recipeID;
 
     private TextView primCategoryView;
     private TextView servingsView;
@@ -56,8 +57,9 @@ public class ViewRecipe extends AppCompatActivity {
         instructionsView = (TextView) findViewById(R.id.instructions_view);
 
         // get recipe name and email through intent
-        recipeName = "Spaghetti";
+        recipeName = "Strawberry Shortcake";
         userEmail="haleyiron@gmail.com";
+        recipeID = "20d39724-3b56-4015-b965-cd14ba8d3f25";
 
         retrieveRecipe();
 
@@ -75,7 +77,7 @@ public class ViewRecipe extends AppCompatActivity {
 
     public void retrieveRecipe(){
 
-        GetRecipeTask task = new GetRecipeTask(userEmail, recipeName);
+        GetRecipeTask task = new GetRecipeTask(userEmail, recipeName, recipeID);
         task.execute();
     }
 
@@ -108,11 +110,13 @@ public class ViewRecipe extends AppCompatActivity {
         String recipeName;
         String userEmail;
         String data;
+        String recipeId;
 
-        public GetRecipeTask(String user, String recipe){
+        public GetRecipeTask(String user, String recipe, String id){
 
             userEmail = user;
             recipeName = recipe;
+            recipeId = id;
         }
 
         @Override
@@ -127,13 +131,14 @@ public class ViewRecipe extends AppCompatActivity {
             try{
 
 
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/retrieve_recipe");
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveRecipe");
 
                 // generate json object to pass data
                 JSONObject jsonObject = new JSONObject();
 
                 jsonObject.put("email", userEmail);
                 jsonObject.put("recipe", recipeName);
+                jsonObject.put("id", recipeId);
 
                 data = jsonObject.toString();
 
@@ -150,7 +155,7 @@ public class ViewRecipe extends AppCompatActivity {
 
                 System.out.println("now maybe");
 
-                // connection.connect();
+                connection.connect();
 
                 System.out.println("connection established");
 

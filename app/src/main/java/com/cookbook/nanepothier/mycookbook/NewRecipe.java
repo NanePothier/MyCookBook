@@ -118,7 +118,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         setSpinners(measurementSpinners, USMeasurements);
 
         getIngredients();
-        getCategories();
+        // getCategories();
     }
 
     public void setSpinners(ArrayList<Spinner> spinners, ArrayList<String> stringList){
@@ -450,16 +450,22 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             HttpURLConnection connection;
             URL url = null;
             String result = "";
+            String msg = "get_ingredients";
 
         try{
 
             if(itemIndicator.equals("ing")){
-                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_ingredients.php");
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveIngredients");
                 System.out.println("setting url for ingredients");
             }else if(itemIndicator.equals("cat")){
-                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_categories.php");
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveCategories");
                 System.out.println("setting url for categories task");
             }
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("message", msg);
+
+            String send = jsonObject.toString();
 
             connection = (HttpURLConnection) url.openConnection();
             connection.setReadTimeout(10000);
@@ -467,6 +473,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             connection.setRequestMethod("POST");
             connection.setDoInput(true);
             connection.setDoOutput(true);
+            connection.setFixedLengthStreamingMode(send.getBytes().length);
+
+            connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+            connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
             System.out.println("now maybe");
 
@@ -474,8 +484,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             System.out.println("connection established");
 
-            int responseCode = connection.getResponseCode();
+            outputStream = new BufferedOutputStream(connection.getOutputStream());
+            outputStream.write(send.getBytes());
+            outputStream.flush();
 
+            int responseCode = connection.getResponseCode();
 
             if(responseCode == HttpURLConnection.HTTP_OK){
 
