@@ -8,18 +8,19 @@ public class ParseJSON {
 
     public static ArrayList<String> parseJSONArray(String jsonData, String placeholder){
 
-        ArrayList<String> listItems = new ArrayList<String>();
+        ArrayList<String> listItems = new ArrayList<>();
 
         try{
-
             System.out.println("parsing json array");
+
             JSONArray json = new JSONArray(jsonData);
 
             for(int x = 0; x < json.length(); x++){
 
                 JSONObject jObject = json.getJSONObject(x);
                 String s = jObject.getString(placeholder);
-                s = s.substring(2, s.length() - 2);
+
+                System.out.println("Category string: " + s);
 
                 listItems.add(s);
             }
