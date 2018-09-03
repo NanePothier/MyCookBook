@@ -22,7 +22,9 @@ public class ViewRecipe extends AppCompatActivity {
     private String recipeName;
     private String userEmail;
     private String recipeID;
+    private Recipe recipe;
 
+    private TextView recipeNameView;
     private TextView primCategoryView;
     private TextView servingsView;
     private TextView preparationTimeView;
@@ -48,6 +50,7 @@ public class ViewRecipe extends AppCompatActivity {
             }
         });
 
+        recipeNameView = (TextView) findViewById(R.id.recipe_name_view);
         primCategoryView = (TextView) findViewById(R.id.primCategory_view_view);
         servingsView = (TextView) findViewById(R.id.servings_view_view);
         preparationTimeView = (TextView) findViewById(R.id.prep_time_view);
@@ -59,12 +62,9 @@ public class ViewRecipe extends AppCompatActivity {
         // get recipe name and email through intent
         recipeName = "Strawberry Shortcake";
         userEmail="haleyiron@gmail.com";
-        recipeID = "20d39724-3b56-4015-b965-cd14ba8d3f25";
+        recipeID = "ceed3e46-da8c-4ffa-aa1d-51d41b8e2fe6";
 
         retrieveRecipe();
-
-        setViews();
-
     }
 
     @Override
@@ -83,21 +83,27 @@ public class ViewRecipe extends AppCompatActivity {
 
     public void setViews(){
 
-        // primCategoryView.setText("Pasta");
-        // servingsView.setText("");
-        // preparationTimeView.setText("");
-        // ovenTimeView.setText("");
-        // ovenTempView.setText("");
-        // caloriesView.setText("");
-        // instructionsView.setText("");
+        // primCategoryView.setText(recipe.getPrimaryCategory().categoryName);
+        recipeNameView.setText(recipe.getRecipeName());
+        servingsView.setText(Integer.toString(recipe.getServings()));
+        preparationTimeView.setText(Integer.toString(recipe.getPreparationTime()));
+        ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
+        ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+        caloriesView.setText(Integer.toString(recipe.getCalories()));
+        instructionsView.setText(recipe.getInstructions());
     }
 
     public void addIngredientView(){
 
     }
 
-    public void onBackgroundTaskObtainedRecipe(String x){
+    public void onBackgroundTaskObtainedRecipe(Recipe r){
 
+        recipe = r;
+
+        System.out.println("in on bachground task complete: " + recipe.getInstructions());
+
+        setViews();
     }
 
 
@@ -130,7 +136,6 @@ public class ViewRecipe extends AppCompatActivity {
 
             try{
 
-
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveRecipe");
 
                 // generate json object to pass data
@@ -149,23 +154,18 @@ public class ViewRecipe extends AppCompatActivity {
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
                 connection.setFixedLengthStreamingMode(data.getBytes().length);
-
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
-                System.out.println("now maybe");
-
                 connection.connect();
 
-                System.out.println("connection established");
+                System.out.println("Connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(data.getBytes());
                 outputStream.flush();
 
                 int responseCode = connection.getResponseCode();
-
-                System.out.println("made it to here");
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
@@ -180,9 +180,6 @@ public class ViewRecipe extends AppCompatActivity {
                 }
 
                 System.out.println("result string: " + result);
-
-
-
 
             }catch(Exception ioe){
                 ioe.printStackTrace();
@@ -205,11 +202,14 @@ public class ViewRecipe extends AppCompatActivity {
 
             try{
 
-                // parse data
+                Recipe recipe = ParseJSON.parseJSONRecipe(data, recipeName, recipeId);
 
-                // ViewRecipe.this.onBackgroundTaskObtainedRecipe(recipeObject);
+                System.out.println("Calories" + recipe.getCalories());
+                System.out.println("oven time" + recipe.getOvenTime());
+                System.out.println("instr: " + recipe.getInstructions());
 
-                //System.out.println("in string form: " + stringResult);
+                ViewRecipe.this.onBackgroundTaskObtainedRecipe(recipe);
+
             }catch(Exception e) {
 
             }

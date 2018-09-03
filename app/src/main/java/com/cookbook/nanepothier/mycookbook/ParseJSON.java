@@ -1,6 +1,7 @@
 package com.cookbook.nanepothier.mycookbook;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
@@ -48,6 +49,65 @@ public class ParseJSON {
         }
 
         return stringResult;
+    }
+
+    public static Recipe parseJSONRecipe(String jsonData, String recipeName, String recipeId){
+
+        Recipe recipe = new Recipe(recipeName, recipeId);
+
+        try{
+
+            JSONObject json = new JSONObject(jsonData);
+
+            recipe.setServings(json.getInt("servings"));
+            recipe.setCalories(json.getInt("calories"));
+            recipe.setOvenTime(json.getInt("oven_time"));
+            recipe.setOvenTemperature(json.getInt("oven_temp"));
+            recipe.setInstructions(json.getString("instructions"));
+            recipe.setPreparationTime(json.getInt("prep_time"));
+            recipe.setTotalTime(json.getInt("total_time"));
+
+            JSONArray ingredientsArray;
+            ingredientsArray = json.getJSONArray("ingredients");
+            JSONObject ingObject;
+
+            for(int i = 0; i < ingredientsArray.length(); i++){
+
+                Ingredient ingredient = new Ingredient();
+
+                ingObject = ingredientsArray.getJSONObject(i);
+                ingredient.setName(ingObject.getString("ingredient_name"));
+                ingredient.setQuantity(ingObject.getString("quantity"));
+                ingredient.setQuantityUnit(ingObject.getString("quantity_unit"));
+
+                System.out.println("ingredient name in json: " + ingObject.getString("ingredient_name"));
+
+                recipe.addIngredient(ingredient);
+            }
+
+            JSONArray categoryArray;
+            categoryArray = json.getJSONArray("categories");
+            JSONObject catObject;
+
+            for(int j = 0; j < categoryArray.length(); j++){
+
+                Category category = new Category();
+
+                catObject = categoryArray.getJSONObject(j);
+                category.setName(catObject.getString("category"));
+                category.setCategory(catObject.getString("primary"));
+
+                System.out.println("category name in json: " + catObject.getString("category"));
+
+                recipe.addCategory(category);
+            }
+
+
+        }catch(JSONException jsonException){
+            jsonException.printStackTrace();
+        }
+
+        return recipe;
     }
 
 

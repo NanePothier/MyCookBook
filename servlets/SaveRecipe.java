@@ -13,8 +13,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 /**
  * Servlet implementation class SaveRecipe
@@ -34,7 +34,6 @@ public class SaveRecipe extends HttpServlet {
 		
 	}
 
-	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String line = "";
@@ -48,6 +47,8 @@ public class SaveRecipe extends HttpServlet {
 		int totalTime;
 		String ingredientName, quantityUnit;
 		int quantity;
+		Connection connection = null;
+		PreparedStatement queryStatement = null;
 		
 		try {
 			
@@ -59,6 +60,7 @@ public class SaveRecipe extends HttpServlet {
 			
 			JSONObject jsonObject = new JSONObject(result);
 			
+			// retrieve data sent
 			userEmail = jsonObject.getString("userEmail");
 			uniqueUserId = jsonObject.getString("unique");
 			recipeName = jsonObject.getString("name");
@@ -73,29 +75,62 @@ public class SaveRecipe extends HttpServlet {
 			totalTime = prepTime + ovenTime;
 			numIngredients = ingredientJsonArray.length();
 			
+			// get current date
 			Calendar calendar = Calendar.getInstance();
 			java.util.Date currentDate = calendar.getTime();
 			java.sql.Date date = new java.sql.Date(currentDate.getTime());
 			String currDate = date.toString();
 			
-			LOGGER.info("number of servings: " + servings);
-			
-			Connection connection = null;
-			Statement queryStatement = null;
+			LOGGER.info("Recipe Name: " + recipeName);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
 			
-			String recipeString = "INSERT INTO recipes VALUES('uniqueUserId', 'recipeName', 'servings', 'prepTime', 'totalTime', 'ovenTime', 'ovenTemp', 'numIngredients', 'calories', 'instructions', 'currDate');";
-			String recCatString = "INSERT INTO recipecategory VALUES('uniqueUserId', 'primCategory', 'y')";
-			String userRecString = "INSERT INTO userrecipes VALUES('userEmail', 'uniqueUserId')";
-			String ingString = "INSERT INTO recipeingredients VALUES('uniqueUserId', 'ingredientName', 'quantity', 'quantityUnit')";
+			// store general recipe attributes
+			String recipeString = "INSERT INTO recipes VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			queryStatement = connection.prepareStatement(recipeString);
 			
-			queryStatement = connection.createStatement();
+			queryStatement.setString(1, uniqueUserId);
+			queryStatement.setString(2, recipeName);
+			queryStatement.setInt(3, servings);
+			queryStatement.setInt(4, prepTime);
+			queryStatement.setInt(5, totalTime);
+			queryStatement.setInt(6, ovenTime);
+			queryStatement.setInt(7, ovenTemp);
+			queryStatement.setInt(8, numIngredients);
+			queryStatement.setInt(9, calories);
+			queryStatement.setString(10, instructions);
+			queryStatement.setString(11, currDate);
 			
-			queryStatement.executeQuery(recipeString);
-			queryStatement.executeQuery(recCatString);
-			queryStatement.executeQuery(userRecString);
+			queryStatement.executeUpdate();
+			queryStatement.close();
+			
+			// store recipe-primary category connection
+			String recCatString = "INSERT INTO recipecategory VALUES(?, ?, ?)";	
+			queryStatement = connection.prepareStatement(recCatString);
+			
+			queryStatement.setString(1, uniqueUserId);
+			queryStatement.setString(2, primaryCategory);
+			queryStatement.setString(3, "y");
+			
+			queryStatement.executeUpdate();
+			queryStatement.close();
+			
+			// store user recipe connection
+			String userRecString = "INSERT INTO userrecipes VALUES(?, ?)";
+			queryStatement = connection.prepareStatement(userRecString);
+			
+			queryStatement.setString(1, userEmail);
+			queryStatement.setString(2, uniqueUserId);
+			
+			queryStatement.executeUpdate();
+			queryStatement.close();
+			
+			// store ingredients for this recipe
+			String ingString = "INSERT INTO recipeingredients VALUES(?, ?, ?, ?)";
+			queryStatement = connection.prepareStatement(ingString);
+			queryStatement.setString(1, uniqueUserId);
+			
 			
 			for(int x = 0; x < ingredientJsonArray.length(); x++) {
 				
@@ -105,12 +140,16 @@ public class SaveRecipe extends HttpServlet {
 				quantity = Integer.parseInt(object.getString("quantity"));
 				quantityUnit = object.getString("quantity_unit");
 				
-				queryStatement.executeQuery(ingString);
+				queryStatement.setString(2, ingredientName);
+				queryStatement.setInt(3, quantity);
+				queryStatement.setString(4, quantityUnit);
+				
+				queryStatement.executeUpdate();
 			}
 			
-			LOGGER.info("sending back response to app now");
+			LOGGER.info("Sending back response to app now");
 			
-			// return response
+			// return response to app
 			JSONObject responseObject = new JSONObject();
 			responseObject.put("successIndicator", responseToApp);
 			
@@ -127,6 +166,21 @@ public class SaveRecipe extends HttpServlet {
 			ex.printStackTrace();
 		}catch(ClassNotFoundException en) {
 			en.printStackTrace();
+		}finally {
+			
+			try {
+				
+				if(queryStatement != null) {
+					queryStatement.close();
+				}
+				
+				if(connection != null) {
+					connection.close();
+				}
+			}catch(SQLException s) {
+				s.printStackTrace();
+			}
+			
 		}
 	}
 

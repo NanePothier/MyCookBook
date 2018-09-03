@@ -212,8 +212,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     }
 
-
-    // TODO: change category to spinner item
     // method invoked by appbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
@@ -295,7 +293,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         String recipeName;
         ArrayList<Ingredient> ingredients;
-        String ingredient;
         String primCategory;
         Integer prepTime, ovenTime, ovenTemp, servings, calories;
         String instructions;
@@ -337,7 +334,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     uniqueID = UUID.randomUUID().toString();
                     System.out.println("Unique ID generated: " + uniqueID);
 
-                    System.out.println("Recipe data being passed: " + user + " " + recipeName + " " + ingredient + " " + primCategory);
+                    System.out.println("Recipe data being passed: " + user + " " + recipeName + " " + primCategory);
                     System.out.println(" More data: " + prepTime + " " + ovenTime + " " + ovenTemp);
 
                     for(int x = 0; x < ingredients.size(); x++){
@@ -428,9 +425,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 System.out.println("Everything was stored successfully. ");
 
-                //startActivity(new Intent(NewRecipe.this, MainActivity.class));
+                startActivity(new Intent(NewRecipe.this, MainActivity.class));
             }else{
-
                 System.out.println("Storing of data was not successful");
             }
         } // end onPostExecute
