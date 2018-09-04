@@ -33,7 +33,10 @@ public class MainActivity extends AppCompatActivity {
         newRecipeBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                startActivity(new Intent(MainActivity.this, NewRecipe.class));
+
+                Intent intent = new Intent(MainActivity.this, NewRecipe.class);
+                intent.putExtra("StatusIndicator", "NewRecipe");
+                startActivity(intent);
             }
         });
 

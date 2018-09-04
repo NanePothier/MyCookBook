@@ -102,6 +102,7 @@ public class ViewRecipe extends AppCompatActivity {
             case R.id.edit_action:
 
                 Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
+                intent.putExtra("StatusIndicator", "EditRecipe");
                 intent.putExtra("RecipeToEdit", recipe);
                 startActivity(intent);
 

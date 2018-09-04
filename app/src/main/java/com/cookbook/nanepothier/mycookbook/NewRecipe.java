@@ -11,10 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import javax.sql.*;
@@ -30,7 +27,7 @@ import java.util.UUID;
 public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private String userEmail = "haleyiron@gmail.com";
-    private Integer numIngredients = 1;
+    private String statusIndicator;
 
     // views
     private EditText recipeNameView;
@@ -41,12 +38,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private EditText ovenTempView;
     private EditText caloriesView;
     private EditText instructionView;
-    private EditText amountView;
-    private EditText amountView2;
+    private EditText amountView, amountView2, amountView3;
+
+    private AutoCompleteTextView autoCompIngredient1;
+    private AutoCompleteTextView autoCompIngredient2;
+    private AutoCompleteTextView autoCompIngredient3;
 
     private SaveTask saveTask;
     private GetItemsTask ingTask;
     private GetItemsTask catTask;
+
+    private Recipe recipe;
 
     // spinners
     private Spinner spinner;
@@ -54,6 +56,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     private Spinner spinnerMeasurements;
     private Spinner spinnerMeasurements2;
+    private Spinner spinnerMeasurements3;
 
     private Spinner categorySpinner;
 
@@ -63,8 +66,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     public static ArrayList<String> listIngredients;
     private ArrayList<Spinner> ingredientSpinners;
     private ArrayList<Spinner> measurementSpinners;
-    private ArrayList<String> quantityViews;
+    private ArrayList<String> quantitiesArray;
 
+    private Intent intentReceived;
+    private ArrayAdapter<String> ingredientAdapter;
+    private ArrayList<Ingredient> ingredientArray;
+    private ArrayList<Category> categoryArray;
+
+    private TableLayout tableLayoutIngredients;
 
 
     @Override
@@ -83,41 +92,187 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         ovenTempView = (EditText) findViewById(R.id.oven_temp);
         caloriesView = (EditText) findViewById(R.id.calories);
         instructionView = (EditText) findViewById(R.id.editText);
+
+        // ingredient views
+        autoCompIngredient1 = findViewById(R.id.auto_complete_view1);
+        autoCompIngredient2 = findViewById(R.id.auto_complete_view2);
+        autoCompIngredient3 = findViewById(R.id.auto_complete_view3);
+
+        // quantity views
         amountView = (EditText) findViewById(R.id.quantity1);
         amountView2 = (EditText) findViewById(R.id.quantity2);
+        amountView3 = (EditText) findViewById(R.id.quantity3);
+
+        // quantity unit views
+        spinnerMeasurements = (Spinner) findViewById(R.id.measurement1);
+        spinnerMeasurements2 = (Spinner) findViewById(R.id.measurement2);
+        spinnerMeasurements3 = (Spinner) findViewById(R.id.measurement3);
+
+        // set listeners on measurement spinners
+        spinnerMeasurements.setOnItemSelectedListener(this);
+        spinnerMeasurements2.setOnItemSelectedListener(this);
+        spinnerMeasurements3.setOnItemSelectedListener(this);
+
+        categorySpinner = (Spinner) findViewById(R.id.category_spinner);
+
+        tableLayoutIngredients = (TableLayout) findViewById(R.id.table_layout_ingredients);
 
         // ArrayLists
         listIngredients = new ArrayList<>();
         USMeasurements = new ArrayList<>();
         MetricMeasurements = new ArrayList<>();
         measurementSpinners = new ArrayList<>();
-        ingredientSpinners = new ArrayList<>();
-        quantityViews = new ArrayList<>();
+        // ingredientSpinners = new ArrayList<>();
+        quantitiesArray = new ArrayList<>();
+        ingredientArray = new ArrayList<>();
+        categoryArray = new ArrayList<>();
 
+        /*
         spinner = (Spinner) findViewById(R.id.spinner);
         spinner2 = (Spinner) findViewById(R.id.spinner2);
         spinner.setOnItemSelectedListener(this);
         spinner2.setOnItemSelectedListener(this);
-
-        spinnerMeasurements = (Spinner) findViewById(R.id.measurement1);
-        spinnerMeasurements2 = (Spinner) findViewById(R.id.measurement2);
-        spinnerMeasurements.setOnItemSelectedListener(this);
-        spinnerMeasurements2.setOnItemSelectedListener(this);
-
-        categorySpinner = (Spinner) findViewById(R.id.category_spinner);
+        */
 
         createUSMeasurementList();
 
-        ingredientSpinners.add(spinner);
-        ingredientSpinners.add(spinner2);
+        // ingredientSpinners.add(spinner);
+        // ingredientSpinners.add(spinner2);
 
         measurementSpinners.add(spinnerMeasurements);
         measurementSpinners.add(spinnerMeasurements2);
 
         setSpinners(measurementSpinners, USMeasurements);
 
+        // get data passed to this activity
+        intentReceived = getIntent();
+        statusIndicator = intentReceived.getExtras().getString("StatusIndicator");
+
+        // get ingredients and categories from database
         getIngredients();
         getCategories();
+
+        // is user is trying to edit existing recipe, fill in views with recipe data
+        if(statusIndicator.equals("EditRecipe")){
+
+            displayRecipe();
+        }
+    }
+
+    public void displayRecipe(){
+
+        recipe = (Recipe) intentReceived.getExtras().get("RecipeToEdit");
+
+        recipeNameView.setText(recipe.getRecipeName());
+        categorySpinner.setSelection(0);
+        servingsView.setText(Integer.toString(recipe.getServings()));
+        prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
+        ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
+        ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+        instructionView.setText(recipe.getInstructions());
+
+        setIngredientViews();
+        setCategoryViews();
+    }
+
+    public void setIngredientViews(){
+
+        ingredientArray = recipe.getIngredientArray();
+
+        if(ingredientArray.size() >= 3){
+
+            // TODO: display correct units
+
+            autoCompIngredient1.setText(ingredientArray.get(0).getName());
+            amountView.setText(ingredientArray.get(0).getQuantity());
+            spinnerMeasurements.setSelection(getUnitIndex(ingredientArray.get(0).getQuantityUnit(), "us"));
+
+            autoCompIngredient2.setText(ingredientArray.get(1).getName());
+            amountView2.setText(ingredientArray.get(1).getQuantity());
+            spinnerMeasurements2.setSelection(getUnitIndex(ingredientArray.get(1).getQuantityUnit(), "us"));
+
+            autoCompIngredient3.setText(ingredientArray.get(2).getName());
+            amountView3.setText(ingredientArray.get(2).getQuantity());
+            spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
+
+            TableRow tableRow;
+            int count = 4;
+            TextView countCol;
+            AutoCompleteTextView autoView;
+            EditText editText;
+            Spinner mSpinner;
+
+            for(int x = 3; x < ingredientArray.size(); x++){
+
+                tableRow = new TableRow(this);
+                tableRow.setId(count);
+                tableRow.setPadding(5, 5, 5, 5);
+                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+                countCol = new TextView(this);
+                countCol.setText(count + ".");
+                countCol.setTextSize(15);
+                countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+                tableRow.addView(countCol);
+
+                autoView = new AutoCompleteTextView(this);
+                autoView.setText(ingredientArray.get(x).getName());
+                autoView.setTextSize(15);
+                autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+                tableRow.addView(autoView);
+
+                editText = new EditText(this);
+                editText.setText(ingredientArray.get(x).getQuantity());
+                editText.setTextSize(15);
+                editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+                tableRow.addView(editText);
+
+                mSpinner = new Spinner(this);
+                mSpinner.setSelection(getUnitIndex(ingredientArray.get(x).getQuantityUnit(), "us"));
+                mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+                tableRow.addView(mSpinner);
+            }
+        }
+    }
+
+    public int getUnitIndex(String unit, String system){
+
+        if(system.equals("us")){
+
+            switch(unit){
+
+                case "pound":
+                    return 0;
+                case "oz":
+                    return 1;
+                case "cup":
+                    return 2;
+                default:
+                    return 2;
+            }
+
+        }else if(system.equals("metric")){
+
+            switch(unit){
+
+                case "g":
+                    return 0;
+                case "kg":
+                    return 1;
+                case "ml":
+                    return 2;
+                case "L":
+                    return 3;
+                default:
+                    return 0;
+            }
+        }
+
+        return -1;
+    }
+
+    public void setCategoryViews(){
+
     }
 
     public void setSpinners(ArrayList<Spinner> spinners, ArrayList<String> stringList){
@@ -131,14 +286,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     public void createUSMeasurementList(){
-
         USMeasurements.add("pound");
         USMeasurements.add("oz");
         USMeasurements.add("cup");
     }
 
     public void createMetricMeasurementList(){
-
         MetricMeasurements.add("g");
         MetricMeasurements.add("kg");
         MetricMeasurements.add("ml");
@@ -179,12 +332,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
 
-        for(int z = 0; z < ingredients.size(); z++){
+        ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
 
-            System.out.println("Back in main activity: " + ingredients.get(z));
+        if(statusIndicator.equals("NewRecipe")){
+
+            autoCompIngredient1.setAdapter(ingredientAdapter);
+            autoCompIngredient2.setAdapter(ingredientAdapter);
+            autoCompIngredient3.setAdapter(ingredientAdapter);
+
         }
-
-        setSpinners(ingredientSpinners, ingredients);
     }
 
     private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
@@ -237,8 +393,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 Integer calories = Integer.parseInt(caloriesView.getText().toString());
                 String instructions = instructionView.getText().toString();
 
-                quantityViews.add((amountView.getText()).toString());
-                quantityViews.add((amountView2.getText()).toString());
+                quantitiesArray.add((amountView.getText()).toString());
+                quantitiesArray.add((amountView2.getText()).toString());
 
                 ArrayList<Ingredient> ingredients = new ArrayList<>();
 
@@ -248,7 +404,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     Ingredient ing = new Ingredient();
 
                     ing.setName(ingredientSpinners.get(i).getSelectedItem().toString());
-                    ing.setQuantity(quantityViews.get(i));
+                    ing.setQuantity(quantitiesArray.get(i));
                     ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
 
                     ingredients.add(ing);

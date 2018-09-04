@@ -63,7 +63,7 @@
            <TableLayout
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
-                   android:id="@+id/table_layout"
+                   android:id="@+id/table_layout_ingredients"
                    android:layout_marginTop="20dp"
                    android:background="@color/grey"
                    app:layout_constraintTop_toBottomOf="@id/ingredient_label"
@@ -74,12 +74,21 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                   <Spinner
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:id="@+id/spinner"
-                           android:layout_weight="0.5"
-                           android:textSize="8dp"
+                   <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.1"
+                        android:text="1."
+                        android:textSize="15dp"
+                   />
+
+                   <AutoCompleteTextView
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0f"
+                        android:id="@+id/auto_complete_view1"
+
                    />
 
                    <EditText
@@ -96,15 +105,27 @@
                            android:id="@+id/measurement1"
                            android:layout_weight="0.5"
                    />
-
                </TableRow>
 
-               <TableRow>
+               <TableRow
+                       android:id="@+id/row2"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content">
 
-                   <Spinner
+                   <TextView
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:id="@+id/spinner2"
+                           android:layout_weight="0.1"
+                           android:text="2."
+                           android:textSize="15dp"
+                   />
+
+                   <AutoCompleteTextView
+
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:layout_weight="1.0f"
+                           android:id="@+id/auto_complete_view2"
                    />
 
                    <EditText
@@ -120,6 +141,39 @@
                    />
                </TableRow>
 
+               <TableRow
+                       android:id="@+id/row3"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content">
+
+                   <TextView
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:layout_weight="0.1"
+                           android:text="3."
+                           android:textSize="15dp"
+                   />
+
+                   <AutoCompleteTextView
+
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:layout_weight="1.0f"
+                           android:id="@+id/auto_complete_view3"
+                   />
+
+                   <EditText
+                           android:layout_width="20dp"
+                           android:layout_height="wrap_content"
+                           android:id="@+id/quantity3"
+                   />
+
+                   <Spinner
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:id="@+id/measurement3"
+                   />
+               </TableRow>
            </TableLayout>
 
             <TextView
@@ -130,7 +184,7 @@
                     android:layout_marginTop="20dp"
                     android:textSize="15dp"
                     android:textStyle="bold"
-                    app:layout_constraintTop_toBottomOf="@+id/table_layout"
+                    app:layout_constraintTop_toBottomOf="@+id/table_layout_ingredients"
                     app:layout_constraintStart_toStartOf="parent"
                     />
 
