@@ -32,7 +32,7 @@
                 android:textSize="20dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -45,8 +45,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/ingredient_label_view"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="65dp"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
         />
@@ -56,70 +57,8 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/table_layout_view"
                 android:layout_marginTop="20dp"
-                android:background="@color/grey"
                 app:layout_constraintTop_toBottomOf="@id/ingredient_label_view"
                 app:layout_constraintStart_toStartOf="parent">
-
-            <TableRow
-                    android:id="@+id/row1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                <EditText
-                        android:layout_width="210dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/ingredient1_view"
-                        android:textSize="15dp"
-                        android:text="Pineapple"
-                />
-
-                <EditText
-                        android:layout_width="45dp"
-                        android:maxLength="4"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/quantity1_view"
-                        android:text="200"
-                        android:textSize="15dp"
-                />
-
-                <EditText
-                        android:layout_width="70dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/measurement1_view"
-                        android:text="gramm"
-                        android:textSize="15dp"
-                />
-
-            </TableRow>
-
-            <TableRow>
-
-                <EditText
-                        android:layout_width="210dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/ingredient2_view"
-                        android:text="Strawberry"
-                        android:textSize="15dp"
-
-
-                />
-
-                <EditText
-                        android:layout_width="45dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/quantity2_view"
-                        android:text="100"
-                        android:textSize="15dp"
-                />
-
-                <EditText
-                        android:layout_width="70dp"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/measurement2_view"
-                        android:text="gramm"
-                        android:textSize="15dp"
-                />
-            </TableRow>
         </TableLayout>
 
 
@@ -132,6 +71,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 android:layout_marginTop="24dp"
                 android:textSize="15dp"
+                android:textStyle="bold"
         />
 
         <TextView
@@ -149,11 +89,34 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/other_cat_label_view"
+                app:layout_constraintTop_toBottomOf="@id/prim_cat_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="24dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:visibility="gone"
+        />
+
+        <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/table_layout_view_categories"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/other_cat_label_view"
+                app:layout_constraintStart_toStartOf="parent">
+        </TableLayout>
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Servings:"
                 android:id="@+id/servings_label_view_view"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/prim_cat_label_view"
+                app:layout_constraintTop_toBottomOf="@id/table_layout_view_categories"
                 android:layout_marginTop="20dp"/>
 
         <TextView
@@ -164,7 +127,7 @@
                 android:layout_weight="1"
                 android:layout_marginLeft="90dp"
                 android:textSize="15dp"
-                app:layout_constraintTop_toBottomOf="@id/primCategory_view_view"
+                app:layout_constraintTop_toBottomOf="@id/table_layout_view_categories"
                 app:layout_constraintStart_toEndOf="@id/servings_label_view_view"
                 android:layout_marginTop="20dp"
         />
@@ -175,6 +138,7 @@
                 android:text="Preparation Time:"
                 android:id="@+id/prep_time_label_view"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/servings_label_view_view"
                 android:layout_marginTop="20dp"
@@ -196,10 +160,23 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="minutes"
+                android:textSize="15dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                app:layout_constraintStart_toEndOf="@id/prep_time_view"
+                app:layout_constraintTop_toBottomOf="@id/servings_view_view"
+
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Oven Time:"
                 android:id="@+id/oven_time_label_view"
                 android:layout_marginTop="20dp"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/prep_time_label_view"
                 app:layout_constraintStart_toStartOf="parent"
         />
@@ -218,10 +195,23 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="minutes"
+                android:textSize="15dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                app:layout_constraintStart_toEndOf="@id/oven_time_view"
+                app:layout_constraintTop_toBottomOf="@id/prep_time_view"
+
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Oven Temperature:"
                 android:id="@+id/oven_temp_label_view"
                 android:layout_marginTop="20dp"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/oven_time_label_view"
                 app:layout_constraintStart_toStartOf="parent"
         />
@@ -240,10 +230,23 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="degrees F"
+                android:textSize="15dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                app:layout_constraintStart_toEndOf="@id/oven_temp_view"
+                app:layout_constraintTop_toBottomOf="@id/oven_time_view"
+
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Calories/Serving:"
                 android:id="@+id/calories_label_view"
                 android:layout_marginTop="20dp"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/oven_temp_label_view"
                 app:layout_constraintStart_toStartOf="parent"
         />
@@ -266,6 +269,7 @@
                 android:id="@+id/instructions_label_view"
                 android:layout_marginTop="20dp"
                 android:textSize="15dp"
+                android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/calories_label_view"
                 app:layout_constraintStart_toStartOf="parent"
         />
@@ -274,7 +278,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/instructions_view"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="15dp"
                 android:textSize="15dp"
                 app:layout_constraintTop_toBottomOf="@id/instructions_label_view"
                 app:layout_constraintStart_toStartOf="parent"

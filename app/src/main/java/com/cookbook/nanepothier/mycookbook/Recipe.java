@@ -1,20 +1,21 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Recipe {
+public class Recipe implements Serializable{
 
-    String recipeName;
-    String recipeId;
-    int servings;
-    int preparationTime;
-    int ovenTime;
-    int ovenTemperature;
-    int calories;
-    String instructions;
-    int totalTime;
-    ArrayList<Ingredient> ingredients = new ArrayList<>();
-    ArrayList<Category> categories = new ArrayList<>();
+    private String recipeName;
+    private String recipeId;
+    private int servings;
+    private int preparationTime;
+    private int ovenTime;
+    private int ovenTemperature;
+    private int calories;
+    private String instructions;
+    private int totalTime;
+    private ArrayList<Ingredient> ingredients = new ArrayList<>();
+    private ArrayList<Category> categories = new ArrayList<>();
 
     public Recipe(){}
 
@@ -37,8 +38,20 @@ public class Recipe {
         this.totalTime = totalTime;
     }
 
+    public void setRecipeName(String name){
+        recipeName = name;
+    }
+
     public String getRecipeName(){
         return recipeName;
+    }
+
+    public void setRecipeId(String id){
+        recipeId = id;
+    }
+
+    public String getRecipeId(){
+        return recipeId;
     }
 
     public void setServings(int s){
@@ -124,12 +137,10 @@ public class Recipe {
         Category prim = null;
 
         for(int x = 0; x < categories.size(); x++){
-
             if(categories.get(x).getCategory()){
                 prim = categories.get(x);
             }
         }
-
         return prim;
     }
 

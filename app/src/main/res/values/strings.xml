@@ -41,4 +41,7 @@
     <string name="calories">Calories/Serving:</string>
     <string name="instructions">Instructions:</string>
 
+    <string name="delete_user_msg">Recipe was successfully deleted.</string>
+    <string name="share_user_msg">Recipe sent.</string>
+
 </resources>

@@ -97,7 +97,7 @@ public class ParseJSON {
                 category.setName(catObject.getString("category"));
                 category.setCategory(catObject.getString("primary"));
 
-                System.out.println("category name in json: " + catObject.getString("category"));
+                System.out.println("category flag in json: " + catObject.getString("primary"));
 
                 recipe.addCategory(category);
             }

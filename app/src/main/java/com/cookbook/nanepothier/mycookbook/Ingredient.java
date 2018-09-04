@@ -1,9 +1,11 @@
 package com.cookbook.nanepothier.mycookbook;
 
-public class Ingredient {
+import java.io.Serializable;
 
-    String ingredientName, quantityUnit;
-    String quantity;
+public class Ingredient implements Serializable{
+
+    private String ingredientName, quantityUnit;
+    private String quantity;
 
     public Ingredient(){}
 

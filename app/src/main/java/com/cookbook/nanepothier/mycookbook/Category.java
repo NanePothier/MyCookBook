@@ -1,9 +1,11 @@
 package com.cookbook.nanepothier.mycookbook;
 
-public class Category {
+import java.io.Serializable;
 
-    String categoryName;
-    Boolean primaryCategory;
+public class Category implements Serializable{
+
+    private String categoryName;
+    private Boolean primaryCategory;
 
     public Category(){}
 
@@ -11,7 +13,7 @@ public class Category {
 
         categoryName = catName;
 
-        if(primary.equals('y')){
+        if(primary.equals("y")){
             primaryCategory = true;
         }else{
             primaryCategory = false;
@@ -28,7 +30,7 @@ public class Category {
 
     public void setCategory(String c){
 
-        if(c.equals('y')){
+        if(c.equals("y")){
             primaryCategory = true;
         }else{
             primaryCategory = false;

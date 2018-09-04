@@ -1,27 +1,38 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class ViewRecipe extends AppCompatActivity {
 
+    enum Indicator{
+        SHARE, DELETE
+    }
+
     private String recipeName;
     private String userEmail;
-    private String recipeID;
+    private String recipeId;
     private Recipe recipe;
 
     private TextView recipeNameView;
@@ -32,6 +43,10 @@ public class ViewRecipe extends AppCompatActivity {
     private TextView ovenTempView;
     private TextView caloriesView;
     private TextView instructionsView;
+    private TextView otherCategoryView;
+
+    private TableLayout tableLayoutIngredients;
+    private TableLayout tableLayoutCategories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +73,14 @@ public class ViewRecipe extends AppCompatActivity {
         ovenTempView = (TextView) findViewById(R.id.oven_temp_view);
         caloriesView = (TextView) findViewById(R.id.calories_view);
         instructionsView = (TextView) findViewById(R.id.instructions_view);
+        otherCategoryView = (TextView) findViewById(R.id.other_cat_label_view);
+        tableLayoutIngredients = (TableLayout) findViewById(R.id.table_layout_view);
+        tableLayoutCategories = (TableLayout) findViewById(R.id.table_layout_view_categories);
 
         // get recipe name and email through intent
-        recipeName = "Strawberry Shortcake";
+        recipeName = "Fruit Salad";
         userEmail="haleyiron@gmail.com";
-        recipeID = "ceed3e46-da8c-4ffa-aa1d-51d41b8e2fe6";
+        recipeId = "3a39670a-0396-4827-a294-54b55a91dd84";
 
         retrieveRecipe();
     }
@@ -75,16 +93,58 @@ public class ViewRecipe extends AppCompatActivity {
         return true;
     }
 
+    // method invoked by appbar
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+
+        switch(item.getItemId()){
+
+            case R.id.edit_action:
+
+                Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
+                intent.putExtra("RecipeToEdit", recipe);
+                startActivity(intent);
+
+                return true;
+
+            case R.id.share_action:
+
+                // TODO: share recipe with other user
+
+                return true;
+
+            case R.id.delete_action:
+
+                MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId());
+                deleteTask.execute((String) null);
+
+                return true;
+
+            default:
+
+                return super.onOptionsItemSelected(item);
+        }
+
+    }
+
     public void retrieveRecipe(){
 
-        GetRecipeTask task = new GetRecipeTask(userEmail, recipeName, recipeID);
+        GetRecipeTask task = new GetRecipeTask(userEmail, recipeName, recipeId);
         task.execute();
     }
 
     public void setViews(){
 
-        // primCategoryView.setText(recipe.getPrimaryCategory().categoryName);
         recipeNameView.setText(recipe.getRecipeName());
+        addIngredientsToTableView();
+
+        // if there are other categories besides primary category
+        if(recipe.getCategoriesArray().size() > 1){
+            addCategoriesToTableView();
+        }
+
+        // set other views
+        primCategoryView.setText(recipe.getPrimaryCategory().getName());
         servingsView.setText(Integer.toString(recipe.getServings()));
         preparationTimeView.setText(Integer.toString(recipe.getPreparationTime()));
         ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
@@ -93,26 +153,89 @@ public class ViewRecipe extends AppCompatActivity {
         instructionsView.setText(recipe.getInstructions());
     }
 
-    public void addIngredientView(){
+    public void addIngredientsToTableView(){
 
+        ArrayList<Ingredient> arrayIngredients = recipe.getIngredientArray();
+        int count = 1;
+        TextView ingredientNameCol, quantityCol, quantityUnitCol, countCol;
+        TableRow tableRow;
+
+        // for each ingredient object create new row with three columns and add row to table
+        for(int x = 0; x < arrayIngredients.size(); x++){
+
+            tableRow = new TableRow(this);
+            tableRow.setId(count);
+            tableRow.setPadding(5, 5, 5, 5);
+            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+            countCol = new TextView(this);
+            countCol.setText(count + ".");
+            countCol.setTextSize(15);
+            countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+            tableRow.addView(countCol);
+
+            ingredientNameCol = new TextView(this);
+            ingredientNameCol.setText(arrayIngredients.get(x).getName());
+            ingredientNameCol.setTextSize(15);
+            ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+            tableRow.addView(ingredientNameCol);
+
+            quantityCol = new TextView(this);
+            quantityCol.setText(arrayIngredients.get(x).getQuantity());
+            quantityCol.setTextSize(15);
+            quantityCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+            tableRow.addView(quantityCol);
+
+            quantityUnitCol = new TextView(this);
+            quantityUnitCol.setText(arrayIngredients.get(x).getQuantityUnit());
+            quantityUnitCol.setTextSize(15);
+            quantityUnitCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.4f));
+            tableRow.addView(quantityUnitCol);
+
+            tableLayoutIngredients.addView(tableRow);
+            count++;
+        }
     }
 
+    public void addCategoriesToTableView(){
+
+        otherCategoryView.setVisibility(View.VISIBLE);
+        tableLayoutCategories.setVisibility(View.VISIBLE);
+        ArrayList<Category> arrayCategories = recipe.getCategoriesArray();
+        int count = 1;
+        TableRow tableRowCat;
+        TextView catNameCol;
+
+        for(int y = 0; y < arrayCategories.size(); y++) {
+
+            // if current category object is not the primary category create new row and add to table
+            if (!(arrayCategories.get(y).getCategory())) {
+
+                tableRowCat = new TableRow(this);
+                tableRowCat.setId(count);
+                tableRowCat.setPadding(5, 5, 5, 5);
+                tableRowCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+                catNameCol = new TextView(this);
+                catNameCol.setText(arrayCategories.get(y).getName());
+                catNameCol.setTextSize(15);
+                catNameCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+                tableRowCat.addView(catNameCol);
+
+                tableLayoutCategories.addView(tableRowCat);
+            }
+        }
+    }
+
+    // receive recipe object obtained from database by asynchronous background task
     public void onBackgroundTaskObtainedRecipe(Recipe r){
-
         recipe = r;
-
-        System.out.println("in on bachground task complete: " + recipe.getInstructions());
-
         setViews();
     }
 
-
-
+    // asynchronous background task getting recipe data from database
     public class GetRecipeTask extends AsyncTask<String, Void, String> {
 
-        ArrayList<String> listItems = new ArrayList<String>();
-        String itemIndicator;
-        String fileURL;
         String recipeName;
         String userEmail;
         String data;
@@ -203,17 +326,119 @@ public class ViewRecipe extends AppCompatActivity {
             try{
 
                 Recipe recipe = ParseJSON.parseJSONRecipe(data, recipeName, recipeId);
-
-                System.out.println("Calories" + recipe.getCalories());
-                System.out.println("oven time" + recipe.getOvenTime());
-                System.out.println("instr: " + recipe.getInstructions());
-
                 ViewRecipe.this.onBackgroundTaskObtainedRecipe(recipe);
 
             }catch(Exception e) {
-
+                e.printStackTrace();
             }
         }
     }
 
+    public class MenuTask extends AsyncTask<String, Void, String> {
+
+        Indicator indicator;
+        String recipeId;
+
+        public MenuTask(Indicator in, String id){
+            indicator = in;
+            recipeId = id;
+        }
+
+        @Override
+        protected String doInBackground(String... params){
+
+            String result = "";
+
+            if(indicator.equals(Indicator.DELETE)) {
+
+                String recipeInfo;
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                HttpURLConnection connection;
+                URL url = null;
+
+                try {
+                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteRecipe");
+
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("recipeId", recipeId);
+                    recipeInfo = jsonObject.toString();
+
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setReadTimeout(10000);
+                    connection.setConnectTimeout(15000);
+                    connection.setRequestMethod("POST");
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);
+                    connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
+                    connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                    connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                    connection.connect();
+                    System.out.println("Connection established");
+
+                    outputStream = new BufferedOutputStream(connection.getOutputStream());
+                    outputStream.write(recipeInfo.getBytes());
+                    outputStream.flush();
+
+                    int responseCode = connection.getResponseCode();
+
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                        inputStream = connection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            result += line;
+                        }
+                    }
+
+                } catch (Exception ioe) {
+                    ioe.printStackTrace();
+                } finally {
+
+                    try {
+                        outputStream.close();
+                        inputStream.close();
+
+                    } catch (IOException ie) {
+                        ie.printStackTrace();
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String data){
+
+            if(!(data.equals(""))){
+
+                String finalResult = ParseJSON.parseJSON(data);
+                System.out.println("in result string: " + finalResult);
+
+                if(indicator.equals(Indicator.DELETE)){
+                    if(finalResult.equals("deletedFirstSecondThirdFourth")){
+
+                        Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.delete_user_msg, Snackbar.LENGTH_SHORT)
+                                .show();
+
+                        startActivity(new Intent(ViewRecipe.this, Cookbook.class));
+                    }else{
+
+                    }
+                }else if(indicator.equals(Indicator.SHARE)){
+                    if(finalResult.equals("shared")){
+
+                        Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.share_user_msg, Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
+                }
+
+            }
+
+        }
+    }
 }
