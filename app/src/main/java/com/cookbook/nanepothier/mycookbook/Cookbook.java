@@ -26,7 +26,7 @@ public class Cookbook extends AppCompatActivity {
     private ArrayList<String> arrayUserCategories;
     private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
     private Map<String, ArrayList<String>> categoryRecipesMap;
-    private String user = "";
+    private String userEmail = "haleyiron@gmail.com";
     private RecyclerView recyclerView;
 
     @Override
@@ -48,15 +48,10 @@ public class Cookbook extends AppCompatActivity {
         // retrieve user recipes and categories recipes belong to
         arrayRecipeNames = new ArrayList<>();
         arrayUserCategories = new ArrayList<>();
-        getRecipeNames();
-        getUserCategories();
+        getRecipeNamesAndCategories();
+
 
         setUpRecyclerView();
-        populateRecyclerView();
-
-
-
-
 
         // LinearLayoutManager linearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipeNames);
@@ -71,6 +66,7 @@ public class Cookbook extends AppCompatActivity {
     }
 
     public void populateRecyclerView(){
+
         arrayHeaderRecipeModels = new ArrayList<>();
         String categoryName;
 
@@ -84,9 +80,9 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setAdapter(recyclerViewAdapter);
     }
 
-    public void getRecipeNames(){
+    public void getRecipeNamesAndCategories(){
 
-        GetItemsTask nameTask = new GetItemsTask("rec");
+        GetItemsTask nameTask = new GetItemsTask(userEmail);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             nameTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
@@ -95,34 +91,19 @@ public class Cookbook extends AppCompatActivity {
         }
     }
 
-    public void getUserCategories(){
+    public void onBackgroundTaskObtainedRecipeNamesAndCategories(Map<String, ArrayList<String>> map){
 
-        GetItemsTask userCatTask = new GetItemsTask("cat");
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-            userCatTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
-        }else{
-            userCatTask.execute((String) null);
-        }
+        categoryRecipesMap = map;
+        populateRecyclerView();
     }
-
-    public void onBackgroundTaskObtainedRecipeNames(ArrayList<String> names){
-        arrayRecipeNames = names;
-    }
-
-    public void onBackgroundTaskObtainedUserCategories(ArrayList<String> categories){
-        arrayUserCategories = categories;
-    }
-
 
     public class GetItemsTask extends AsyncTask<String, Void, String> {
 
         ArrayList<String> listItems = new ArrayList<String>();
-        String itemIndicator;
-        String fileURL;
+        String userEmail, data;
 
-        public GetItemsTask(String indicator){
-            itemIndicator = indicator;
+        public GetItemsTask(String email){
+            userEmail = email;
         }
 
         @Override
@@ -136,13 +117,11 @@ public class Cookbook extends AppCompatActivity {
 
             try{
 
-                if(itemIndicator.equals("rec")){
-                    url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/get_recipe_names.php");
-                    System.out.println("setting url for ingredients");
-                }else if(itemIndicator.equals("cat")){
-                    url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/retrieve_categories.php");
-                    System.out.println("setting url for categories task");
-                }
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetRecipeNames");
+
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("userEmail", userEmail);
+                data = jsonObject.toString();
 
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setReadTimeout(10000);
@@ -150,15 +129,17 @@ public class Cookbook extends AppCompatActivity {
                 connection.setRequestMethod("POST");
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
-
-                System.out.println("now maybe");
+                connection.setFixedLengthStreamingMode(data.getBytes().length);
+                connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
 
                 connection.connect();
 
-                System.out.println("connection established");
+                outputStream = new BufferedOutputStream(connection.getOutputStream());
+                outputStream.write(data.getBytes());
+                outputStream.flush();
 
                 int responseCode = connection.getResponseCode();
-
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
@@ -193,26 +174,16 @@ public class Cookbook extends AppCompatActivity {
         @Override
         protected void onPostExecute(String data){
 
+            Map<String, ArrayList<String>> map;
+
             try{
 
-                if(itemIndicator.equals("rec")){
-                    listItems = ParseJSON.parseJSONArray(data, "ingredient");
-                }else if(itemIndicator.equals("cat")){
-                    listItems = ParseJSON.parseJSONArray(data, "category");
-                }
+                // TODO: map
 
-                for(int x = 0; x < listItems.size(); x++ ){
-                    System.out.println("Item: " + listItems.get(x));
-                }
+                map = ParseJSON.parseJSONRecipeNameCategory(data);
 
-                if(itemIndicator.equals("rec")){
-                    Cookbook.this.onBackgroundTaskObtainedRecipeNames(listItems);
-                }else if(itemIndicator.equals("cat")){
-                    System.out.println("Calling categoies function to pass data back");
-                    Cookbook.this.onBackgroundTaskObtainedUserCategories(listItems);
-                }
+                onBackgroundTaskObtainedRecipeNamesAndCategories(map);
 
-                //System.out.println("in string form: " + stringResult);
             }catch(Exception e) {
 
             }

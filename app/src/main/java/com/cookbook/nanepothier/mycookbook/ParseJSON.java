@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class ParseJSON {
 
@@ -108,6 +109,15 @@ public class ParseJSON {
         }
 
         return recipe;
+    }
+
+    public static Map<String, ArrayList<String>> parseJSONRecipeNameCategory(String jsonData){
+
+        Map<String, ArrayList<String>> map = null;
+
+        return map;
+
+
     }
 
 

@@ -69,11 +69,19 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private ArrayList<String> quantitiesArray;
 
     private Intent intentReceived;
+
     private ArrayAdapter<String> ingredientAdapter;
+    private ArrayAdapter<String> categoryAdapter;
+    private ArrayAdapter<String> measurementAdapter;
+
     private ArrayList<Ingredient> ingredientArray;
     private ArrayList<Category> categoryArray;
 
     private TableLayout tableLayoutIngredients;
+    private TableLayout tableLayoutCategories;
+
+    private ImageView addIngredientImageView;
+    private ImageView addCategoryImageView;
 
 
     @Override
@@ -116,6 +124,23 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         categorySpinner = (Spinner) findViewById(R.id.category_spinner);
 
         tableLayoutIngredients = (TableLayout) findViewById(R.id.table_layout_ingredients);
+        tableLayoutCategories = (TableLayout) findViewById(R.id.table_layout_categories);
+
+        addIngredientImageView = (ImageView) findViewById(R.id.add_ingredient_circle);
+        addIngredientImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addIngredientRowToIngredientTable();
+            }
+        });
+
+        addCategoryImageView = (ImageView) findViewById(R.id.add_category_circle);
+        addCategoryImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addCategoryRowToCategoryTable();
+            }
+        });
 
         // ArrayLists
         listIngredients = new ArrayList<>();
@@ -141,22 +166,119 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         measurementSpinners.add(spinnerMeasurements);
         measurementSpinners.add(spinnerMeasurements2);
+        measurementSpinners.add(spinnerMeasurements3);
 
         setSpinners(measurementSpinners, USMeasurements);
 
         // get data passed to this activity
-        intentReceived = getIntent();
-        statusIndicator = intentReceived.getExtras().getString("StatusIndicator");
+        // intentReceived = getIntent();
+        statusIndicator = "NewRecipe";
+        // intentReceived.getExtras().getString("StatusIndicator");
 
         // get ingredients and categories from database
         getIngredients();
         getCategories();
 
-        // is user is trying to edit existing recipe, fill in views with recipe data
+        // if user is trying to edit existing recipe, fill in views with recipe data
         if(statusIndicator.equals("EditRecipe")){
 
             displayRecipe();
         }
+    }
+
+    public void addIngredientRowToIngredientTable(){
+
+        TableRow tableRow;
+        TextView countCol;
+        AutoCompleteTextView autoView;
+        EditText editText;
+        Spinner mSpinner;
+        ImageView deleteIngredientRowView;
+
+        Service.incrementIngredientViewCount();
+
+        tableRow = new TableRow(this);
+        tableRow.setPadding(5, 5, 5, 5);
+        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+        countCol = new TextView(this);
+        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+        tableRow.addView(countCol);
+
+        autoView = new AutoCompleteTextView(this);
+        autoView.setAdapter(ingredientAdapter);
+        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+        tableRow.addView(autoView);
+
+        editText = new EditText(this);
+        editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+        tableRow.addView(editText);
+
+        mSpinner = new Spinner(this);
+        mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+        mSpinner.setAdapter(measurementAdapter);
+        tableRow.addView(mSpinner);
+
+        deleteIngredientRowView = new ImageView(this);
+        deleteIngredientRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+        deleteIngredientRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
+        deleteIngredientRowView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // deleteIngredientRow();
+                // Service.decrementIngredientViewCount();
+            }
+        });
+
+        tableLayoutIngredients.addView(tableRow);
+    }
+
+    public void deleteIngredientRow(){
+
+
+    }
+
+    public void addCategoryRowToCategoryTable(){
+
+        TableRow tableRow;
+        TextView countCol;
+        AutoCompleteTextView autoCompCat;
+        ImageView deleteCategoryRowView;
+
+        Service.incrementCategoryViewCount();
+
+        tableRow = new TableRow(this);
+        tableRow.setPadding(5, 5, 5, 5);
+        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+        countCol = new TextView(this);
+        countCol.setText(Service.getCategoryViewCount() + ".");
+        countCol.setTextSize(15);
+        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+        tableRow.addView(countCol);
+
+        autoCompCat = new AutoCompleteTextView(this);
+        autoCompCat.setAdapter(categoryAdapter);
+        autoCompCat.setTextSize(15);
+        autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        tableRow.addView(autoCompCat);
+
+        deleteCategoryRowView = new ImageView(this);
+        deleteCategoryRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+        deleteCategoryRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
+        deleteCategoryRowView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // deleteCategoryRow();
+                // Service.decrementCategoryViewCount();
+            }
+        });
+
+        tableLayoutCategories.addView(tableRow);
+    }
+
+    public void deleteCategoryRow(){
+
     }
 
     public void displayRecipe(){
@@ -164,15 +286,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         recipe = (Recipe) intentReceived.getExtras().get("RecipeToEdit");
 
         recipeNameView.setText(recipe.getRecipeName());
-        categorySpinner.setSelection(0);
         servingsView.setText(Integer.toString(recipe.getServings()));
         prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
         ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
         ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
         instructionView.setText(recipe.getInstructions());
-
-        setIngredientViews();
-        setCategoryViews();
     }
 
     public void setIngredientViews(){
@@ -181,7 +299,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         if(ingredientArray.size() >= 3){
 
-            // TODO: display correct units
+            Service.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
             amountView.setText(ingredientArray.get(0).getQuantity());
@@ -196,11 +314,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
 
             TableRow tableRow;
-            int count = 4;
             TextView countCol;
             AutoCompleteTextView autoView;
             EditText editText;
             Spinner mSpinner;
+            int count = 4;
 
             for(int x = 3; x < ingredientArray.size(); x++){
 
@@ -216,6 +334,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 tableRow.addView(countCol);
 
                 autoView = new AutoCompleteTextView(this);
+                autoView.setAdapter(ingredientAdapter);
                 autoView.setText(ingredientArray.get(x).getName());
                 autoView.setTextSize(15);
                 autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
@@ -231,6 +350,50 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 mSpinner.setSelection(getUnitIndex(ingredientArray.get(x).getQuantityUnit(), "us"));
                 mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
                 tableRow.addView(mSpinner);
+
+                tableLayoutIngredients.addView(tableRow);
+                count++;
+            }
+        }
+    }
+
+    public void setCategoryViews(){
+
+        categoryArray = recipe.getCategoriesArray();
+
+        if(categoryArray.size() > 1){
+
+            Service.setCategoryViewCount(categoryArray.size());
+
+            TableRow tableRow;
+            int count = 2;
+            TextView countCol;
+            AutoCompleteTextView autoCompCat;
+
+            for(int x = 0; x < categoryArray.size(); x++){
+
+                if(!(categoryArray.get(x).getCategory())){
+
+                    tableRow = new TableRow(this);
+                    tableRow.setPadding(5, 5, 5, 5);
+                    tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
+                    countCol = new TextView(this);
+                    countCol.setText(count + ".");
+                    countCol.setTextSize(15);
+                    countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+                    tableRow.addView(countCol);
+
+                    autoCompCat = new AutoCompleteTextView(this);
+                    autoCompCat.setAdapter(categoryAdapter);
+                    autoCompCat.setText(categoryArray.get(x).getName());
+                    autoCompCat.setTextSize(15);
+                    autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                    tableRow.addView(autoCompCat);
+
+                    tableLayoutCategories.addView(tableRow);
+                    count++;
+                }
             }
         }
     }
@@ -271,17 +434,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         return -1;
     }
 
-    public void setCategoryViews(){
-
-    }
-
     public void setSpinners(ArrayList<Spinner> spinners, ArrayList<String> stringList){
 
         for(int x = 0; x < spinners.size(); x++){
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, stringList);
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinners.get(x).setAdapter(adapter);
+            measurementAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, stringList);
+            measurementAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinners.get(x).setAdapter(measurementAdapter);
         }
     }
 
@@ -334,25 +493,28 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
 
-        if(statusIndicator.equals("NewRecipe")){
+        autoCompIngredient1.setAdapter(ingredientAdapter);
+        autoCompIngredient2.setAdapter(ingredientAdapter);
+        autoCompIngredient3.setAdapter(ingredientAdapter);
 
-            autoCompIngredient1.setAdapter(ingredientAdapter);
-            autoCompIngredient2.setAdapter(ingredientAdapter);
-            autoCompIngredient3.setAdapter(ingredientAdapter);
-
+        if(statusIndicator.equals("EditRecipe")){
+            setIngredientViews();
         }
     }
 
     private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
 
-        for(int z = 0; z < categories.size(); z++){
-
-            System.out.println("Back in main activity categories: " + categories.get(z));
-        }
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
+
+        categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categories);
+
+        categorySpinner.setSelection(0);
+
+        if(statusIndicator.equals("EditRecipe")){
+            setCategoryViews();
+        }
     }
 
 
