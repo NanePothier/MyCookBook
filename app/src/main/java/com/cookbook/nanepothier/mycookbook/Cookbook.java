@@ -25,7 +25,7 @@ public class Cookbook extends AppCompatActivity {
     private ArrayList<String> arrayRecipeNames;
     private ArrayList<String> arrayUserCategories;
     private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
-    private Map<String, ArrayList<String>> categoryRecipesMap;
+    private Map<String, ArrayList<RecipeNameId>> categoryRecipesMap;
     private String userEmail = "haleyiron@gmail.com";
     private RecyclerView recyclerView;
 
@@ -71,7 +71,6 @@ public class Cookbook extends AppCompatActivity {
         String categoryName;
 
         for(int x = 0; x < arrayUserCategories.size(); x++){
-
             categoryName = arrayUserCategories.get(x);
             arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, categoryRecipesMap.get(categoryName)));
         }
@@ -91,7 +90,7 @@ public class Cookbook extends AppCompatActivity {
         }
     }
 
-    public void onBackgroundTaskObtainedRecipeNamesAndCategories(Map<String, ArrayList<String>> map){
+    public void onBackgroundTaskObtainedRecipeNamesAndCategories(Map<String, ArrayList<RecipeNameId>> map){
 
         categoryRecipesMap = map;
         populateRecyclerView();
@@ -99,7 +98,6 @@ public class Cookbook extends AppCompatActivity {
 
     public class GetItemsTask extends AsyncTask<String, Void, String> {
 
-        ArrayList<String> listItems = new ArrayList<String>();
         String userEmail, data;
 
         public GetItemsTask(String email){
@@ -174,18 +172,15 @@ public class Cookbook extends AppCompatActivity {
         @Override
         protected void onPostExecute(String data){
 
-            Map<String, ArrayList<String>> map;
+            Map<String, ArrayList<RecipeNameId>> recipeNameCategoryMap;
 
             try{
 
-                // TODO: map
-
-                map = ParseJSON.parseJSONRecipeNameCategory(data);
-
-                onBackgroundTaskObtainedRecipeNamesAndCategories(map);
+                recipeNameCategoryMap = ParseJSON.parseJSONRecipeNameCategory(data);
+                onBackgroundTaskObtainedRecipeNamesAndCategories(recipeNameCategoryMap);
 
             }catch(Exception e) {
-
+                e.printStackTrace();
             }
         }
     }

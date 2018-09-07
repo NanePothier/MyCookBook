@@ -651,9 +651,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_ingredient_action:
 
-
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
-                View ingredientPopupView = inflater.inflate(R.layout.new_ingredient_popup, null);
+                View ingredientPopupView = inflater.inflate(R.layout.new_item_popup, null);
                 ingredientPopup = new PopupWindow(ingredientPopupView, 100, 70);
 
                 if(Build.VERSION.SDK_INT>=21){
@@ -662,20 +661,64 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 ImageButton saveButton =(ImageButton) ingredientPopupView.findViewById(R.id.save_image_button);
                 ImageButton cancelButton = (ImageButton) ingredientPopupView.findViewById(R.id.cancel_image_button);
-                final EditText newIngredientView = (EditText) ingredientPopupView.findViewById(R.id.enter_ingredient_view);
+                final EditText newIngredientView = (EditText) ingredientPopupView.findViewById(R.id.enter_item_view);
+                final Spinner defaultSpinner = (Spinner) ingredientPopupView.findViewById(R.id.default_spinner);
+                TextView headingView = (TextView) findViewById(R.id.new_item_heading);
+                headingView.setText("New Ingredient");
 
                 saveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString());
+                        SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
                         ingredientTask.execute();
+                    }
+                });
+
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ingredientPopup.dismiss();
                     }
                 });
 
                 return true;
 
             case R.id.new_category_action:
+
+                LayoutInflater inflater1 = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+                View categoryPopupView = inflater1.inflate(R.layout.new_item_popup, null);
+                categoryPopup = new PopupWindow(categoryPopupView, 100, 70);
+
+                if(Build.VERSION.SDK_INT>=21){
+                    categoryPopup.setElevation(5.0f);
+                }
+
+                ImageButton saveCatButton = (ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
+                ImageButton cancelCatButton = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
+                final EditText newCategoryView = (EditText) categoryPopupView.findViewById(R.id.enter_item_view);
+                TextView defaultLabel = (TextView) categoryPopupView.findViewById(R.id.default_label);
+                defaultLabel.setVisibility(View.GONE);
+                Spinner defaultSpinner2 = (Spinner) categoryPopupView.findViewById(R.id.default_spinner);
+                defaultSpinner2.setVisibility(View.GONE);
+                TextView headingView2 = (TextView) categoryPopupView.findViewById(R.id.new_item_heading);
+                headingView2.setText("New Category");
+
+                saveCatButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "category");
+                        categoryTask.execute();
+                    }
+                });
+
+                cancelCatButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        categoryPopup.dismiss();
+                    }
+                });
 
                 return true;
 
@@ -684,105 +727,20 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         }
     }
 
-
     // check if required fields are filled out
     protected boolean checkRequiredFields() {
 
         if(recipeNameView.getText().length() > 0) {
-            return true;
+            if(autoCompIngredient1.getText().length() > 0 && autoCompIngredient2.getText().length() > 0 && autoCompIngredient3.getText().length() > 0){
+                return true;
+            }else{
+                autoCompIngredient3.setError("Recipe must have at least 3 ingredients");
+            }
+        }else{
+            recipeNameView.setError("Recipe needs a name");
         }
         return false;
     }
-
-    public class SaveItemTask extends AsyncTask<String, Void, String> {
-
-        String indicator, element;
-
-        public SaveItemTask(String ind, String item){
-
-            indicator = ind;
-            element = item;
-        }
-
-        @Override
-        protected String doInBackground(String... params){
-
-            InputStream inputStream = null;
-            OutputStream outputStream = null;
-            HttpURLConnection connection;
-            URL url = null;
-            String result = "";
-
-            try{
-
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveItem");
-
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("indicator", indicator);
-                jsonObject.put("item", element);
-                String send = jsonObject.toString();
-
-                connection = (HttpURLConnection) url.openConnection();
-                connection.setReadTimeout(10000);
-                connection.setConnectTimeout(15000);
-                connection.setRequestMethod("POST");
-                connection.setDoInput(true);
-                connection.setDoOutput(true);
-                connection.setFixedLengthStreamingMode(send.getBytes().length);
-                connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-                connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
-                connection.connect();
-                System.out.println("Connection established");
-
-                outputStream = new BufferedOutputStream(connection.getOutputStream());
-                outputStream.write(send.getBytes());
-                outputStream.flush();
-
-                int responseCode = connection.getResponseCode();
-
-                if(responseCode == HttpURLConnection.HTTP_OK){
-
-                    System.out.println("Connection is ok");
-                    inputStream = connection.getInputStream();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                    String line;
-
-                    while((line = reader.readLine())!= null){
-                        result += line;
-                    }
-                }
-
-                System.out.println("result string: " + result);
-
-            }catch(Exception ioe){
-                ioe.printStackTrace();
-            }finally{
-
-                try{
-                    if(inputStream != null){
-                        inputStream.close();
-                    }
-
-                    if(outputStream != null){
-                        outputStream.close();
-                    }
-
-                }catch(Exception ie){
-                    ie.printStackTrace();
-                }
-            }
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result){
-
-        }
-    }
-
-
-
 
     public class SaveTask extends AsyncTask<String, Void, String> {
 
@@ -925,7 +883,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 }
 
             return result;
-
         }
 
 

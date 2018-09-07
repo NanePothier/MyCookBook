@@ -21,9 +21,9 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
     }
 
     private Context context;
-    private ArrayList<String> arrayRecipeNames;
+    private ArrayList<RecipeNameId> arrayRecipeNames;
 
-    public ItemRecyclerViewAdapter(Context context, ArrayList<String> arrayList) {
+    public ItemRecyclerViewAdapter(Context context, ArrayList<RecipeNameId> arrayList) {
         this.context = context;
         this.arrayRecipeNames = arrayList;
     }
@@ -36,7 +36,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        holder.recipeName.setText(arrayRecipeNames.get(position));
+        holder.recipeName.setText(arrayRecipeNames.get(position).getRecipeName());
     }
 
     @Override

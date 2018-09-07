@@ -111,14 +111,39 @@ public class ParseJSON {
         return recipe;
     }
 
-    public static Map<String, ArrayList<String>> parseJSONRecipeNameCategory(String jsonData){
+    public static Map<String, ArrayList<RecipeNameId>> parseJSONRecipeNameCategory(String jsonData){
 
-        Map<String, ArrayList<String>> map = null;
+        Map<String, ArrayList<RecipeNameId>> map = null;
 
+        try{
+
+            JSONArray jsonArray = new JSONArray(jsonData);
+
+            for(int x = 0; x < jsonArray.length(); x++){
+
+                JSONObject jObject = jsonArray.getJSONObject(x);
+                String categoryName = jObject.getString("category");
+
+                RecipeNameId nameIdObject = new RecipeNameId(jObject.getString("recipe_id"), jObject.getString("recipe_name"));
+
+                // if map already contains the current category add object to that category's list
+                if(map.containsKey(categoryName)){
+
+                    map.get(categoryName).add(nameIdObject);
+
+                // if this category does not yet exist in the map create new list and add category and list to map
+                }else{
+
+                    ArrayList<RecipeNameId> list = new ArrayList<>();
+                    list.add(nameIdObject);
+                    map.put(categoryName, list);
+                }
+
+            }
+        }catch(JSONException jsonException) {
+            jsonException.printStackTrace();
+        }
         return map;
-
-
     }
-
 
 }//end class
