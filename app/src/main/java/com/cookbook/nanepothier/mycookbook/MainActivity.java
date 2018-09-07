@@ -58,6 +58,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         */
+
+        Intent receivedIntent = getIntent();
+        String action = receivedIntent.getExtras().getString("action");
+        handleAction(action);
+    }
+
+    public void handleAction(String takeAction){
+
+        if(takeAction.equals("save_action")){
+            Snackbar.make(findViewById(R.id.main_activity_coordinator_layout), "Recipe saved successfully", Snackbar.LENGTH_LONG);
+        }
+
+        if(takeAction.equals("cancel_action")){
+            Snackbar.make(findViewById(R.id.main_activity_coordinator_layout), "Recipe not saved", Snackbar.LENGTH_LONG);
+        }
     }
 
     @Override

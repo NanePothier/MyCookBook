@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Category implements Serializable{
 
     private String categoryName;
-    private Boolean primaryCategory;
+    private Boolean isPrimary;
 
     public Category(){}
 
@@ -14,9 +14,9 @@ public class Category implements Serializable{
         categoryName = catName;
 
         if(primary.equals("y")){
-            primaryCategory = true;
+            isPrimary = true;
         }else{
-            primaryCategory = false;
+            isPrimary = false;
         }
     }
 
@@ -31,13 +31,13 @@ public class Category implements Serializable{
     public void setCategory(String c){
 
         if(c.equals("y")){
-            primaryCategory = true;
+            isPrimary = true;
         }else{
-            primaryCategory = false;
+            isPrimary = false;
         }
     }
 
     public boolean getCategory(){
-        return primaryCategory;
+        return isPrimary;
     }
 }
