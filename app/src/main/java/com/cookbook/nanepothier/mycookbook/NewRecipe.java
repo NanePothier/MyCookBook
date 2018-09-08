@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -87,6 +89,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private PopupWindow categoryPopup;
     private Context context;
 
+    // new ingredient popup window
+    CoordinatorLayout coordinatorLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +99,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         setContentView(R.layout.activity_new_recipe);
 
         context = getApplicationContext();
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.new_recipe_activity_layout);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
@@ -651,20 +657,26 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_ingredient_action:
 
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View ingredientPopupView = inflater.inflate(R.layout.new_item_popup, null);
-                ingredientPopup = new PopupWindow(ingredientPopupView, 100, 70);
-
-                if(Build.VERSION.SDK_INT>=21){
-                    ingredientPopup.setElevation(5.0f);
-                }
 
                 ImageButton saveButton =(ImageButton) ingredientPopupView.findViewById(R.id.save_image_button);
                 ImageButton cancelButton = (ImageButton) ingredientPopupView.findViewById(R.id.cancel_image_button);
                 final EditText newIngredientView = (EditText) ingredientPopupView.findViewById(R.id.enter_item_view);
                 final Spinner defaultSpinner = (Spinner) ingredientPopupView.findViewById(R.id.default_spinner);
-                TextView headingView = (TextView) findViewById(R.id.new_item_heading);
-                headingView.setText("New Ingredient");
+                TextView defaultLab = (TextView) ingredientPopupView.findViewById(R.id.default_label);
+                TextView ingHeading = (TextView) ingredientPopupView.findViewById(R.id.new_item_heading);
+                ingHeading.setText("New Ingredient");
+
+                ArrayList<String> values = new ArrayList<>();
+                values.add("weight");
+                values.add("liquid");
+                ArrayAdapter<String> defaultAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, values);
+                defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                defaultSpinner.setAdapter(defaultAdapter);
+
+                ingredientPopup = new PopupWindow(ingredientPopupView, 1200, 900, true);
+                ingredientPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -672,6 +684,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                         SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
                         ingredientTask.execute();
+                        ingredientPopup.dismiss();
+                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT);
                     }
                 });
 
@@ -686,34 +700,35 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_category_action:
 
-                LayoutInflater inflater1 = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
-                View categoryPopupView = inflater1.inflate(R.layout.new_item_popup, null);
-                categoryPopup = new PopupWindow(categoryPopupView, 100, 70);
+                LayoutInflater inflater2 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View categoryPopupView = inflater2.inflate(R.layout.new_item_popup, null);
 
-                if(Build.VERSION.SDK_INT>=21){
-                    categoryPopup.setElevation(5.0f);
-                }
-
-                ImageButton saveCatButton = (ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
-                ImageButton cancelCatButton = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
+                ImageButton saveButton2 =(ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
+                ImageButton cancelButton2 = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
                 final EditText newCategoryView = (EditText) categoryPopupView.findViewById(R.id.enter_item_view);
-                TextView defaultLabel = (TextView) categoryPopupView.findViewById(R.id.default_label);
-                defaultLabel.setVisibility(View.GONE);
-                Spinner defaultSpinner2 = (Spinner) categoryPopupView.findViewById(R.id.default_spinner);
-                defaultSpinner2.setVisibility(View.GONE);
-                TextView headingView2 = (TextView) categoryPopupView.findViewById(R.id.new_item_heading);
-                headingView2.setText("New Category");
+                final Spinner defaultSpinner2 = (Spinner) categoryPopupView.findViewById(R.id.default_spinner);
+                TextView defaultLab2 = (TextView) categoryPopupView.findViewById(R.id.default_label);
+                TextView categoryHeading = (TextView) categoryPopupView.findViewById(R.id.new_item_heading);
+                categoryHeading.setText("New Category");
 
-                saveCatButton.setOnClickListener(new View.OnClickListener() {
+                defaultLab2.setVisibility(View.GONE);
+                defaultSpinner2.setVisibility(View.GONE);
+
+                categoryPopup = new PopupWindow(categoryPopupView, 1000, 600, true);
+                categoryPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                saveButton2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
-                        SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "category");
+                        SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
                         categoryTask.execute();
+                        categoryPopup.dismiss();
+                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT);
                     }
                 });
 
-                cancelCatButton.setOnClickListener(new View.OnClickListener() {
+                cancelButton2.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         categoryPopup.dismiss();

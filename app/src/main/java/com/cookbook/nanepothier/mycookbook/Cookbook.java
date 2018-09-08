@@ -26,7 +26,7 @@ public class Cookbook extends AppCompatActivity {
     private ArrayList<String> arrayUserCategories;
     private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
     private Map<String, ArrayList<RecipeNameId>> categoryRecipesMap;
-    private String userEmail = "haleyiron@gmail.com";
+    private String userEmail;
     private RecyclerView recyclerView;
 
     @Override
@@ -48,6 +48,9 @@ public class Cookbook extends AppCompatActivity {
         // retrieve user recipes and categories recipes belong to
         arrayRecipeNames = new ArrayList<>();
         arrayUserCategories = new ArrayList<>();
+
+        userEmail = "haleyiron@gmail.com";
+
         getRecipeNamesAndCategories();
 
 
@@ -81,6 +84,7 @@ public class Cookbook extends AppCompatActivity {
 
     public void getRecipeNamesAndCategories(){
 
+        System.out.println("Setting up task");
         GetItemsTask nameTask = new GetItemsTask(userEmail);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
