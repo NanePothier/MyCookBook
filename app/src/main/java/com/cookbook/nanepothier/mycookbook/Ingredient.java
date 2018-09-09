@@ -6,14 +6,16 @@ public class Ingredient implements Serializable{
 
     private String ingredientName, quantityUnit;
     private String quantity;
+    private String defaultMeasurement;
 
     public Ingredient(){}
 
-    public Ingredient(String name, String qu, String unit){
+    public Ingredient(String name, String qu, String unit, String defaultM){
 
         ingredientName = name;
         quantity = qu;
         quantityUnit = unit;
+        defaultMeasurement = defaultM;
     }
 
     public void setName(String name){
@@ -28,6 +30,10 @@ public class Ingredient implements Serializable{
         quantityUnit = unit;
     }
 
+    public void setDefaultMeasurement(String defM){
+        defaultMeasurement = defM;
+    }
+
     public String getName(){
         return ingredientName;
     }
@@ -38,5 +44,9 @@ public class Ingredient implements Serializable{
 
     public String getQuantityUnit(){
         return quantityUnit;
+    }
+
+    public String getDefaultMeasurement(){
+        return defaultMeasurement;
     }
 }

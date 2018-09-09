@@ -15,6 +15,7 @@ public class Recipe implements Serializable{
     private String instructions;
     private int totalTime;
     private ArrayList<Ingredient> ingredients = new ArrayList<>();
+    private ArrayList<Ingredient> metricIngredients = new ArrayList<>();
     private ArrayList<Category> categories = new ArrayList<>();
 
     public Recipe(){}
@@ -121,6 +122,14 @@ public class Recipe implements Serializable{
 
     public Ingredient getIngredient(int index){
         return ingredients.get(index);
+    }
+
+    public void setMetricIngredients(ArrayList<Ingredient> array){
+        metricIngredients = array;
+    }
+
+    public ArrayList<Ingredient> getMetricIngredientArray(){
+        return metricIngredients;
     }
 
     public void addCategory(Category category){

@@ -12,16 +12,16 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
+import android.widget.*;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 public class ViewRecipe extends AppCompatActivity {
@@ -47,6 +47,10 @@ public class ViewRecipe extends AppCompatActivity {
 
     private TableLayout tableLayoutIngredients;
     private TableLayout tableLayoutCategories;
+
+    private ArrayList<ConversionObject> conversionArray;
+
+    private ToggleButton systemToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,12 +81,78 @@ public class ViewRecipe extends AppCompatActivity {
         tableLayoutIngredients = (TableLayout) findViewById(R.id.table_layout_view);
         tableLayoutCategories = (TableLayout) findViewById(R.id.table_layout_view_categories);
 
+        conversionArray = null;
+
+        systemToggle = (ToggleButton) findViewById(R.id.toggle_sys_button);
+        systemToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(!isChecked){
+                    useUSSystem();
+                }else{
+                    useMetricSystem();
+                }
+            }
+        });
+
         // get recipe name and email through intent
         recipeName = "Fruit Salad";
         userEmail="haleyiron@gmail.com";
         recipeId = "3a39670a-0396-4827-a294-54b55a91dd84";
 
         retrieveRecipe();
+    }
+
+    public void useUSSystem(){
+
+        // ensure it displays us
+        setViews();
+    }
+
+    public void useMetricSystem(){
+
+        // ensure it shows metric
+        setViews();
+    }
+
+    public void generateMetricIngredientArray(){
+
+        ArrayList<Ingredient> ingArray = recipe.getIngredientArray();
+        ArrayList<Ingredient> metricArray = new ArrayList<>();
+        String unit, fromUnit, toUnit, measCategory, defaultCat;
+
+
+        for(int x = 0; x < ingArray.size(); x++){
+
+            unit = ingArray.get(x).getQuantityUnit();
+            // defaultCat = ingArray.get(x).getDefaultMeas()
+
+            // when getting recipe and ingredients, also get default category for that ingredient
+            // go through ingredient array and match unit and to desired unit and default cat
+            // calculate
+            // make a new ingredient object
+            // add that object to metricArray
+
+            for(int y = 0; y < conversionArray.size(); y++){
+
+                fromUnit = conversionArray.get(y).getMeasureFrom();
+
+                if(unit.equals(fromUnit)){
+
+                    measCategory = conversionArray.get(y).getMeasureCategory();
+
+                    // if(defaultCat.equals(measCategory))
+
+                        // if equal to milliliter
+                            //use factor
+
+                }
+
+            }
+
+        }
+
+        recipe.setMetricIngredients(metricArray);
     }
 
     @Override
@@ -132,6 +202,12 @@ public class ViewRecipe extends AppCompatActivity {
 
         GetRecipeTask task = new GetRecipeTask(userEmail, recipeName, recipeId);
         task.execute();
+    }
+
+    public void retrieveConversionFactors(){
+
+        GetConversionFactors conversionTask = new GetConversionFactors();
+        conversionTask.execute();
     }
 
     public void setViews(){
@@ -232,6 +308,15 @@ public class ViewRecipe extends AppCompatActivity {
     public void onBackgroundTaskObtainedRecipe(Recipe r){
         recipe = r;
         setViews();
+        retrieveConversionFactors();
+    }
+
+    public void onBackgroundTaskObtainedConversionFactors(ArrayList<ConversionObject> convArray){
+
+        conversionArray = new ArrayList<>();
+        conversionArray = convArray;
+
+        generateMetricIngredientArray();
     }
 
     // asynchronous background task getting recipe data from database
@@ -440,6 +525,79 @@ public class ViewRecipe extends AppCompatActivity {
 
             }
 
+        }
+    }
+
+    public class GetConversionFactors extends AsyncTask<String, Void, String>{
+
+        @Override
+        public String doInBackground(String... params){
+
+            String result = "";
+            String info;
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            HttpURLConnection connection;
+            URL url = null;
+
+            try {
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetConversionFactors");
+
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("retrieval", "retrieval");
+                info = jsonObject.toString();
+
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setReadTimeout(10000);
+                connection.setConnectTimeout(15000);
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+                connection.setFixedLengthStreamingMode(info.getBytes().length);
+                connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                connection.connect();
+                System.out.println("Connection established");
+
+                outputStream = new BufferedOutputStream(connection.getOutputStream());
+                outputStream.write(info.getBytes());
+                outputStream.flush();
+
+                int responseCode = connection.getResponseCode();
+
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                    inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+
+                    while ((line = reader.readLine()) != null) {
+                        result += line;
+                    }
+                }
+
+            } catch (Exception ioe) {
+                ioe.printStackTrace();
+            } finally {
+
+                try {
+                    outputStream.close();
+                    inputStream.close();
+
+                } catch (IOException ie) {
+                    ie.printStackTrace();
+                }
+            }
+
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String data){
+
+            ArrayList<ConversionObject> array = ParseJSON.parseJSONConversionArray(data);
+            onBackgroundTaskObtainedConversionFactors(array);
         }
     }
 }

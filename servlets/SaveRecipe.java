@@ -25,6 +25,9 @@ public class SaveRecipe extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
+	
+	private JSONArray ingredientJsonArray;
+	private int ovenTemp;
        
     public SaveRecipe() {
         
@@ -34,21 +37,27 @@ public class SaveRecipe extends HttpServlet {
 		
 	}
 
+	
+
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String line = "";
 		String userEmail, uniqueUserId, recipeName, primaryCategory;
-		int prepTime, ovenTime, ovenTemp, servings, calories, numIngredients;
+		int prepTime, ovenTime, servings, calories, numIngredients;
 		String instructions;
-		JSONArray ingredientJsonArray = new JSONArray();
+		JSONArray categoryJsonArray = new JSONArray();
 		boolean unique;
 		String result = "";
 		String responseToApp = "success";
 		int totalTime;
 		String ingredientName, quantityUnit;
 		int quantity;
+		String measSystemIndicator;
+		String actionIndicator;
 		Connection connection = null;
 		PreparedStatement queryStatement = null;
+		PreparedStatement deleteStatement = null;
+		ingredientJsonArray = new JSONArray();
 		
 		try {
 			
@@ -66,6 +75,7 @@ public class SaveRecipe extends HttpServlet {
 			recipeName = jsonObject.getString("name");
 			ingredientJsonArray = jsonObject.getJSONArray("ingredientObjectArray");
 			primaryCategory = jsonObject.getString("primCategory");
+			categoryJsonArray = jsonObject.getJSONArray("other_categories");
 			prepTime = jsonObject.getInt("prepTime");
 			ovenTime = jsonObject.getInt("ovenTime");
 			ovenTemp = jsonObject.getInt("ovenTemp");
@@ -74,6 +84,14 @@ public class SaveRecipe extends HttpServlet {
 			instructions = jsonObject.getString("instructions");
 			totalTime = prepTime + ovenTime;
 			numIngredients = ingredientJsonArray.length();
+			measSystemIndicator = jsonObject.getString("systemInd");
+			actionIndicator = jsonObject.getString("actionInd");
+			
+			// convert measurements to US system if they are in metric
+			if(measSystemIndicator.equals("Metric")) {
+				
+				convertUnits();		
+			}
 			
 			// get current date
 			Calendar calendar = Calendar.getInstance();
@@ -81,57 +99,102 @@ public class SaveRecipe extends HttpServlet {
 			java.sql.Date date = new java.sql.Date(currentDate.getTime());
 			String currDate = date.toString();
 			
-			LOGGER.info("Recipe Name: " + recipeName);
+			LOGGER.info("number of servings: " + servings);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
 			
-			// store general recipe attributes
-			String recipeString = "INSERT INTO recipes VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			queryStatement = connection.prepareStatement(recipeString);
-			
-			queryStatement.setString(1, uniqueUserId);
-			queryStatement.setString(2, recipeName);
-			queryStatement.setInt(3, servings);
-			queryStatement.setInt(4, prepTime);
-			queryStatement.setInt(5, totalTime);
-			queryStatement.setInt(6, ovenTime);
-			queryStatement.setInt(7, ovenTemp);
-			queryStatement.setInt(8, numIngredients);
-			queryStatement.setInt(9, calories);
-			queryStatement.setString(10, instructions);
-			queryStatement.setString(11, currDate);
-			
+			// store/update general recipe attributes
+			if(actionIndicator.equals("NewRecipe")) {
+				
+				String recipeString = "INSERT INTO recipes VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				queryStatement = connection.prepareStatement(recipeString);
+				
+				queryStatement.setString(1, uniqueUserId);
+				queryStatement.setString(2, recipeName);
+				queryStatement.setInt(3, servings);
+				queryStatement.setInt(4, prepTime);
+				queryStatement.setInt(5, totalTime);
+				queryStatement.setInt(6, ovenTime);
+				queryStatement.setInt(7, ovenTemp);
+				queryStatement.setInt(8, numIngredients);
+				queryStatement.setInt(9, calories);
+				queryStatement.setString(10, instructions);
+				queryStatement.setString(11, currDate);
+				queryStatement.setString(12, measSystemIndicator);
+				
+			}else {
+				
+				String recipeString = "UPDATE recipes SET recipe_name=?, servings=?, preparation_time=?, total_time=?, oven_time=?, oven_temperature=?, number_ingredients=?, calories_per_serving=?, instructions=?, date_created=?, system=? WHERE recipe_id=?";
+				queryStatement = connection.prepareStatement(recipeString);
+				
+				queryStatement.setString(1, recipeName);
+				queryStatement.setInt(2, servings);
+				queryStatement.setInt(3, prepTime);
+				queryStatement.setInt(4, totalTime);
+				queryStatement.setInt(5, ovenTime);
+				queryStatement.setInt(6, ovenTemp);
+				queryStatement.setInt(7, numIngredients);
+				queryStatement.setInt(8, calories);
+				queryStatement.setString(9, instructions);
+				queryStatement.setString(10, currDate);
+				queryStatement.setString(11, measSystemIndicator);
+				queryStatement.setString(12, uniqueUserId);	
+			}
 			queryStatement.executeUpdate();
 			queryStatement.close();
 			
 			// store recipe-primary category connection
-			String recCatString = "INSERT INTO recipecategory VALUES(?, ?, ?)";	
-			queryStatement = connection.prepareStatement(recCatString);
-			
-			queryStatement.setString(1, uniqueUserId);
-			queryStatement.setString(2, primaryCategory);
-			queryStatement.setString(3, "y");
-			
+			if(actionIndicator.equals("NewRecipe")) {
+				
+				String recCatString = "INSERT INTO recipecategory VALUES(?, ?, ?)";	
+				queryStatement = connection.prepareStatement(recCatString);
+				
+				queryStatement.setString(1, uniqueUserId);
+				queryStatement.setString(2, primaryCategory);
+				queryStatement.setString(3, "y");
+				
+			}else {
+				
+				String recCatString = "UPDATE recipecategory SET category_name=?, primary_cat=? WHERE recipe_id=? AND primary_cat=?";
+				queryStatement = connection.prepareStatement(recCatString);
+				
+				queryStatement.setString(1, primaryCategory);
+				queryStatement.setString(2, "y");
+				queryStatement.setString(3, uniqueUserId);
+				queryStatement.setString(4, "y");
+			}
 			queryStatement.executeUpdate();
 			queryStatement.close();
 			
-			// store user recipe connection
-			String userRecString = "INSERT INTO userrecipes VALUES(?, ?)";
-			queryStatement = connection.prepareStatement(userRecString);
+			if(actionIndicator.equals("NewRecipe")) {
+				
+				// store user recipe connection
+				String userRecString = "INSERT INTO userrecipes VALUES(?, ?)";
+				queryStatement = connection.prepareStatement(userRecString);
+				
+				queryStatement.setString(1, userEmail);
+				queryStatement.setString(2, uniqueUserId);
+				
+				queryStatement.executeUpdate();
+				queryStatement.close();			
+			}
 			
-			queryStatement.setString(1, userEmail);
-			queryStatement.setString(2, uniqueUserId);
-			
-			queryStatement.executeUpdate();
-			queryStatement.close();
+			// if user edited recipe, delete all ingredients and then add ingredients
+			if(actionIndicator.equals("EditRecipe")) {
+				
+				String deleteString = "DELETE FROM recipeingredients WHERE recipe_id = ?";
+				deleteStatement = connection.prepareStatement(deleteString);
+				deleteStatement.setString(1, uniqueUserId);
+				deleteStatement.executeUpdate();
+				deleteStatement.close();
+			}
 			
 			// store ingredients for this recipe
 			String ingString = "INSERT INTO recipeingredients VALUES(?, ?, ?, ?)";
 			queryStatement = connection.prepareStatement(ingString);
 			queryStatement.setString(1, uniqueUserId);
-			
-			
+				
 			for(int x = 0; x < ingredientJsonArray.length(); x++) {
 				
 				JSONObject object = ingredientJsonArray.getJSONObject(x);
@@ -142,12 +205,42 @@ public class SaveRecipe extends HttpServlet {
 				
 				queryStatement.setString(2, ingredientName);
 				queryStatement.setInt(3, quantity);
-				queryStatement.setString(4, quantityUnit);
+				queryStatement.setString(4, quantityUnit);	
 				
 				queryStatement.executeUpdate();
 			}
+			queryStatement.close();
 			
-			LOGGER.info("Sending back response to app now");
+			// if user edited recipe delete categories first, then add
+			if(actionIndicator.equals("EditRecipe")) {
+				
+				String deleteString = "DELETE FROM recipecategory WHERE recipe_id = ? AND primary_cat = ?";
+				deleteStatement = connection.prepareStatement(deleteString);
+				deleteStatement.setString(1, uniqueUserId);
+				deleteStatement.setString(2, "n");
+				deleteStatement.executeUpdate();
+				deleteStatement.close();
+			}
+			
+			// insert other categories this recipe belongs to
+			String catString = "INSERT INTO recipecategory VALUES(?, ?, ?)";
+			queryStatement = connection.prepareStatement(catString);
+			queryStatement.setString(1, uniqueUserId);
+			
+			for(int i = 0; i < categoryJsonArray.length(); i++) {
+				
+				JSONObject object = categoryJsonArray.getJSONObject(i);
+				
+				String catName = object.getString("cat_name");
+				Boolean isPrim = object.getBoolean("cat_prime");
+				
+				queryStatement.setString(2, catName);
+				queryStatement.setString(3, "n");
+								
+				queryStatement.executeUpdate();
+			}
+			
+			LOGGER.info("sending back response to app now");
 			
 			// return response to app
 			JSONObject responseObject = new JSONObject();
@@ -182,6 +275,11 @@ public class SaveRecipe extends HttpServlet {
 			}
 			
 		}
+	}
+	
+	private void convertUnits() {
+		
+		
 	}
 
 }

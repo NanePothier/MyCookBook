@@ -146,4 +146,32 @@ public class ParseJSON {
         return map;
     }
 
+    public static ArrayList<ConversionObject> parseJSONConversionArray(String data){
+
+        ArrayList<ConversionObject> conversionArray = new ArrayList<>();
+
+        try{
+
+            JSONArray jsonArray = new JSONArray(data);
+
+            for(int x = 0; x < jsonArray.length(); x++){
+
+                JSONObject jObject = jsonArray.getJSONObject(x);
+                ConversionObject convObject = new ConversionObject();
+
+                convObject.setMeasureFrom(jObject.getString("measure_from"));
+                convObject.setMeasureTo(jObject.getString("measure_to"));
+                convObject.setMeasureCategory(jObject.getString("measure_cat"));
+                convObject.setFactor(jObject.getDouble("factor"));
+
+                conversionArray.add(convObject);
+            }
+
+        }catch(JSONException jsonException){
+            jsonException.printStackTrace();
+        }
+
+        return conversionArray;
+    }
+
 }//end class
