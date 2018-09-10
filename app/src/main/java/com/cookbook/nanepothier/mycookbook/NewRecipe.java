@@ -249,6 +249,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         autoView = new AutoCompleteTextView(this);
         autoView.setAdapter(ingredientAdapter);
+        autoView.setTextSize(15);
         autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
         ingredientViews.add(autoView);
         tableRow.addView(autoView);
@@ -256,6 +257,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         editText = new EditText(this);
         editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         editText.setMaxLines(1);
+        editText.setTextSize(15);
         quantityViews.add(editText);
         tableRow.addView(editText);
 
@@ -455,28 +457,42 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             switch(unit){
 
-                case "lb":
+                case " ":
                     return 0;
-                case "oz":
+                case "lb":
                     return 1;
+                case "oz":
+                    return 2;
                 case "cup":
-                    return 2;
+                    return 3;
+                case "qt":
+                    return 4;
+                case "tbsp":
+                    return 5;
+                case "tsp":
+                    return 6;
                 default:
-                    return 2;
+                    return 0;
             }
 
         }else if(system.equals("metric")){
 
             switch(unit){
 
-                case "g":
+                case " ":
                     return 0;
-                case "kg":
+                case "g":
                     return 1;
-                case "ml":
+                case "kg":
                     return 2;
-                case "L":
+                case "ml":
                     return 3;
+                case "L":
+                    return 4;
+                case "tbsp":
+                    return 5;
+                case "tsp":
+                    return 6;
                 default:
                     return 0;
             }
@@ -497,16 +513,23 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     public void createUSMeasurementList(){
+        USMeasurements.add(" ");
         USMeasurements.add("lb");
         USMeasurements.add("oz");
         USMeasurements.add("cup");
+        USMeasurements.add("qt");
+        USMeasurements.add("tbsp");
+        USMeasurements.add("tsp");
     }
 
     public void createMetricMeasurementList(){
+        MetricMeasurements.add(" ");
         MetricMeasurements.add("g");
         MetricMeasurements.add("kg");
         MetricMeasurements.add("ml");
         MetricMeasurements.add("L");
+        MetricMeasurements.add("tbsp");
+        MetricMeasurements.add("tsp");
     }
 
     @Override
@@ -600,11 +623,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 // get text entered into textfields
                 String recipeName = recipeNameView.getText().toString();
                 String primCategory = categorySpinner.getSelectedItem().toString();
-                Integer prepTime = Integer.parseInt(prepTimeView.getText().toString());
-                Integer ovenTime = Integer.parseInt(ovenTimeView.getText().toString());
-                Integer ovenTemp = Integer.parseInt(ovenTempView.getText().toString());
-                Integer servings = Integer.parseInt(servingsView.getText().toString());
-                Integer calories = Integer.parseInt(caloriesView.getText().toString());
+                String prepTime = prepTimeView.getText().toString();
+                String ovenTime = ovenTimeView.getText().toString();
+                String ovenTemp = ovenTempView.getText().toString();
+                String servings = servingsView.getText().toString();
+                String calories = caloriesView.getText().toString();
                 String instructions = instructionView.getText().toString();
 
                 ArrayList<Ingredient> ingredients = new ArrayList<>();
@@ -763,7 +786,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         ArrayList<Ingredient> ingredients;
         ArrayList<Category> categories;
         String primCategory;
-        Integer prepTime, ovenTime, ovenTemp, servings, calories;
+        String prepTime, ovenTime, ovenTemp, servings, calories;
         String instructions;
         String uniqueID;
         String user;
@@ -771,8 +794,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         String actionIndicator;
 
         public SaveTask(String user, String rName, ArrayList<Ingredient> ingredients, String primCat,
-                        ArrayList<Category> categories, Integer pTime, Integer oTime, Integer oTemp,
-                        Integer servings, Integer calories, String instruct, String sysInd, String actInd){
+                        ArrayList<Category> categories, String pTime, String oTime, String oTemp,
+                        String servings, String calories, String instruct, String sysInd, String actInd){
 
             this.user = user;
             recipeName = rName;
@@ -888,13 +911,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     ioe.printStackTrace();
                 }finally{
 
+                    /*
                     try{
-                        outputStream.close();
-                        inputStream.close();
+                         outputStream.close();
+                         inputStream.close();
 
                     }catch(IOException ie){
                         ie.printStackTrace();
                     }
+                    */
                 }
 
             return result;

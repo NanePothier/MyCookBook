@@ -3,6 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_cookbook">Cookbook</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="title_new_recipe">New Recipe</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

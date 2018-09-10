@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Servlet implementation class SaveRecipe
@@ -25,9 +27,6 @@ public class SaveRecipe extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
-	
-	private JSONArray ingredientJsonArray;
-	private int ovenTemp;
        
     public SaveRecipe() {
         
@@ -37,13 +36,12 @@ public class SaveRecipe extends HttpServlet {
 		
 	}
 
-	
-
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String line = "";
 		String userEmail, uniqueUserId, recipeName, primaryCategory;
-		int prepTime, ovenTime, servings, calories, numIngredients;
+		int prepTime, ovenTime, ovenTemp, servings, calories, numIngredients;
+		String prTime, ovTime, ovTemp, serv, cal;
 		String instructions;
 		JSONArray categoryJsonArray = new JSONArray();
 		boolean unique;
@@ -51,13 +49,13 @@ public class SaveRecipe extends HttpServlet {
 		String responseToApp = "success";
 		int totalTime;
 		String ingredientName, quantityUnit;
-		int quantity;
+		double quantity;
 		String measSystemIndicator;
 		String actionIndicator;
 		Connection connection = null;
 		PreparedStatement queryStatement = null;
 		PreparedStatement deleteStatement = null;
-		ingredientJsonArray = new JSONArray();
+		JSONArray ingredientJsonArray = new JSONArray();
 		
 		try {
 			
@@ -76,22 +74,55 @@ public class SaveRecipe extends HttpServlet {
 			ingredientJsonArray = jsonObject.getJSONArray("ingredientObjectArray");
 			primaryCategory = jsonObject.getString("primCategory");
 			categoryJsonArray = jsonObject.getJSONArray("other_categories");
-			prepTime = jsonObject.getInt("prepTime");
-			ovenTime = jsonObject.getInt("ovenTime");
-			ovenTemp = jsonObject.getInt("ovenTemp");
-			servings = jsonObject.getInt("servings");
-			calories = jsonObject.getInt("calories");
+			prTime = jsonObject.getString("prepTime");
+			ovTime = jsonObject.getString("ovenTime");
+			ovTemp = jsonObject.getString("ovenTemp");
+			serv = jsonObject.getString("servings");
+			cal = jsonObject.getString("calories");
 			instructions = jsonObject.getString("instructions");
-			totalTime = prepTime + ovenTime;
 			numIngredients = ingredientJsonArray.length();
 			measSystemIndicator = jsonObject.getString("systemInd");
 			actionIndicator = jsonObject.getString("actionInd");
 			
-			// convert measurements to US system if they are in metric
-			if(measSystemIndicator.equals("Metric")) {
-				
-				convertUnits();		
+			LOGGER.info("ingredients: " + ingredientJsonArray);
+			
+			if(!(prTime.equals(""))) {
+				prepTime = Integer.parseInt(prTime);
+			}else {
+				prepTime = -1;
 			}
+			
+			if(!(ovTime.equals(""))) {
+				ovenTime = Integer.parseInt(ovTime);
+			}else {
+				ovenTime = -1;
+			}
+			
+			if(!(ovTemp.equals(""))) {
+				ovenTemp = Integer.parseInt(ovTemp);
+			}else {
+				ovenTemp = -1;
+			}
+			
+			if(!(serv.equals(""))) {
+				servings = Integer.parseInt(serv);
+			}else {
+				servings = -1;
+			}
+			
+			if(!(cal.equals(""))) {
+				calories = Integer.parseInt(cal);
+			}else {
+				calories = -1;
+			}
+			
+			if(prepTime == -1 || ovenTime == -1) {
+				totalTime = prepTime + ovenTime + 1;
+			}else {
+				totalTime = prepTime + ovenTime;
+			}
+			
+			recipeName = recipeName.substring(0, 1).toUpperCase() + recipeName.substring(1);
 			
 			// get current date
 			Calendar calendar = Calendar.getInstance();
@@ -99,10 +130,15 @@ public class SaveRecipe extends HttpServlet {
 			java.sql.Date date = new java.sql.Date(currentDate.getTime());
 			String currDate = date.toString();
 			
-			LOGGER.info("number of servings: " + servings);
-			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
+			
+			// convert measurements to US system if they are in metric
+			if(measSystemIndicator.equals("Metric")) {
+							
+				ingredientJsonArray = convertUnits(connection, ingredientJsonArray);	
+				ovenTemp = (int) convertTemperature(ovenTemp);
+			}
 			
 			// store/update general recipe attributes
 			if(actionIndicator.equals("NewRecipe")) {
@@ -194,17 +230,24 @@ public class SaveRecipe extends HttpServlet {
 			String ingString = "INSERT INTO recipeingredients VALUES(?, ?, ?, ?)";
 			queryStatement = connection.prepareStatement(ingString);
 			queryStatement.setString(1, uniqueUserId);
+			String qnty;
 				
 			for(int x = 0; x < ingredientJsonArray.length(); x++) {
 				
 				JSONObject object = ingredientJsonArray.getJSONObject(x);
 				
 				ingredientName = object.getString("ing_name");
-				quantity = Integer.parseInt(object.getString("quantity"));
+				qnty = object.getString("quantity");
 				quantityUnit = object.getString("quantity_unit");
 				
+				if(qnty.equals("")) {
+					quantity = -1.0;
+				}else {
+					quantity = Double.parseDouble(qnty);
+				}
+				
 				queryStatement.setString(2, ingredientName);
-				queryStatement.setInt(3, quantity);
+				queryStatement.setDouble(3, quantity);
 				queryStatement.setString(4, quantityUnit);	
 				
 				queryStatement.executeUpdate();
@@ -277,9 +320,136 @@ public class SaveRecipe extends HttpServlet {
 		}
 	}
 	
-	private void convertUnits() {
+	private JSONArray convertUnits(Connection conn, JSONArray jsonArray) {
 		
+		String qnty;
+		double quantity;
+		String unit;
+		JSONObject jObject;
+		JSONObject convObject;
+		String factorQuery;
+		String ingName;
+		ResultSet set;
+		Statement factorStatement;
+		double gFactor, kgFactor, mlFactor, lFactor;
+		int arraySize = jsonArray.length();
+		JSONArray convArray = new JSONArray();
 		
+		try {
+			
+			factorQuery = "SELECT factor FROM conversion WHERE measure_from = 'gramm' AND measure_to = 'ounces'";
+			factorStatement = conn.createStatement();
+			set = factorStatement.executeQuery(factorQuery);
+			set.next();
+			gFactor = set.getFloat("factor");
+			factorStatement.close();
+			set.close();
+			
+			factorQuery = "SELECT factor FROM conversion WHERE measure_from = 'kilogramm' AND measure_to = 'pounds'";
+			factorStatement = conn.createStatement();
+			set = factorStatement.executeQuery(factorQuery);
+			set.next();
+			kgFactor = set.getFloat("factor");
+			factorStatement.close();
+			set.close();
+			
+			factorQuery = "SELECT factor FROM conversion WHERE measure_from = 'milliliter' AND measure_to = 'cup'";
+			factorStatement = conn.createStatement();
+			set = factorStatement.executeQuery(factorQuery);
+			set.next();
+			mlFactor = set.getFloat("factor");
+			factorStatement.close();
+			set.close();
+			
+			factorQuery = "SELECT factor FROM conversion WHERE measure_from = 'liter' AND measure_to = 'quart'";
+			factorStatement = conn.createStatement();
+			set = factorStatement.executeQuery(factorQuery);
+			set.next();
+			lFactor = set.getFloat("factor");
+			factorStatement.close();
+			set.close();
+			
+			// convert quantity for each ingredient
+			for(int x = 0; x < arraySize; x++) {
+				
+				jObject = jsonArray.getJSONObject(x);
+				
+				convObject = new JSONObject();
+				
+				ingName = jObject.getString("ing_name");
+				qnty = jObject.getString("quantity");
+				unit = jObject.getString("quantity_unit");
+				
+				// if unit is equal to count, then no conversion necessary
+				if(!(unit.equals("ct"))) {
+					
+					// if there is no quantity and no quantity unit, then there is nothing to convert
+					// therefore, return original json array
+					if(!(unit.equals(" ")) && !(qnty.equals(""))) {
+						
+						// if quantity and unit is given, convert and add to new array
+						quantity = Double.parseDouble(qnty);
+						
+						if(unit.equals("g")) {
+							
+							quantity = quantity * gFactor;
+							convObject.put("quantity_unit", "oz");	
+								
+						}else if(unit.equals("kg")){
+							
+							quantity = quantity * kgFactor;
+							convObject.put("quantity_unit", "lb");
+							
+						}else if(unit.equals("ml")) {
+							
+							quantity = quantity * mlFactor;
+							convObject.put("quantity_unit", "cup");
+							
+						}else if(unit.equals("L")) {
+							
+							quantity = quantity * lFactor;
+							convObject.put("quantity_unit", "qt");	
+							
+						}else if(unit.equals("tbsp")) {
+							
+							convObject.put("quantity_unit", "tbsp");
+							
+						}else if(unit.equals("tsp")) {
+							
+							convObject.put("quantity_unit", "tsp");
+						}
+						
+						convObject.put("ing_name", ingName);
+						convObject.put("quantity", quantity);
+						
+						convArray.put(convObject);
+					}else {
+						
+						convObject.put("ing_name", ingName);
+						convObject.put("quantity", qnty);
+						convObject.put("quantity_unit", unit);		
+					}		
+				}else {
+					
+					convObject.put("ing_name", ingName);
+					convObject.put("quantity", qnty);
+					convObject.put("quantity_unit", unit);
+				}
+			}
+				
+		}catch(JSONException jException) {
+			jException.printStackTrace();
+		}catch(SQLException sqlException) {
+			sqlException.printStackTrace();
+		}
+		
+		return convArray;
+	}
+	
+	public double convertTemperature(int ovenTempCelsius) {
+		
+		double ovenTempFahrenheit = ovenTempCelsius * (9.0/5.0) + 32;
+		return ovenTempFahrenheit;
 	}
 
 }
