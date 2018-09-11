@@ -65,6 +65,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private ArrayList<Spinner> measurementSpinners;
     private ArrayList<EditText> quantityViews;
     private ArrayList<AutoCompleteTextView> additionalCategories;
+    private ArrayList<String> listCategories;
 
     private ArrayAdapter<String> ingredientAdapter;
     private ArrayAdapter<String> categoryAdapter;
@@ -126,6 +127,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         // ArrayLists
         listIngredients = new ArrayList<>();
+        listCategories = new ArrayList<>();
         USMeasurements = new ArrayList<>();
         MetricMeasurements = new ArrayList<>();
         measurementSpinners = new ArrayList<>();
@@ -627,6 +629,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
 
+        listCategories = categories;
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         categorySpinner.setAdapter(adapter);
@@ -659,6 +663,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         boolean valid = false;
         boolean exists = true;
+        boolean catExists = true;
 
         switch(item.getItemId()){
 
@@ -694,7 +699,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                         ingredients.add(ing);
                     }else{
-
+                        ingredientViews.get(i).setError("Ingredient does not exist. Please create it first.");
                         exists = false;
                         break;
                     }
@@ -705,15 +710,25 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 // get additional categories
                 for(int j = 0; j < additionalCategories.size(); j++){
 
-                    Category cat = new Category();
+                    if(listCategories.contains(additionalCategories.get(j).getText().toString())){
 
-                    cat.setName(additionalCategories.get(j).getText().toString());
-                    cat.setCategory("n");
+                        Category cat = new Category();
 
-                    addCategories.add(cat);
+                        cat.setName(additionalCategories.get(j).getText().toString());
+                        cat.setCategory("n");
+
+                        addCategories.add(cat);
+
+                    }else{
+                        additionalCategories.get(j).setError("Category does not exist. Please create it first.");
+                        catExists = false;
+                        break;
+                    }
+
+
                 }
 
-                if(valid && exists) {
+                if(valid && exists && catExists) {
 
                     // execute new asynchronous save task
                     saveTask = new SaveTask(userEmail, recipeName, ingredients, primCategory, addCategories, prepTime
@@ -824,16 +839,18 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // check if required fields are filled out
     protected boolean checkRequiredFields() {
 
+        boolean valid = false;
+
         if(recipeNameView.getText().length() > 0) {
             if(autoCompIngredient1.getText().length() > 0 && autoCompIngredient2.getText().length() > 0 && autoCompIngredient3.getText().length() > 0){
-                return true;
+                valid = true;
             }else{
                 autoCompIngredient3.setError("Recipe must have at least 3 ingredients");
             }
         }else{
             recipeNameView.setError("Recipe needs a name");
         }
-        return false;
+        return valid;
     }
 
     public class SaveTask extends AsyncTask<String, Void, String> {
