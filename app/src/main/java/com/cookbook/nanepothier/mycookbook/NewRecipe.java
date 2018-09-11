@@ -28,7 +28,7 @@ import java.util.UUID;
 public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private String userEmail = "haleyiron@gmail.com";
-    private String statusIndicator;
+    private String statusIndicator = "NewRecipe";
 
     // views
     private EditText recipeNameView;
@@ -73,6 +73,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // used for setting views when in edit mode
     private ArrayList<Ingredient> ingredientArray;
     private ArrayList<Category> categoryArray;
+    private ArrayList<TextView> ingCountArray;
+    private ArrayList<TextView> catCountArray;
 
     private TableLayout tableLayoutIngredients;
     private TableLayout tableLayoutCategories;
@@ -92,6 +94,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // new ingredient popup window
     CoordinatorLayout coordinatorLayout;
 
+    // toolbar
+    private ImageButton backButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +108,21 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
+        backButton = (ImageButton) toolbar.findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(statusIndicator.equals("NewRecipe")){
+                    Intent intent = new Intent(NewRecipe.this, MainActivity.class);
+                    intent.putExtra("action", "back_new_recipe");
+                    startActivity(intent);
+                }else if(statusIndicator.equals("EditRecipe")) {
+                    Intent intent = new Intent(NewRecipe.this, ViewRecipe.class);
+                    intent.putExtra("action", "back_edit_recipe");
+                    startActivity(intent);
+                }
+            }
+        });
 
         // ArrayLists
         listIngredients = new ArrayList<>();
@@ -114,6 +134,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         ingredientArray = new ArrayList<>();
         categoryArray = new ArrayList<>();
         additionalCategories = new ArrayList<>();
+        ingCountArray = new ArrayList<>();
+        catCountArray = new ArrayList<>();
 
         // EditTexts
         recipeNameView = (EditText) findViewById(R.id.recipe_name);
@@ -229,7 +251,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     public void addIngredientRowToIngredientTable(){
 
         final TableRow tableRow;
-        TextView countCol;
+        final TextView countCol;
         final AutoCompleteTextView autoView;
         final EditText editText;
         final Spinner mSpinner;
@@ -245,19 +267,24 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         countCol.setText(Integer.toString(Service.getIngredientViewCount()) + ".");
         countCol.setTextSize(15);
         countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        ingCountArray.add(countCol);
         tableRow.addView(countCol);
 
         autoView = new AutoCompleteTextView(this);
         autoView.setAdapter(ingredientAdapter);
         autoView.setTextSize(15);
-        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+        autoView.setMaxLines(2);
+
+        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
+        autoView.setBackgroundResource(R.drawable.thin_black_border_background);
         ingredientViews.add(autoView);
         tableRow.addView(autoView);
 
         editText = new EditText(this);
-        editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95));
         editText.setMaxLines(1);
         editText.setTextSize(15);
+        editText.setBackgroundResource(R.drawable.thin_black_border_background);
         quantityViews.add(editText);
         tableRow.addView(editText);
 
@@ -278,6 +305,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 ingredientViews.remove(autoView);
                 quantityViews.remove(editText);
                 measurementSpinners.remove(mSpinner);
+                ingCountArray.remove(countCol);
+                updateIngCountNumbers();
                 tableLayoutIngredients.removeView(tableRow);
                 Service.decrementIngredientViewCount();
             }
@@ -289,7 +318,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     public void addCategoryRowToCategoryTable(){
 
         final TableRow tableRow;
-        TextView countCol;
+        final TextView countCol;
         AutoCompleteTextView autoCompCat;
         ImageView deleteCategoryRowView;
 
@@ -304,12 +333,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         countCol.setText(Integer.toString(Service.getCategoryViewCount()) + ".");
         countCol.setTextSize(15);
         countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
+        catCountArray.add(countCol);
         tableRow.addView(countCol);
 
         autoCompCat = new AutoCompleteTextView(this);
         autoCompCat.setAdapter(categoryAdapter);
         autoCompCat.setTextSize(15);
-        autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+        autoCompCat.setPadding(0, 35, 0, 0);
+        autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
+        autoCompCat.setBackgroundResource(R.drawable.thin_black_border_background);
         additionalCategories.add(autoCompCat);
         tableRow.addView(autoCompCat);
 
@@ -321,6 +353,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         deleteCategoryRowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                catCountArray.remove(countCol);
+                updateCatCountNumbers();
                 tableLayoutCategories.removeView(tableRow);
                 Service.decrementCategoryViewCount();
 
@@ -332,6 +366,18 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         tableLayoutCategories.addView(tableRow);
         tableLayoutCategories.setVisibility(View.VISIBLE);
+    }
+
+    public void updateIngCountNumbers(){
+        for(int x = 0; x < ingCountArray.size(); x++){
+            ingCountArray.get(x).setText(Integer.toString(x + 4) + ".");
+        }
+    }
+
+    public void updateCatCountNumbers(){
+        for(int x = 0; x < catCountArray.size(); x++){
+            catCountArray.get(x).setText(Integer.toString(x + 1) + ".");
+        }
     }
 
     public void displayRecipe(){
@@ -566,6 +612,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
 
+        listIngredients = ingredients;
+
         ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
 
         autoCompIngredient1.setAdapter(ingredientAdapter);
@@ -610,6 +658,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     public boolean onOptionsItemSelected(MenuItem item){
 
         boolean valid = false;
+        boolean exists = true;
 
         switch(item.getItemId()){
 
@@ -635,13 +684,20 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 // get ingredients
                 for(int i = 0; i < ingredientViews.size(); i++){
 
-                    Ingredient ing = new Ingredient();
+                    if(listIngredients.contains(ingredientViews.get(i).getText().toString())){
 
-                    ing.setName(ingredientViews.get(i).getText().toString());
-                    ing.setQuantity(quantityViews.get(i).getText().toString());
-                    ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
+                        Ingredient ing = new Ingredient();
 
-                    ingredients.add(ing);
+                        ing.setName(ingredientViews.get(i).getText().toString());
+                        ing.setQuantity(quantityViews.get(i).getText().toString());
+                        ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
+
+                        ingredients.add(ing);
+                    }else{
+
+                        exists = false;
+                        break;
+                    }
                 }
 
                 ArrayList<Category> addCategories = new ArrayList<>();
@@ -657,7 +713,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     addCategories.add(cat);
                 }
 
-                if(valid) {
+                if(valid && exists) {
 
                     // execute new asynchronous save task
                     saveTask = new SaveTask(userEmail, recipeName, ingredients, primCategory, addCategories, prepTime
