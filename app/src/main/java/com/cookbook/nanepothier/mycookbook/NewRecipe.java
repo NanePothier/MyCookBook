@@ -10,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -286,6 +287,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95));
         editText.setMaxLines(1);
         editText.setTextSize(15);
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackgroundResource(R.drawable.thin_black_border_background);
         quantityViews.add(editText);
         tableRow.addView(editText);
