@@ -1,17 +1,16 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.*;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,14 +50,28 @@ public class ViewRecipe extends AppCompatActivity {
     private ArrayList<ConversionObject> conversionArray;
 
     private ToggleButton systemToggle;
+    private ImageButton backButton;
+
+    private CoordinatorLayout coordinatorLayout;
+    private PopupWindow sharePopup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_recipe);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar_view_recipe);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.view_recipe_coordinator_layout);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.view_recipe_toolbar);
         setSupportActionBar(toolbar);
+        backButton = (ImageButton) toolbar.findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -96,9 +109,9 @@ public class ViewRecipe extends AppCompatActivity {
         });
 
         // get recipe name and email through intent
-        recipeName = "Fruit Salad";
+        recipeName = "Spaghetti";
         userEmail="haleyiron@gmail.com";
-        recipeId = "3a39670a-0396-4827-a294-54b55a91dd84";
+        recipeId = "256436f3-9406-4248-81ac-96898a93dfce";
 
         retrieveRecipe();
     }
@@ -119,39 +132,71 @@ public class ViewRecipe extends AppCompatActivity {
 
         ArrayList<Ingredient> ingArray = recipe.getIngredientArray();
         ArrayList<Ingredient> metricArray = new ArrayList<>();
-        String unit, fromUnit, toUnit, measCategory, defaultCat;
+        String unit, fromUnit, toUnit, measCategory, defaultMeas;
+        Ingredient metricIngredient;
 
-
+        // for each ingredient
         for(int x = 0; x < ingArray.size(); x++){
 
             unit = ingArray.get(x).getQuantityUnit();
-            // defaultCat = ingArray.get(x).getDefaultMeas()
+            defaultMeas = ingArray.get(x).getDefaultMeasurement();
 
-            // when getting recipe and ingredients, also get default category for that ingredient
-            // go through ingredient array and match unit and to desired unit and default cat
-            // calculate
-            // make a new ingredient object
-            // add that object to metricArray
-
+            // find match by looping through conversion array
             for(int y = 0; y < conversionArray.size(); y++){
 
                 fromUnit = conversionArray.get(y).getMeasureFrom();
 
-                if(unit.equals(fromUnit)){
+                // match 'from' unit
+                if(unit.equals(fromUnit) && !(unit.equals("tablespoon")) && !(unit.equals("teaspoon"))){
 
                     measCategory = conversionArray.get(y).getMeasureCategory();
 
-                    // if(defaultCat.equals(measCategory))
+                    // match default measurement category (solid or liquid)
+                    if(defaultMeas.equals(measCategory)){
 
-                        // if equal to milliliter
-                            //use factor
+                        double convertedNumber;
+                        toUnit = conversionArray.get(y).getMeasureTo();
 
+                        // determine which metric measurement to convert to since there may be more than one option
+                        // example: could convert to gramm or kilogramm (both are metric and weight measurements)
+                        if(toUnit.equals("milliliter")){
+
+                            metricIngredient = new Ingredient();
+
+                            convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
+
+                            metricIngredient.setQuantity((int)convertedNumber);
+                            metricIngredient.setQuantityUnit("ml");
+                            metricIngredient.setName(ingArray.get(x).getName());
+                            metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
+
+                            metricArray.add(metricIngredient);
+
+                        }else if(toUnit.equals("gramm")){
+
+                            metricIngredient = new Ingredient();
+
+                            convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
+
+                            metricIngredient.setQuantity((int) convertedNumber);
+                            metricIngredient.setName(ingArray.get(x).getName());
+                            metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
+                            metricIngredient.setQuantityUnit("g");
+
+                            metricArray.add(metricIngredient);
+                        }
+                    }
                 }
 
-            }
+                if(unit.equals("tablespoon") || unit.equals("teaspoon")){
 
+                    metricIngredient = ingArray.get(x);
+                    metricArray.add(metricIngredient);
+                }
+            }
         }
 
+        // add metric ingredient array to the recipe object
         recipe.setMetricIngredients(metricArray);
     }
 
@@ -180,13 +225,38 @@ public class ViewRecipe extends AppCompatActivity {
 
             case R.id.share_action:
 
-                // TODO: share recipe with other user
+                LayoutInflater inflater = (LayoutInflater) ViewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View sharePopupView = inflater.inflate(R.layout.share_recipe_popup, null);
+
+                ImageButton shareButton = (ImageButton) sharePopupView.findViewById(R.id.share_recipe_button);
+                ImageButton cancelButton = (ImageButton) sharePopupView.findViewById(R.id.cancel_image_button);
+                final EditText enterEmailView = (EditText) sharePopupView.findViewById(R.id.enter_item_view);
+
+                sharePopup = new PopupWindow(sharePopupView, 1200, 900, true);
+                sharePopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                shareButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        MenuTask shareTask = new MenuTask(Indicator.SHARE, recipe.getRecipeId(), enterEmailView.getText().toString());
+                        shareTask.execute();
+                        sharePopup.dismiss();
+                    }
+                });
+
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        sharePopup.dismiss();
+                    }
+                });
 
                 return true;
 
             case R.id.delete_action:
 
-                MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId());
+                MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId(), "");
                 deleteTask.execute((String) null);
 
                 return true;
@@ -222,12 +292,30 @@ public class ViewRecipe extends AppCompatActivity {
 
         // set other views
         primCategoryView.setText(recipe.getPrimaryCategory().getName());
-        servingsView.setText(Integer.toString(recipe.getServings()));
-        preparationTimeView.setText(Integer.toString(recipe.getPreparationTime()));
-        ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
-        ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
-        caloriesView.setText(Integer.toString(recipe.getCalories()));
-        instructionsView.setText(recipe.getInstructions());
+
+        if(recipe.getServings() != -1){
+            servingsView.setText(Integer.toString(recipe.getServings()));
+        }
+
+        if(recipe.getPreparationTime() != -1){
+            preparationTimeView.setText(Integer.toString(recipe.getPreparationTime()));
+        }
+
+        if(recipe.getOvenTime() != -1){
+            ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
+        }
+
+        if(recipe.getOvenTemperature() != -1){
+            ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+        }
+
+        if(recipe.getCalories() != -1){
+            caloriesView.setText(Integer.toString(recipe.getCalories()));
+        }
+
+        if(!(recipe.getInstructions().equals("none"))){
+            instructionsView.setText(recipe.getInstructions());
+        }
     }
 
     public void addIngredientsToTableView(){
@@ -258,15 +346,25 @@ public class ViewRecipe extends AppCompatActivity {
             tableRow.addView(ingredientNameCol);
 
             quantityCol = new TextView(this);
-            quantityCol.setText(arrayIngredients.get(x).getQuantity());
             quantityCol.setTextSize(15);
             quantityCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+
+            if(arrayIngredients.get(x).getQuantity() == -1){
+                quantityCol.setText(" ");
+            }else{
+                quantityCol.setText(arrayIngredients.get(x).getQuantity());
+            }
             tableRow.addView(quantityCol);
 
             quantityUnitCol = new TextView(this);
-            quantityUnitCol.setText(arrayIngredients.get(x).getQuantityUnit());
             quantityUnitCol.setTextSize(15);
             quantityUnitCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.4f));
+
+            if(arrayIngredients.get(x).getQuantityUnit().equals(" ") || arrayIngredients.get(x).getQuantity() == -1){
+                quantityUnitCol.setText(" ");
+            }else{
+                quantityUnitCol.setText(arrayIngredients.get(x).getQuantityUnit());
+            }
             tableRow.addView(quantityUnitCol);
 
             tableLayoutIngredients.addView(tableRow);
@@ -424,10 +522,12 @@ public class ViewRecipe extends AppCompatActivity {
 
         Indicator indicator;
         String recipeId;
+        String shareEmail;
 
-        public MenuTask(Indicator in, String id){
+        public MenuTask(Indicator in, String id, String email){
             indicator = in;
             recipeId = id;
+            shareEmail = email;
         }
 
         @Override
@@ -448,6 +548,64 @@ public class ViewRecipe extends AppCompatActivity {
 
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("recipeId", recipeId);
+                    recipeInfo = jsonObject.toString();
+
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setReadTimeout(10000);
+                    connection.setConnectTimeout(15000);
+                    connection.setRequestMethod("POST");
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);
+                    connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
+                    connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                    connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                    connection.connect();
+                    System.out.println("Connection established");
+
+                    outputStream = new BufferedOutputStream(connection.getOutputStream());
+                    outputStream.write(recipeInfo.getBytes());
+                    outputStream.flush();
+
+                    int responseCode = connection.getResponseCode();
+
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                        inputStream = connection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            result += line;
+                        }
+                    }
+
+                } catch (Exception ioe) {
+                    ioe.printStackTrace();
+                } finally {
+
+                    try {
+                        outputStream.close();
+                        inputStream.close();
+
+                    } catch (IOException ie) {
+                        ie.printStackTrace();
+                    }
+                }
+            }else if(indicator.equals(Indicator.SHARE)){
+
+                String recipeInfo;
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                HttpURLConnection connection;
+                URL url = null;
+
+                try {
+                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
+
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("recipeId", recipeId);
+                    jsonObject.put("email", shareEmail);
                     recipeInfo = jsonObject.toString();
 
                     connection = (HttpURLConnection) url.openConnection();

@@ -90,6 +90,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     private PopupWindow ingredientPopup;
     private PopupWindow categoryPopup;
+    private PopupWindow deleteCatPopup;
     private Context context;
 
     // new ingredient popup window
@@ -276,7 +277,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         autoView.setAdapter(ingredientAdapter);
         autoView.setTextSize(15);
         autoView.setMaxLines(2);
-
         autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
         autoView.setBackgroundResource(R.drawable.thin_black_border_background);
         ingredientViews.add(autoView);
@@ -321,7 +321,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         final TableRow tableRow;
         final TextView countCol;
-        AutoCompleteTextView autoCompCat;
+        final AutoCompleteTextView autoCompCat;
         ImageView deleteCategoryRowView;
 
         Service.incrementCategoryViewCount();
@@ -357,6 +357,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             public void onClick(View v) {
                 catCountArray.remove(countCol);
                 updateCatCountNumbers();
+                additionalCategories.remove(autoCompCat);
                 tableLayoutCategories.removeView(tableRow);
                 Service.decrementCategoryViewCount();
 
@@ -661,9 +662,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 
-        boolean valid = false;
-        boolean exists = true;
-        boolean catExists = true;
+        boolean hasRecipeName = false;
+        boolean haveQuantityAndUnit = false;
+        boolean ingredientsHaveNames = false;
+        boolean categoriesHaveNames = false;
+        boolean ingredientExists = true;
+        boolean categoryExists = true;
 
         switch(item.getItemId()){
 
@@ -671,8 +675,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             case R.id.save_action:
 
                 // check that required fields are filled
-                // valid = checkRequiredFields();
-                valid = true;
+                // hasRecipeName = checkRequiredFields();
+                // haveQuantityAndUnit = checkQuantityUnitRequirement();
+                // ingredientsHaveNames = checkIngredientsHaveNames();
+                // categoriesHaveNames = checkCategoriesHaveNames();
+                hasRecipeName = true;
+                haveQuantityAndUnit = true;
+                ingredientsHaveNames = true;
+                categoriesHaveNames = true;
 
                 // get text entered into textfields
                 String recipeName = recipeNameView.getText().toString();
@@ -694,13 +704,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         Ingredient ing = new Ingredient();
 
                         ing.setName(ingredientViews.get(i).getText().toString());
-                        ing.setQuantity(quantityViews.get(i).getText().toString());
+                        ing.setQuantity(Integer.parseInt(quantityViews.get(i).getText().toString()));
                         ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
 
                         ingredients.add(ing);
                     }else{
                         ingredientViews.get(i).setError("Ingredient does not exist. Please create it first.");
-                        exists = false;
+                        ingredientExists = false;
                         break;
                     }
                 }
@@ -721,14 +731,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                     }else{
                         additionalCategories.get(j).setError("Category does not exist. Please create it first.");
-                        catExists = false;
+                        categoryExists = false;
                         break;
                     }
-
-
                 }
 
-                if(valid && exists && catExists) {
+                if(hasRecipeName && haveQuantityAndUnit && ingredientsHaveNames && categoriesHaveNames && ingredientExists && categoryExists) {
 
                     // execute new asynchronous save task
                     saveTask = new SaveTask(userEmail, recipeName, ingredients, primCategory, addCategories, prepTime
@@ -797,8 +805,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 LayoutInflater inflater2 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View categoryPopupView = inflater2.inflate(R.layout.new_item_popup, null);
 
-                ImageButton saveButton2 =(ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
-                ImageButton cancelButton2 = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
+                ImageButton saveButtonCat =(ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
+                ImageButton cancelButtonCat = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
                 final EditText newCategoryView = (EditText) categoryPopupView.findViewById(R.id.enter_item_view);
                 final Spinner defaultSpinner2 = (Spinner) categoryPopupView.findViewById(R.id.default_spinner);
                 TextView defaultLab2 = (TextView) categoryPopupView.findViewById(R.id.default_label);
@@ -811,7 +819,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 categoryPopup = new PopupWindow(categoryPopupView, 1000, 600, true);
                 categoryPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
-                saveButton2.setOnClickListener(new View.OnClickListener() {
+                saveButtonCat.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -822,10 +830,47 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     }
                 });
 
-                cancelButton2.setOnClickListener(new View.OnClickListener() {
+                cancelButtonCat.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         categoryPopup.dismiss();
+                    }
+                });
+
+                return true;
+
+            case R.id.delete_category_action:
+
+                LayoutInflater inflater3 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View deleteCatPopupView = inflater3.inflate(R.layout.delete_item_popup, null);
+
+                ImageButton saveButtonDelete =(ImageButton) deleteCatPopupView.findViewById(R.id.delete_category_button);
+                ImageButton cancelButtonDelete = (ImageButton) deleteCatPopupView.findViewById(R.id.cancel_image_button);
+                final Spinner deleteCatSpinner = (Spinner) deleteCatPopupView.findViewById(R.id.delete_item_spinner);
+                TextView deleteCatHeading = (TextView) deleteCatPopupView.findViewById(R.id.delete_item_heading);
+                deleteCatHeading.setText("Delete Category");
+
+                ArrayAdapter<String> deleteCatAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, listCategories);
+                deleteCatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                deleteCatSpinner.setAdapter(deleteCatAdapter);
+
+                deleteCatPopup = new PopupWindow(deleteCatPopupView, 1200, 900, true);
+                deleteCatPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                saveButtonDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        DeleteItemTask deleteTask = new DeleteItemTask("category", userEmail, deleteCatSpinner.getSelectedItem().toString());
+                        deleteTask.execute();
+                        deleteCatPopup.dismiss();
+                    }
+                });
+
+                cancelButtonDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        deleteCatPopup.dismiss();
                     }
                 });
 
@@ -836,7 +881,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         }
     }
 
-    // check if required fields are filled out
+    // check if recipe has a name and at least three ingredients
     protected boolean checkRequiredFields() {
 
         boolean valid = false;
@@ -851,6 +896,64 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             recipeNameView.setError("Recipe needs a name");
         }
         return valid;
+    }
+
+    // if user entered a quantity then user also needs to enter a unit for that quantity
+    protected boolean checkQuantityUnitRequirement(){
+
+        boolean haveQuantityAndUnit = true;
+
+        for(int x = 0; x < quantityViews.size(); x++){
+
+            if(!(quantityViews.get(x).getText().toString().isEmpty())){
+
+                if(measurementSpinners.get(x).getSelectedItem().toString().equals(" ")) {
+                    haveQuantityAndUnit = false;
+                    quantityViews.get(x).setError("No unit specified for this quantity");
+                }
+            }
+        }
+        return haveQuantityAndUnit;
+    }
+
+    protected boolean checkIngredientsHaveNames(){
+
+        boolean haveNames = true;
+
+        for(int x = 0; x < ingredientViews.size(); x++){
+
+            if(ingredientViews.get(x).getText().toString().isEmpty()){
+                haveNames = false;
+                ingredientViews.get(x).setError("This ingredient needs a name");
+            }
+        }
+        return haveNames;
+    }
+
+    protected boolean checkCategoriesHaveNames(){
+
+        boolean haveNames = true;
+
+        for(int x = 0; x < additionalCategories.size(); x++){
+
+            if(additionalCategories.get(x).getText().toString().isEmpty()){
+                haveNames = false;
+                additionalCategories.get(x).setError("This category needs a name");
+            }
+        }
+        return haveNames;
+    }
+
+    public void onBackgroundDeleteTaskSuccess(){
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category successfully deleted", Snackbar.LENGTH_SHORT);
+    }
+
+    public void onBackgroundDeleteTaskFailure(){
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category cannot be deleted. One or more recipes belong to this category", Snackbar.LENGTH_LONG);
+    }
+
+    public void onBackgroundDeleteTaskNeutral(){
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category to be deleted does not exist", Snackbar.LENGTH_LONG);
     }
 
     public class SaveTask extends AsyncTask<String, Void, String> {
@@ -1128,6 +1231,106 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             }catch(Exception e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public class DeleteItemTask extends AsyncTask<String, Void, String>{
+
+        private String userEmail, category, itemIndicator;
+
+        public DeleteItemTask(String indicator, String email, String category){
+
+            itemIndicator = indicator;
+            userEmail = email;
+            this.category = category;
+        }
+
+        @Override
+        protected String doInBackground(String... args){
+
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            HttpURLConnection connection;
+            URL url = null;
+            String result = "";
+
+            try{
+
+                if(itemIndicator.equals("category")){
+                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteCategory");
+                }
+
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("user", userEmail);
+                jsonObject.put("category", category);
+                String send = jsonObject.toString();
+
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setReadTimeout(10000);
+                connection.setConnectTimeout(15000);
+                connection.setRequestMethod("POST");
+                connection.setDoInput(true);
+                connection.setDoOutput(true);
+                connection.setFixedLengthStreamingMode(send.getBytes().length);
+                connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+
+                connection.connect();
+                System.out.println("connection established");
+
+                outputStream = new BufferedOutputStream(connection.getOutputStream());
+                outputStream.write(send.getBytes());
+                outputStream.flush();
+
+                int responseCode = connection.getResponseCode();
+
+                if(responseCode == HttpURLConnection.HTTP_OK){
+
+                    System.out.println("Connection is ok");
+                    inputStream = connection.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                    String line;
+
+                    while((line = reader.readLine())!= null){
+                        result += line;
+                    }
+                }
+
+                System.out.println("result string: " + result);
+
+            }catch(Exception ioe){
+                ioe.printStackTrace();
+            }finally{
+
+                try{
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
+
+                    if(outputStream != null){
+                        outputStream.close();
+                    }
+
+                }catch(Exception ie){
+                    ie.printStackTrace();
+                }
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(String response){
+
+            String finalResult = ParseJSON.parseJSON(response);
+
+            if(finalResult.equals("success")){
+                onBackgroundDeleteTaskSuccess();
+
+            }else if(finalResult.equals("categoryIsUsed")){
+                onBackgroundDeleteTaskFailure();
+            }else if(finalResult.equals("neutral")){
+                onBackgroundDeleteTaskNeutral();
             }
         }
     }

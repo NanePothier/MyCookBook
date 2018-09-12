@@ -13,11 +13,32 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar_view_recipe"
+            android:id="@+id/view_recipe_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_arrow_back_white_24dp"
+                android:id="@+id/back_button"
+                android:background="@color/colorPrimary"
+                android:layout_gravity="left"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_view_recipe"
+                    android:textSize="20dp"
+                    android:textColor="@color/white"
+                    android:layout_marginLeft="30dp"
+            />
+        </android.support.v7.widget.Toolbar>
+
+
+
 
     </android.support.design.widget.AppBarLayout>
 

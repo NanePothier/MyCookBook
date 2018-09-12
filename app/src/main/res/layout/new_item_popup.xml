@@ -7,8 +7,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/green_border_background"
         android:layout_gravity="center_horizontal"
-        android:padding="10dp"
->
+        android:padding="10dp">
 
         <android.support.constraint.ConstraintLayout
                 android:layout_width="wrap_content"

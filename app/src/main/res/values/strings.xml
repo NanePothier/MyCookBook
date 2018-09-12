@@ -4,6 +4,7 @@
     <string name="title_activity_cookbook">Cookbook</string>
     <string name="title_activity_login">Sign in</string>
     <string name="title_new_recipe">New Recipe</string>
+    <string name="title_view_recipe">View Recipe</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
@@ -43,6 +44,6 @@
     <string name="instructions">Instructions:</string>
 
     <string name="delete_user_msg">Recipe was successfully deleted.</string>
-    <string name="share_user_msg">Recipe sent.</string>
+    <string name="share_user_msg">Recipe shared.</string>
 
 </resources>

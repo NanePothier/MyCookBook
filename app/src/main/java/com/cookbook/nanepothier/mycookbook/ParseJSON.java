@@ -78,8 +78,9 @@ public class ParseJSON {
 
                 ingObject = ingredientsArray.getJSONObject(i);
                 ingredient.setName(ingObject.getString("ingredient_name"));
-                ingredient.setQuantity(ingObject.getString("quantity"));
+                ingredient.setQuantity(Integer.parseInt(ingObject.getString("quantity")));
                 ingredient.setQuantityUnit(ingObject.getString("quantity_unit"));
+                ingredient.setDefaultMeasurement(ingObject.getString("default_meas"));
 
                 System.out.println("ingredient name in json: " + ingObject.getString("ingredient_name"));
 

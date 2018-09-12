@@ -4,6 +4,11 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.cookbook.nanepothier.mycookbook.NewRecipe">
 
+    <item
+            android:id="@+id/save_action"
+            android:title="Save Recipe"
+            app:showAsAction="never"
+    />
 
     <item
             android:id="@+id/new_ingredient_action"
@@ -18,8 +23,8 @@
     />
 
     <item
-            android:id="@+id/save_action"
-            android:title="Save"
+            android:id="@+id/delete_category_action"
+            android:title="Delete Category"
             app:showAsAction="never"
     />
 

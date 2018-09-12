@@ -1,5 +1,6 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,14 +11,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SearchView;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Cookbook extends AppCompatActivity {
@@ -25,7 +28,7 @@ public class Cookbook extends AppCompatActivity {
     private ArrayList<String> arrayRecipeNames;
     private ArrayList<String> arrayUserCategories;
     private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
-    private Map<String, ArrayList<RecipeNameId>> categoryRecipesMap;
+    private Map<String, ArrayList<String>> categoryRecipesMap;
     private String userEmail;
     private RecyclerView recyclerView;
 
@@ -33,8 +36,34 @@ public class Cookbook extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cookbook);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.cookbook_toolbar);
         setSupportActionBar(toolbar);
+        ImageButton backButton = (ImageButton) toolbar.findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Cookbook.this, MainActivity.class);
+                intent.putExtra("action", "cookbook");
+                startActivity(intent);
+            }
+        });
+
+        SearchView searchView = (SearchView) toolbar.findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                // start async task to query recipes
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
 
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -47,14 +76,23 @@ public class Cookbook extends AppCompatActivity {
 
         // retrieve user recipes and categories recipes belong to
         arrayRecipeNames = new ArrayList<>();
+
+        arrayRecipeNames.add("Schoko");
+        arrayRecipeNames.add("ruffle");
         arrayUserCategories = new ArrayList<>();
+        arrayUserCategories.add("Pasta");
+        arrayUserCategories.add("Chinese");
+        categoryRecipesMap = new HashMap<>();
+        categoryRecipesMap.put("Pasta", arrayRecipeNames);
+        categoryRecipesMap.put("Chinese", arrayRecipeNames);
 
         userEmail = "haleyiron@gmail.com";
 
-        getRecipeNamesAndCategories();
+        // getRecipeNamesAndCategories();
 
 
         setUpRecyclerView();
+        populateRecyclerView();
 
         // LinearLayoutManager linearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         // RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipeNames);
@@ -96,7 +134,7 @@ public class Cookbook extends AppCompatActivity {
 
     public void onBackgroundTaskObtainedRecipeNamesAndCategories(Map<String, ArrayList<RecipeNameId>> map){
 
-        categoryRecipesMap = map;
+        // categoryRecipesMap = map;
         populateRecyclerView();
     }
 

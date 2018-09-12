@@ -30,7 +30,7 @@
 
         <activity
             android:name=".Cookbook"
-            android:label="@string/title_activity_cookbook">
+            android:label="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -64,7 +64,7 @@
 
         <activity
             android:name=".ViewRecipe"
-            android:label="@string/title_activity_view_recipe"
+            android:label=""
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
