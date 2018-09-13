@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ParseJSON {
@@ -78,7 +79,7 @@ public class ParseJSON {
 
                 ingObject = ingredientsArray.getJSONObject(i);
                 ingredient.setName(ingObject.getString("ingredient_name"));
-                ingredient.setQuantity(Integer.parseInt(ingObject.getString("quantity")));
+                ingredient.setQuantity(ingObject.getInt("quantity"));
                 ingredient.setQuantityUnit(ingObject.getString("quantity_unit"));
                 ingredient.setDefaultMeasurement(ingObject.getString("default_meas"));
 
@@ -114,7 +115,7 @@ public class ParseJSON {
 
     public static Map<String, ArrayList<RecipeNameId>> parseJSONRecipeNameCategory(String jsonData){
 
-        Map<String, ArrayList<RecipeNameId>> map = null;
+        Map<String, ArrayList<RecipeNameId>> map = new HashMap<>();
 
         try{
 
@@ -124,10 +125,11 @@ public class ParseJSON {
 
                 JSONObject jObject = jsonArray.getJSONObject(x);
                 String categoryName = jObject.getString("category");
-
                 RecipeNameId nameIdObject = new RecipeNameId(jObject.getString("recipe_id"), jObject.getString("recipe_name"));
 
-                // if map already contains the current category add object to that category's list
+                System.out.println("Category name, recipe name and recipe id: " + categoryName + " " + nameIdObject.getRecipeName() + " " + nameIdObject.getRecipeId());
+
+                // if map already contains the current category, add current object to that category's list
                 if(map.containsKey(categoryName)){
 
                     map.get(categoryName).add(nameIdObject);

@@ -108,10 +108,20 @@ public class ViewRecipe extends AppCompatActivity {
             }
         });
 
-        // get recipe name and email through intent
-        recipeName = "Spaghetti";
+        // get recipe name, email and recipe Id through intent
+        /*
+        Intent intentReceived = getIntent();
+        recipeName = intentReceived.getStringExtra("recipe_name");
+        userEmail = intentReceived.getStringExtra("user_email");
+        recipeId = intentReceived.getStringExtra("recipe_id");
+
+        System.out.println("Recipe id in view activity: " + recipeId);
+        */
+
+
+        recipeName = "Strawberry Cake";
         userEmail="haleyiron@gmail.com";
-        recipeId = "256436f3-9406-4248-81ac-96898a93dfce";
+        recipeId = "fb5f13f0-8ea3-48ba-ad34-8c5bd48bf4ec";
 
         retrieveRecipe();
     }
@@ -329,30 +339,31 @@ public class ViewRecipe extends AppCompatActivity {
         for(int x = 0; x < arrayIngredients.size(); x++){
 
             tableRow = new TableRow(this);
-            tableRow.setId(count);
-            tableRow.setPadding(5, 5, 5, 5);
-            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+            tableRow.setPadding(15, 10, 10, 10);
+            tableRow.setBackgroundResource(R.drawable.thin_black_border_background);
+            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 150));
 
             countCol = new TextView(this);
-            countCol.setText(count + ".");
+            countCol.setText(Integer.toString(count) + ".");
             countCol.setTextSize(15);
-            countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+            countCol.setLayoutParams(new TableRow.LayoutParams(85, TableRow.LayoutParams.WRAP_CONTENT));
             tableRow.addView(countCol);
 
             ingredientNameCol = new TextView(this);
             ingredientNameCol.setText(arrayIngredients.get(x).getName());
             ingredientNameCol.setTextSize(15);
-            ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
+            ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(850, TableRow.LayoutParams.WRAP_CONTENT));
             tableRow.addView(ingredientNameCol);
+
 
             quantityCol = new TextView(this);
             quantityCol.setTextSize(15);
-            quantityCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
+            quantityCol.setLayoutParams(new TableRow.LayoutParams(70, TableRow.LayoutParams.WRAP_CONTENT));
 
             if(arrayIngredients.get(x).getQuantity() == -1){
                 quantityCol.setText(" ");
             }else{
-                quantityCol.setText(arrayIngredients.get(x).getQuantity());
+                quantityCol.setText(Integer.toString(arrayIngredients.get(x).getQuantity()));
             }
             tableRow.addView(quantityCol);
 
@@ -368,6 +379,7 @@ public class ViewRecipe extends AppCompatActivity {
             tableRow.addView(quantityUnitCol);
 
             tableLayoutIngredients.addView(tableRow);
+            tableLayoutIngredients.setPadding(10, 10, 10, 10);
             count++;
         }
     }
@@ -500,7 +512,6 @@ public class ViewRecipe extends AppCompatActivity {
                     ie.printStackTrace();
                 }
             }
-
             return result;
         }
 
@@ -508,7 +519,6 @@ public class ViewRecipe extends AppCompatActivity {
         protected void onPostExecute(String data){
 
             try{
-
                 Recipe recipe = ParseJSON.parseJSONRecipe(data, recipeName, recipeId);
                 ViewRecipe.this.onBackgroundTaskObtainedRecipe(recipe);
 
@@ -680,9 +690,7 @@ public class ViewRecipe extends AppCompatActivity {
                                 .show();
                     }
                 }
-
             }
-
         }
     }
 
@@ -735,14 +743,19 @@ public class ViewRecipe extends AppCompatActivity {
                     }
                 }
 
+                System.out.println("Get conversion factors result: " + result);
+
             } catch (Exception ioe) {
                 ioe.printStackTrace();
             } finally {
 
                 try {
-                    outputStream.close();
-                    inputStream.close();
-
+                    if(outputStream != null){
+                        outputStream.close();
+                    }
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
                 } catch (IOException ie) {
                     ie.printStackTrace();
                 }

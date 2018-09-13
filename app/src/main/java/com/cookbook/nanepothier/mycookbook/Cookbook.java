@@ -12,15 +12,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.SearchView;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Cookbook extends AppCompatActivity {
@@ -28,7 +25,7 @@ public class Cookbook extends AppCompatActivity {
     private ArrayList<String> arrayRecipeNames;
     private ArrayList<String> arrayUserCategories;
     private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
-    private Map<String, ArrayList<String>> categoryRecipesMap;
+    private Map<String, ArrayList<RecipeNameId>> categoryRecipesMap;
     private String userEmail;
     private RecyclerView recyclerView;
 
@@ -50,6 +47,7 @@ public class Cookbook extends AppCompatActivity {
         });
 
         SearchView searchView = (SearchView) toolbar.findViewById(R.id.search_view);
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -74,30 +72,16 @@ public class Cookbook extends AppCompatActivity {
             }
         });
 
-        // retrieve user recipes and categories recipes belong to
-        arrayRecipeNames = new ArrayList<>();
-
-        arrayRecipeNames.add("Schoko");
-        arrayRecipeNames.add("ruffle");
-        arrayUserCategories = new ArrayList<>();
-        arrayUserCategories.add("Pasta");
-        arrayUserCategories.add("Chinese");
-        categoryRecipesMap = new HashMap<>();
-        categoryRecipesMap.put("Pasta", arrayRecipeNames);
-        categoryRecipesMap.put("Chinese", arrayRecipeNames);
+        // retrieve user email through intent
+        // Intent intentReceived = getIntent();
+        // userEmail = intentReceived.getStringExtra("userEmail");
 
         userEmail = "haleyiron@gmail.com";
 
-        // getRecipeNamesAndCategories();
-
-
+        getRecipeNamesAndCategories();
         setUpRecyclerView();
-        populateRecyclerView();
 
-        // LinearLayoutManager linearManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        // RecipeAdapter recipeAdapter = new RecipeAdapter(this, arrayRecipeNames);
-
-    }//onCreate
+    }// onCreate
 
     public void setUpRecyclerView(){
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -106,6 +90,7 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
+    // create views using retrieved categories and recipe names
     public void populateRecyclerView(){
 
         arrayHeaderRecipeModels = new ArrayList<>();
@@ -116,13 +101,17 @@ public class Cookbook extends AppCompatActivity {
             arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, categoryRecipesMap.get(categoryName)));
         }
 
-        SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels);
+        SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels, userEmail);
         recyclerView.setAdapter(recyclerViewAdapter);
+    }
+
+    public void goToViewRecipe(String id){
+
+        // Intent intent = new Intent(Cookbook.this, ViewRecipe.class);
     }
 
     public void getRecipeNamesAndCategories(){
 
-        System.out.println("Setting up task");
         GetItemsTask nameTask = new GetItemsTask(userEmail);
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
@@ -132,9 +121,11 @@ public class Cookbook extends AppCompatActivity {
         }
     }
 
+    // receive recipe names and categories retrieved from database
     public void onBackgroundTaskObtainedRecipeNamesAndCategories(Map<String, ArrayList<RecipeNameId>> map){
 
-        // categoryRecipesMap = map;
+        categoryRecipesMap = map;
+        arrayUserCategories = new ArrayList<>(categoryRecipesMap.keySet());
         populateRecyclerView();
     }
 
@@ -156,7 +147,6 @@ public class Cookbook extends AppCompatActivity {
             String result = "";
 
             try{
-
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetRecipeNames");
 
                 JSONObject jsonObject = new JSONObject();
@@ -192,22 +182,22 @@ public class Cookbook extends AppCompatActivity {
                         result += line;
                     }
                 }
-
                 System.out.println("result string: " + result);
-
 
             }catch(Exception ioe){
                 ioe.printStackTrace();
             }finally{
-
                 try{
-                    inputStream.close();
-
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
+                    if(outputStream != null) {
+                        outputStream.close();
+                    }
                 }catch(Exception ie){
                     ie.printStackTrace();
                 }
             }
-
             return result;
         }
 
@@ -217,7 +207,6 @@ public class Cookbook extends AppCompatActivity {
             Map<String, ArrayList<RecipeNameId>> recipeNameCategoryMap;
 
             try{
-
                 recipeNameCategoryMap = ParseJSON.parseJSONRecipeNameCategory(data);
                 onBackgroundTaskObtainedRecipeNamesAndCategories(recipeNameCategoryMap);
 

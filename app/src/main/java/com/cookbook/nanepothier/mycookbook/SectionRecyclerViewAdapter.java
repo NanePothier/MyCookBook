@@ -12,6 +12,10 @@ import java.util.ArrayList;
 
 public class SectionRecyclerViewAdapter extends RecyclerView.Adapter<SectionRecyclerViewAdapter.SectionViewHolder> {
 
+    private Context context;
+    private ArrayList<HeaderRecipeModel> headerRecipeModelsArray;
+    private String userEmail;
+
     class SectionViewHolder extends RecyclerView.ViewHolder {
         private TextView categoryLabel;
         private RecyclerView itemRecyclerView;
@@ -23,12 +27,10 @@ public class SectionRecyclerViewAdapter extends RecyclerView.Adapter<SectionRecy
         }
     }
 
-    private Context context;
-    private ArrayList<HeaderRecipeModel> headerRecipeModelsArray;
-
-    public SectionRecyclerViewAdapter(Context context, ArrayList<HeaderRecipeModel> array) {
+    public SectionRecyclerViewAdapter(Context context, ArrayList<HeaderRecipeModel> array, String userEmail) {
         this.context = context;
         this.headerRecipeModelsArray = array;
+        this.userEmail = userEmail;
     }
 
     @Override
@@ -47,10 +49,10 @@ public class SectionRecyclerViewAdapter extends RecyclerView.Adapter<SectionRecy
         holder.itemRecyclerView.setHasFixedSize(true);
         holder.itemRecyclerView.setNestedScrollingEnabled(false);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
         holder.itemRecyclerView.setLayoutManager(linearLayoutManager);
 
-        ItemRecyclerViewAdapter adapter = new ItemRecyclerViewAdapter(context, sectionModel.getRecipesArray());
+        ItemRecyclerViewAdapter adapter = new ItemRecyclerViewAdapter(context, sectionModel.getRecipesArray(), userEmail);
         holder.itemRecyclerView.setAdapter(adapter);
     }
 

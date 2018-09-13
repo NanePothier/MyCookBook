@@ -47,7 +47,7 @@
                 android:layout_width="72dp"
                 android:layout_height="40dp"
                 android:id="@+id/toggle_sys_button"
-                android:layout_marginTop="65dp"
+                android:layout_marginTop="52dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
         />
@@ -75,7 +75,7 @@
 
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Primary Category:"
                 android:id="@+id/prim_cat_label_view"
@@ -92,7 +92,6 @@
                 android:id="@+id/primCategory_view_view"
                 android:layout_weight="1"
                 android:layout_marginTop="24dp"
-                android:layout_marginLeft="30dp"
                 android:textSize="15dp"
                 app:layout_constraintTop_toBottomOf="@id/table_layout_view"
                 app:layout_constraintStart_toEndOf="@id/prim_cat_label_view"
@@ -121,7 +120,7 @@
         </TableLayout>
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Servings:"
                 android:id="@+id/servings_label_view_view"
@@ -137,7 +136,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/servings_view_view"
                 android:layout_weight="1"
-                android:layout_marginLeft="90dp"
                 android:textSize="15dp"
                 app:layout_constraintTop_toBottomOf="@id/table_layout_view_categories"
                 app:layout_constraintStart_toEndOf="@id/servings_label_view_view"
@@ -145,7 +143,7 @@
         />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Preparation Time:"
                 android:id="@+id/prep_time_label_view"
@@ -158,13 +156,12 @@
 
         <TextView
                 tools:text="60"
-                android:layout_width="wrap_content"
+                android:layout_width="35dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/prep_time_view"
                 android:layout_weight="1"
                 android:layout_marginTop="20dp"
                 android:textSize="15dp"
-                android:layout_marginLeft="30dp"
                 app:layout_constraintTop_toBottomOf="@id/servings_view_view"
                 app:layout_constraintStart_toEndOf="@id/prep_time_label_view"
                 />
@@ -175,14 +172,13 @@
                 android:text="minutes"
                 android:textSize="15dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="10dp"
                 app:layout_constraintStart_toEndOf="@id/prep_time_view"
                 app:layout_constraintTop_toBottomOf="@id/servings_view_view"
 
         />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Oven Time:"
                 android:id="@+id/oven_time_label_view"
@@ -194,11 +190,10 @@
         />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="35dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/oven_time_view"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="74dp"
                 android:textSize="15dp"
                 app:layout_constraintTop_toBottomOf="@id/prep_time_view"
                 app:layout_constraintStart_toEndOf="@id/oven_time_label_view"
@@ -210,14 +205,13 @@
                 android:text="minutes"
                 android:textSize="15dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="10dp"
                 app:layout_constraintStart_toEndOf="@id/oven_time_view"
                 app:layout_constraintTop_toBottomOf="@id/prep_time_view"
 
         />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Oven Temperature:"
                 android:id="@+id/oven_temp_label_view"
@@ -229,11 +223,10 @@
         />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="35dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/oven_temp_view"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="74dp"
                 android:textSize="15dp"
                 app:layout_constraintTop_toBottomOf="@id/oven_time_view"
                 app:layout_constraintStart_toEndOf="@id/oven_time_label_view"
@@ -245,14 +238,13 @@
                 android:text="degrees F"
                 android:textSize="15dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="10dp"
                 app:layout_constraintStart_toEndOf="@id/oven_temp_view"
                 app:layout_constraintTop_toBottomOf="@id/oven_time_view"
 
         />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Calories/Serving:"
                 android:id="@+id/calories_label_view"
@@ -268,7 +260,6 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/calories_view"
                 android:layout_marginTop="20dp"
-                android:layout_marginLeft="34dp"
                 android:textSize="15dp"
                 app:layout_constraintTop_toBottomOf="@id/oven_temp_view"
                 app:layout_constraintStart_toEndOf="@id/calories_label_view"

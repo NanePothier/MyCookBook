@@ -5,9 +5,9 @@ import java.util.ArrayList;
 public class HeaderRecipeModel {
 
     private String category;
-    private ArrayList<String> recipes;
+    private ArrayList<RecipeNameId> recipes;
 
-    public HeaderRecipeModel(String category, ArrayList<String> recipes){
+    public HeaderRecipeModel(String category, ArrayList<RecipeNameId> recipes){
 
         this.category = category;
         this.recipes = recipes;
@@ -17,7 +17,7 @@ public class HeaderRecipeModel {
         return this.category;
     }
 
-    public ArrayList<String> getRecipesArray() {
+    public ArrayList<RecipeNameId> getRecipesArray() {
         return recipes;
     }
 }

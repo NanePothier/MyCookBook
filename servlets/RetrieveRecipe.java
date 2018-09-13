@@ -88,7 +88,7 @@ public class RetrieveRecipe extends HttpServlet {
 				
 				recipeResultSet.beforeFirst();
 				
-				jsonArrayIngredients = addIngredientsToJsonArray(recipeResultSet);
+				jsonArrayIngredients = addIngredientsToJsonArray(connection, recipeResultSet);
 				responseObject.put("ingredients", jsonArrayIngredients);
 				
 				recipeQuery.close();
@@ -144,13 +144,22 @@ public class RetrieveRecipe extends HttpServlet {
 		}	
 	}
 	
-	public JSONArray addIngredientsToJsonArray(ResultSet set) {
+	public JSONArray addIngredientsToJsonArray(Connection conn, ResultSet set) {
 		
 		JSONArray array = new JSONArray();
+		ResultSet defSet = null;
+		Statement defStatement = null;
+		String defQuery;
+		String name;
 		
 		try {
 			
 			while(set.next()) {
+				
+				name = set.getString("ingredient_name");
+				defQuery = "SELECT def_measure_cat FROM ingredients WHERE ingredient_name = '" + name + "'";
+				defStatement = conn.createStatement();
+				defSet = defStatement.executeQuery(defQuery);
 				
 				JSONObject ingredientObject = new JSONObject();
 				
@@ -158,12 +167,32 @@ public class RetrieveRecipe extends HttpServlet {
 				ingredientObject.put("quantity", set.getObject("quantity"));
 				ingredientObject.put("quantity_unit", set.getObject("quantity_unit"));
 				
+				if(defSet.next()) {
+					ingredientObject.put("default_meas", defSet.getString("def_measure_cat"));
+				}else {
+					ingredientObject.put("default_meas", "w");
+				}
+				
 				array.put(ingredientObject);
 			}
 		}catch(JSONException jsonException) {
 			jsonException.printStackTrace();
 		}catch(SQLException sqlException) {
 			sqlException.printStackTrace();
+		}finally {
+			
+			try {
+				
+				if(defStatement != null) {
+					defStatement.close();
+				}
+				if(defSet != null) {
+					defSet.close();
+				}
+			}catch(SQLException sEx) {
+				sEx.printStackTrace();
+			}
+			
 		}
 		
 		return array;

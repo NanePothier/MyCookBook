@@ -1,6 +1,8 @@
 package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,10 @@ import java.util.ArrayList;
 
 public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerViewAdapter.ItemViewHolder>{
 
+    private Context context;
+    private ArrayList<RecipeNameId> arrayRecipeNames;
+    private String userEmail;
+
     class ItemViewHolder extends RecyclerView.ViewHolder {
         private TextView recipeName;
 
@@ -20,12 +26,10 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         }
     }
 
-    private Context context;
-    private ArrayList<String> arrayRecipeNames;
-
-    public ItemRecyclerViewAdapter(Context context, ArrayList<String> arrayList) {
+    public ItemRecyclerViewAdapter(Context context, ArrayList<RecipeNameId> arrayList, String userEmail) {
         this.context = context;
         this.arrayRecipeNames = arrayList;
+        this.userEmail = userEmail;
     }
 
     @Override
@@ -36,7 +40,22 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
 
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
-        holder.recipeName.setText(arrayRecipeNames.get(position));
+        holder.recipeName.setText(arrayRecipeNames.get(position).getRecipeName());
+
+        final String name = holder.recipeName.getText().toString();
+        final String id = arrayRecipeNames.get(position).getRecipeId();
+
+        holder.recipeName.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("Pressed recipe name " + name + " Recipe id is: " + id);
+                Intent intent = new Intent(context, ViewRecipe.class);
+                intent.putExtra("recipe_name", name);
+                intent.putExtra("user_email", userEmail);
+                intent.putExtra("recipe_id", id);
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
