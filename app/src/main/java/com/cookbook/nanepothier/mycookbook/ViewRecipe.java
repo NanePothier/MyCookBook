@@ -254,7 +254,7 @@ public class ViewRecipe extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        MenuTask shareTask = new MenuTask(Indicator.SHARE, recipe.getRecipeId(), enterEmailView.getText().toString());
+                        MenuTask shareTask = new MenuTask(Indicator.SHARE, recipe.getRecipeId(), enterEmailView.getText().toString(), userEmail);
                         shareTask.execute();
                         sharePopup.dismiss();
                     }
@@ -271,7 +271,7 @@ public class ViewRecipe extends AppCompatActivity {
 
             case R.id.delete_action:
 
-                MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId(), "");
+                MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId());
                 deleteTask.execute((String) null);
 
                 return true;
@@ -552,11 +552,18 @@ public class ViewRecipe extends AppCompatActivity {
         Indicator indicator;
         String recipeId;
         String shareEmail;
+        String sharedByEmail;
 
-        public MenuTask(Indicator in, String id, String email){
+        public MenuTask(Indicator in, String id, String email, String sharedByEmail){
             indicator = in;
             recipeId = id;
             shareEmail = email;
+            this.sharedByEmail = sharedByEmail;
+        }
+
+        public MenuTask(Indicator in, String id){
+            indicator = in;
+            recipeId = id;
         }
 
         @Override
@@ -633,8 +640,9 @@ public class ViewRecipe extends AppCompatActivity {
                     url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
 
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("recipeId", recipeId);
-                    jsonObject.put("email", shareEmail);
+                    jsonObject.put("recipe_id", recipeId);
+                    jsonObject.put("user_email", shareEmail);
+                    jsonObject.put("shared_by_email", sharedByEmail);
                     recipeInfo = jsonObject.toString();
 
                     connection = (HttpURLConnection) url.openConnection();
@@ -666,21 +674,22 @@ public class ViewRecipe extends AppCompatActivity {
                             result += line;
                         }
                     }
-
                 } catch (Exception ioe) {
                     ioe.printStackTrace();
                 } finally {
-
                     try {
-                        outputStream.close();
-                        inputStream.close();
+                        if(outputStream != null){
+                            outputStream.close();
+                        }
 
+                        if(inputStream != null) {
+                            inputStream.close();
+                        }
                     } catch (IOException ie) {
                         ie.printStackTrace();
                     }
                 }
             }
-
             return result;
         }
 
@@ -703,9 +712,12 @@ public class ViewRecipe extends AppCompatActivity {
 
                     }
                 }else if(indicator.equals(Indicator.SHARE)){
-                    if(finalResult.equals("shared")){
+                    if(finalResult.equals("success")){
 
                         Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.share_user_msg, Snackbar.LENGTH_SHORT)
+                                .show();
+                    }else if(finalResult.equals("exists")){
+                        Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.not_shared_msg, Snackbar.LENGTH_SHORT)
                                 .show();
                     }
                 }

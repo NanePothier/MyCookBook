@@ -44,6 +44,20 @@
     <string name="instructions">Instructions:</string>
 
     <string name="delete_user_msg">Recipe was successfully deleted.</string>
-    <string name="share_user_msg">Recipe shared.</string>
+    <string name="share_user_msg">Recipe shared</string>
+    <string name="not_shared_msg">Recipe was already shared</string>
+
+
+    <!--Cookbook menu strings-->
+    <string name="view_all">Show All Recipes</string>
+    <string name="view_own">Show My Recipes</string>
+    <string name="view_shared">Show Shared Recipes</string>
+
+    <!--New Recipe menu strings-->
+    <string name="save_recipe">Save Recipe</string>
+    <string name="new_ingredient">New Ingredient</string>
+    <string name="new_category">New Category</string>
+    <string name="delete_category">Delete Category</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

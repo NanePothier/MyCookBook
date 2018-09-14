@@ -37,6 +37,29 @@ public class ParseJSON {
         return listItems;
     }
 
+    public static ArrayList<RecipeNameId> parseJSONArrayModel(String jsonData){
+
+        ArrayList<RecipeNameId> listItems = new ArrayList<>();
+        RecipeNameId nameIdObject;
+
+        try{
+            JSONArray json = new JSONArray(jsonData);
+
+            for(int x = 0; x < json.length(); x++){
+
+                JSONObject jObject = json.getJSONObject(x);
+                String id = jObject.getString("recipe_id");
+                String name = jObject.getString("recipe_name");
+
+                nameIdObject = new RecipeNameId(id, name);
+                listItems.add(nameIdObject);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return listItems;
+    }
+
     public static String parseJSON(String jsonData){
 
         String stringResult = "";
@@ -113,9 +136,13 @@ public class ParseJSON {
         return recipe;
     }
 
-    public static Map<String, ArrayList<RecipeNameId>> parseJSONRecipeNameCategory(String jsonData){
+    public static ArrayList<HashMap<String, ArrayList<RecipeNameId>>> parseJSONRecipeNameCategory(String jsonData){
 
-        Map<String, ArrayList<RecipeNameId>> map = new HashMap<>();
+        HashMap<String, ArrayList<RecipeNameId>> map = new HashMap<>();
+        HashMap<String, ArrayList<RecipeNameId>> sharedMap = new HashMap<>();
+        HashMap<String, ArrayList<RecipeNameId>> ownMap = new HashMap<>();
+        ArrayList<HashMap<String, ArrayList<RecipeNameId>>> mapsArray = new ArrayList<>();
+        boolean ownsRecipe;
 
         try{
 
@@ -135,7 +162,13 @@ public class ParseJSON {
                     }
                 }else{
 
-                    RecipeNameId nameIdObject = new RecipeNameId(jObject.getString("recipe_id"), jObject.getString("recipe_name"));
+                    if(jObject.getString("own").equals("n")){
+                        ownsRecipe = false;
+                    }else{
+                        ownsRecipe = true;
+                    }
+
+                    RecipeNameId nameIdObject = new RecipeNameId(jObject.getString("recipe_id"), jObject.getString("recipe_name"), ownsRecipe);
 
                     System.out.println("Category name, recipe name and recipe id: " + categoryName + " " + nameIdObject.getRecipeName() + " " + nameIdObject.getRecipeId());
 
@@ -153,10 +186,13 @@ public class ParseJSON {
                     }
                 }
             }
+            mapsArray.add(map);
+            mapsArray.add(sharedMap);
+            mapsArray.add(ownMap);
         }catch(JSONException jsonException) {
             jsonException.printStackTrace();
         }
-        return map;
+        return mapsArray;
     }
 
     public static ArrayList<ConversionObject> parseJSONConversionArray(String data){
@@ -164,7 +200,6 @@ public class ParseJSON {
         ArrayList<ConversionObject> conversionArray = new ArrayList<>();
 
         try{
-
             JSONArray jsonArray = new JSONArray(data);
 
             for(int x = 0; x < jsonArray.length(); x++){
