@@ -73,6 +73,8 @@ public class GetConversionFactors extends HttpServlet {
 				responseArray.put(jObject);
 			}
 			
+			LOGGER.info("sending conversion information back to application");
+			
 			String json = responseArray.toString();
 			
 			response.setContentType("application/json");

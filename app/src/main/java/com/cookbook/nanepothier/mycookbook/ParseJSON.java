@@ -125,23 +125,33 @@ public class ParseJSON {
 
                 JSONObject jObject = jsonArray.getJSONObject(x);
                 String categoryName = jObject.getString("category");
-                RecipeNameId nameIdObject = new RecipeNameId(jObject.getString("recipe_id"), jObject.getString("recipe_name"));
 
-                System.out.println("Category name, recipe name and recipe id: " + categoryName + " " + nameIdObject.getRecipeName() + " " + nameIdObject.getRecipeId());
+                if(jObject.getString("recipe_id").equals("noid") && jObject.getString("recipe_name").equals("noname")){
 
-                // if map already contains the current category, add current object to that category's list
-                if(map.containsKey(categoryName)){
+                    if(!map.containsKey(categoryName)){
 
-                    map.get(categoryName).add(nameIdObject);
-
-                // if this category does not yet exist in the map create new list and add category and list to map
+                        ArrayList<RecipeNameId> list = new ArrayList<>();
+                        map.put(categoryName, list);
+                    }
                 }else{
 
-                    ArrayList<RecipeNameId> list = new ArrayList<>();
-                    list.add(nameIdObject);
-                    map.put(categoryName, list);
-                }
+                    RecipeNameId nameIdObject = new RecipeNameId(jObject.getString("recipe_id"), jObject.getString("recipe_name"));
 
+                    System.out.println("Category name, recipe name and recipe id: " + categoryName + " " + nameIdObject.getRecipeName() + " " + nameIdObject.getRecipeId());
+
+                    // if map already contains the current category, add current object to that category's list
+                    if(map.containsKey(categoryName)){
+
+                        map.get(categoryName).add(nameIdObject);
+
+                        // if this category does not yet exist in the map create new list and add category and list to map
+                    }else{
+
+                        ArrayList<RecipeNameId> list = new ArrayList<>();
+                        list.add(nameIdObject);
+                        map.put(categoryName, list);
+                    }
+                }
             }
         }catch(JSONException jsonException) {
             jsonException.printStackTrace();

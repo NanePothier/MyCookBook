@@ -11,6 +11,7 @@ public class Recipe implements Serializable{
     private int preparationTime;
     private int ovenTime;
     private int ovenTemperature;
+    private int metricTemperature;
     private int calories;
     private String instructions;
     private int totalTime;
@@ -130,6 +131,14 @@ public class Recipe implements Serializable{
 
     public ArrayList<Ingredient> getMetricIngredientArray(){
         return metricIngredients;
+    }
+
+    public void setMetricTemperature(int temp){
+        metricTemperature = temp;
+    }
+
+    public int getMetricTemperature(){
+        return metricTemperature;
     }
 
     public void addCategory(Category category){

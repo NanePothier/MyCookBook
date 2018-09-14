@@ -101,13 +101,10 @@ public class Cookbook extends AppCompatActivity {
             arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, categoryRecipesMap.get(categoryName)));
         }
 
+        // TODO: sort categories
+
         SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels, userEmail);
         recyclerView.setAdapter(recyclerViewAdapter);
-    }
-
-    public void goToViewRecipe(String id){
-
-        // Intent intent = new Intent(Cookbook.this, ViewRecipe.class);
     }
 
     public void getRecipeNamesAndCategories(){

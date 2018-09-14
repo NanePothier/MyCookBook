@@ -123,6 +123,37 @@ public class GetRecipeNames extends HttpServlet {
 				count++;			
 			}
 			
+			
+			if(catStatement != null) {
+				catStatement.close();
+			}
+			if(resultSet != null) {
+				resultSet.close();
+			}
+			
+			/**
+			 * retrieve categories that are visible to all even if user has not added any recipes to
+			 * this category yet
+			 */
+			String catForAllQuery = "SELECT category_name FROM categories WHERE visible_to_all = 'y'";
+			catStatement = connection.createStatement();
+			resultSet = catStatement.executeQuery(catForAllQuery);
+			JSONObject allObject;
+			
+			while(resultSet.next()) {
+				
+				LOGGER.info("Getting visible to all categories");
+				
+				allObject = new JSONObject();
+				
+				allObject.put("recipe_id", "noid");
+				allObject.put("recipe_name", "noname");
+				allObject.put("category", resultSet.getString("category_name"));
+				
+				jsonRecipeArray.put(allObject);
+			}
+			
+			
 			LOGGER.info("Sending array back to app now");
 			
 			/**

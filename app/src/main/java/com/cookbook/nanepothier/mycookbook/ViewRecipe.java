@@ -129,13 +129,13 @@ public class ViewRecipe extends AppCompatActivity {
     public void useUSSystem(){
 
         // ensure it displays us
-        setViews();
+        setViews("us");
     }
 
     public void useMetricSystem(){
 
         // ensure it shows metric
-        setViews();
+        setViews("metric");
     }
 
     public void generateMetricIngredientArray(){
@@ -144,6 +144,11 @@ public class ViewRecipe extends AppCompatActivity {
         ArrayList<Ingredient> metricArray = new ArrayList<>();
         String unit, fromUnit, toUnit, measCategory, defaultMeas;
         Ingredient metricIngredient;
+        double metricTemperature;
+
+        // convert temperature
+        metricTemperature = (recipe.getOvenTemperature() - 32) * (5.0/9.0);
+        recipe.setMetricTemperature((int) metricTemperature);
 
         // for each ingredient
         for(int x = 0; x < ingArray.size(); x++){
@@ -290,10 +295,10 @@ public class ViewRecipe extends AppCompatActivity {
         conversionTask.execute();
     }
 
-    public void setViews(){
+    public void setViews(String system){
 
         recipeNameView.setText(recipe.getRecipeName());
-        addIngredientsToTableView();
+        addIngredientsToTableView(system);
 
         // if there are other categories besides primary category
         if(recipe.getCategoriesArray().size() > 1){
@@ -316,7 +321,11 @@ public class ViewRecipe extends AppCompatActivity {
         }
 
         if(recipe.getOvenTemperature() != -1){
-            ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+            if(system.equals("us")){
+                ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+            }else{
+                ovenTempView.setText(Integer.toString(recipe.getMetricTemperature()));
+            }
         }
 
         if(recipe.getCalories() != -1){
@@ -328,9 +337,19 @@ public class ViewRecipe extends AppCompatActivity {
         }
     }
 
-    public void addIngredientsToTableView(){
+    public void addIngredientsToTableView(String measurementSystem){
 
-        ArrayList<Ingredient> arrayIngredients = recipe.getIngredientArray();
+        ArrayList<Ingredient> arrayIngredients;
+
+        if(measurementSystem.equals("metric")){
+            arrayIngredients = recipe.getMetricIngredientArray();
+            // System.out.println("One of the metric ingredients " + recipe.getMetricIngredientArray().get(0).getName() + " " + recipe.getMetricIngredientArray().get(0).getQuantity());
+        }else{
+            arrayIngredients = recipe.getIngredientArray();
+        }
+
+        tableLayoutIngredients.removeAllViews();
+
         int count = 1;
         TextView ingredientNameCol, quantityCol, quantityUnitCol, countCol;
         TableRow tableRow;
@@ -417,7 +436,7 @@ public class ViewRecipe extends AppCompatActivity {
     // receive recipe object obtained from database by asynchronous background task
     public void onBackgroundTaskObtainedRecipe(Recipe r){
         recipe = r;
-        setViews();
+        setViews("us");
         retrieveConversionFactors();
     }
 

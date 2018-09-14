@@ -20,4 +20,6 @@ public class HeaderRecipeModel {
     public ArrayList<RecipeNameId> getRecipesArray() {
         return recipes;
     }
+
+    // TODO: sort recipes?
 }
