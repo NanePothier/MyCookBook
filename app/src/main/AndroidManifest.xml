@@ -46,7 +46,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".AccountCreation">
+        <activity
+                android:name=".AccountCreation"
+                android:label="Create Account">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

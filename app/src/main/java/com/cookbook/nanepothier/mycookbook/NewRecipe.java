@@ -4,22 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.InputType;
-import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import javax.sql.*;
-import java.sql.*;
-
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -117,10 +111,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             public void onClick(View v) {
                 if(statusIndicator.equals("NewRecipe")){
                     Intent intent = new Intent(NewRecipe.this, MainActivity.class);
+                    intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_new_recipe");
                     startActivity(intent);
                 }else if(statusIndicator.equals("EditRecipe")) {
                     Intent intent = new Intent(NewRecipe.this, ViewRecipe.class);
+                    intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_edit_recipe");
                     startActivity(intent);
                 }
@@ -228,7 +224,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         // get data passed to this activity
         // intentReceived = getIntent();
         statusIndicator = "NewRecipe";
-        // intentReceived.getExtras().getString("StatusIndicator");
+        // userEmail = intentReceived.getExtras().getString("user_email");
+        // statusIndicator = intentReceived.getExtras().getString("StatusIndicator");
 
         // get ingredients and categories from database
         getIngredients();
@@ -754,6 +751,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             case R.id.cancel_action:
 
                 Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
+                sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "cancel_action");
                 startActivity(sendIntent);
 
@@ -980,7 +978,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         String prepTime, ovenTime, ovenTemp, servings, calories;
         String instructions;
         String uniqueID;
-        String user;
+        String userEmail;
         String systemIndicator;
         String actionIndicator;
 
@@ -988,7 +986,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         ArrayList<Category> categories, String pTime, String oTime, String oTemp,
                         String servings, String calories, String instruct, String sysInd, String actInd){
 
-            this.user = user;
+            userEmail = user;
             recipeName = rName;
             this.ingredients = ingredients;
             this.categories = categories;
@@ -1024,7 +1022,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     uniqueID = UUID.randomUUID().toString();
                     System.out.println("Unique ID generated: " + uniqueID);
 
-                    System.out.println("Recipe data being passed: " + user + " " + recipeName + " " + primCategory);
+                    System.out.println("Recipe data being passed: " + userEmail + " " + recipeName + " " + primCategory);
                     System.out.println(" More data: " + prepTime + " " + ovenTime + " " + ovenTemp);
 
                     for(int x = 0; x < ingredients.size(); x++){
@@ -1046,7 +1044,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         jsonArrayCat.put(catObject);
                     }
 
-                    jsonObject.put("userEmail", user);
+                    jsonObject.put("userEmail", userEmail);
                     jsonObject.put("unique", uniqueID);
                     jsonObject.put("name", recipeName);
                     jsonObject.put("ingredientObjectArray", jsonArray);
@@ -1129,6 +1127,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 System.out.println("Everything was stored successfully. ");
 
                 Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
+                sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "save_action");
                 startActivity(sendIntent);
             }else{

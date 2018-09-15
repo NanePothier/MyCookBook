@@ -47,6 +47,7 @@ public class Cookbook extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Cookbook.this, MainActivity.class);
+                intent.putExtra("user_email", userEmail);
                 intent.putExtra("action", "cookbook");
                 startActivity(intent);
             }
@@ -82,7 +83,7 @@ public class Cookbook extends AppCompatActivity {
 
         // retrieve user email through intent
         // Intent intentReceived = getIntent();
-        // userEmail = intentReceived.getStringExtra("userEmail");
+        // userEmail = intentReceived.getStringExtra("user_email");
 
         userEmail = "haleyiron@gmail.com";
 

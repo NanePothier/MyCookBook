@@ -7,21 +7,15 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.widget.*;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
 
 public class ViewRecipe extends AppCompatActivity {
 
@@ -69,6 +63,7 @@ public class ViewRecipe extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
+                intent.putExtra("user_email", userEmail);
                 startActivity(intent);
             }
         });
@@ -232,6 +227,7 @@ public class ViewRecipe extends AppCompatActivity {
             case R.id.edit_action:
 
                 Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
+                intent.putExtra("user_email", userEmail);
                 intent.putExtra("StatusIndicator", "EditRecipe");
                 intent.putExtra("RecipeToEdit", recipe);
                 startActivity(intent);
@@ -707,7 +703,9 @@ public class ViewRecipe extends AppCompatActivity {
                         Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.delete_user_msg, Snackbar.LENGTH_SHORT)
                                 .show();
 
-                        startActivity(new Intent(ViewRecipe.this, Cookbook.class));
+                        Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
+                        intent.putExtra("user_email", userEmail);
+                        startActivity(intent);
                     }else{
 
                     }

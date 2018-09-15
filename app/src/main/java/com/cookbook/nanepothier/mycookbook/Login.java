@@ -9,17 +9,16 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
-
 import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
-
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -29,16 +28,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import org.json.JSONObject;
-import org.json.JSONException;
-
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +52,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
      */
     private UserLoginTask userLoginTask = null;
 
-    // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
@@ -225,19 +217,30 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
 
 
     /**
-     * Represents an asynchronous login/registration task used to authenticate
+     * Represents an asynchronous login task used to authenticate
      * the user.
      */
     public class UserLoginTask extends AsyncTask<String, Void, String> {
 
-        String mEmail;
-        String mPassword;
+        String email;
+        String password;
         URL url;
         HttpURLConnection conn;
 
         UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+            this.email = email;
+            this.password = password;
+
+            encodePassword();
+        }
+
+        public void encodePassword(){
+            try{
+                byte [] data = password.getBytes("UTF-8");
+                password = Base64.encodeToString(data, Base64.DEFAULT);
+            }catch(UnsupportedEncodingException exception){
+                exception.printStackTrace();
+            }
         }
 
         @Override
@@ -254,8 +257,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/ValidateUser");
 
                 JSONObject jsonObject = new JSONObject();
-                jsonObject.put("user", mEmail);
-                jsonObject.put("password", mPassword);
+                jsonObject.put("user", email);
+                jsonObject.put("password", password);
 
                 user = jsonObject.toString();
 
@@ -266,10 +269,8 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
                 connection.setFixedLengthStreamingMode(user.getBytes().length);
-
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
@@ -292,7 +293,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             }catch(Exception ioe){
                 ioe.printStackTrace();
             }finally{
-
                 try{
                     outputStream.close();
                     inputStream.close();
@@ -301,7 +301,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
                     ie.printStackTrace();
                 }
             }
-
             return result;
         }
 
@@ -315,14 +314,18 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             System.out.println("Response from servlet: " + finalResult);
 
             if(finalResult.equals("match")){
-                System.out.println("Success on logging in");
-                //Intent intent = new Intent(Login.this, MainActivity.class);
-                //intent.putExtra("user", user);
-                //startActivity(intent);
+
+                Intent intent = new Intent(Login.this, MainActivity.class);
+                intent.putExtra("user_email", email);
+                intent.putExtra("action", "login");
+                startActivity(intent);
+
             }else if(finalResult.equals("wrong_password")){
+
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
                 mPasswordView.requestFocus();
                 mPasswordView.setText("");
+
             }else if(finalResult.equals("user_does_not_exist")){
                 mEmailView.requestFocus();
                 mEmailView.setError("Account with this email address does not exist");
@@ -337,9 +340,6 @@ public class Login extends AppCompatActivity implements LoaderCallbacks<Cursor> 
             showProgress(false);
         }
     }
-
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,

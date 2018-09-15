@@ -6,16 +6,13 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class AccountCreation extends AppCompatActivity {
@@ -63,13 +60,6 @@ public class AccountCreation extends AppCompatActivity {
                     firstNameView.setText("");
                     firstNameFirstTime = false;
                 }
-
-                if(!hasFocus){
-
-                    firstNameView.setText("First Name");
-                    firstNameView.setTextColor(Color.GRAY);
-                    firstNameFirstTime = true;
-                }
             }
         });
 
@@ -81,13 +71,6 @@ public class AccountCreation extends AppCompatActivity {
                     lastNameView.setText("");
                     lastNameView.setTextColor(Color.BLACK);
                     lastNameFirstTime = false;
-                }
-
-                if(!hasFocus){
-
-                    lastNameView.setText("Last Name");
-                    lastNameView.setTextColor(Color.GRAY);
-                    lastNameFirstTime = true;
                 }
             }
         });
@@ -101,13 +84,6 @@ public class AccountCreation extends AppCompatActivity {
                     emailView.setTextColor(Color.BLACK);
                     emailFirstTime = false;
                 }
-
-                if(!hasFocus){
-
-                    emailView.setText("Email");
-                    emailView.setTextColor(Color.GRAY);
-                    emailFirstTime = true;
-                }
             }
         });
 
@@ -118,13 +94,6 @@ public class AccountCreation extends AppCompatActivity {
                 if(hasFocus && emailFirstTime){
                     passwordView.setText("");
                     passwordFirstTime = false;
-                }
-
-                if(!hasFocus){
-
-                    passwordView.setText("Password");
-                    passwordView.setTextColor(Color.GRAY);
-                    passwordFirstTime = true;
                 }
             }
         });
@@ -137,17 +106,8 @@ public class AccountCreation extends AppCompatActivity {
                     passwordViewConfirm.setText("");
                     passwordConfirmFirstTime = false;
                 }
-
-                if(!hasFocus){
-
-                    passwordViewConfirm.setText("Confirm Password");
-                    passwordViewConfirm.setTextColor(Color.GRAY);
-                    passwordConfirmFirstTime = true;
-                }
             }
         });
-
-
     }
 
 
@@ -186,7 +146,6 @@ public class AccountCreation extends AppCompatActivity {
                 passwordViewConfirm.setText("");
             }
         }else{
-
             emailView.setError("Incorrect Email Format");
             emailView.requestFocus();
             emailView.setText("");
@@ -200,7 +159,6 @@ public class AccountCreation extends AppCompatActivity {
         if(email.contains("@") && email.contains(".") && email.length() <= 35 && email.length() >= 8){
             isValid = true;
         }
-
         return isValid;
     }
 
@@ -211,7 +169,6 @@ public class AccountCreation extends AppCompatActivity {
         if(password.length() >= 8 && password.length() <= 16){
             isValid = true;
         }
-
         return isValid;
     }
 
@@ -225,6 +182,17 @@ public class AccountCreation extends AppCompatActivity {
             lastName = last;
             userEmail = user;
             password = pass;
+
+            encodePassword();
+        }
+
+        public void encodePassword(){
+            try{
+                byte [] data = password.getBytes("UTF-8");
+                password = Base64.encodeToString(data, Base64.DEFAULT);
+            }catch(UnsupportedEncodingException exception){
+                exception.printStackTrace();
+            }
         }
 
         @Override
@@ -235,14 +203,12 @@ public class AccountCreation extends AppCompatActivity {
             OutputStream outputStream = null;
             HttpURLConnection connection;
             URL url = null;
-            StringBuilder result2 = null;
             String result = "";
 
             try{
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/CreateAccount");
 
                 JSONObject jsonObject = new JSONObject();
-
                 jsonObject.put("first", firstName);
                 jsonObject.put("last", lastName);
                 jsonObject.put("user", userEmail);
@@ -257,10 +223,8 @@ public class AccountCreation extends AppCompatActivity {
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
                 connection.setFixedLengthStreamingMode(message.getBytes().length);
-
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
@@ -279,11 +243,9 @@ public class AccountCreation extends AppCompatActivity {
                         result += line;
                     }
                 }
-
             }catch(Exception ioe){
                 ioe.printStackTrace();
             }finally{
-
                 try{
                     outputStream.close();
                     inputStream.close();
@@ -299,10 +261,8 @@ public class AccountCreation extends AppCompatActivity {
         protected void onPostExecute(String data){
 
             String finalResult = ParseJSON.parseJSON(data);
-            System.out.println("Final result after parsing: " + finalResult);
 
             if(finalResult.equals("success")){
-
                 startActivity(new Intent(AccountCreation.this, Login.class));
             }else if(finalResult.equals("exists")){
 

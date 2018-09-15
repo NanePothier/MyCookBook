@@ -14,6 +14,8 @@ import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
 
+    String userEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +27,10 @@ public class MainActivity extends AppCompatActivity {
         cookbookBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                startActivity(new Intent(MainActivity.this, Cookbook.class));
+
+                Intent intent = new Intent(MainActivity.this, Cookbook.class);
+                intent.putExtra("user_email", userEmail);
+                startActivity(intent);
             }
         });
 
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v){
 
                 Intent intent = new Intent(MainActivity.this, NewRecipe.class);
+                intent.putExtra("user_email", userEmail);
                 intent.putExtra("StatusIndicator", "NewRecipe");
                 startActivity(intent);
             }
@@ -60,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
         */
 
         Intent receivedIntent = getIntent();
+        userEmail = receivedIntent.getExtras().getString("user_email");
         String action = receivedIntent.getExtras().getString("action");
         handleAction(action);
     }
