@@ -222,10 +222,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         });
 
         // get data passed to this activity
-        // intentReceived = getIntent();
-        statusIndicator = "NewRecipe";
-        // userEmail = intentReceived.getExtras().getString("user_email");
-        // statusIndicator = intentReceived.getExtras().getString("StatusIndicator");
+        intentReceived = getIntent();
+        //statusIndicator = "NewRecipe";
+        userEmail = intentReceived.getExtras().getString("user_email");
+        statusIndicator = intentReceived.getExtras().getString("status_indicator");
 
         // get ingredients and categories from database
         getIngredients();
@@ -384,13 +384,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     public void displayRecipe(){
 
-        recipe = (Recipe) intentReceived.getExtras().get("RecipeToEdit");
+        recipe = (Recipe) intentReceived.getExtras().get("recipe_to_edit");
 
         recipeNameView.setText(recipe.getRecipeName());
         servingsView.setText(Integer.toString(recipe.getServings()));
         prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
         ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
         ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+        caloriesView.setText(Integer.toString(recipe.getCalories()));
         instructionView.setText(recipe.getInstructions());
     }
 
@@ -403,15 +404,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             Service.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
-            amountView.setText(ingredientArray.get(0).getQuantity());
+            amountView.setText(Integer.toString(ingredientArray.get(0).getQuantity()));
             spinnerMeasurements.setSelection(getUnitIndex(ingredientArray.get(0).getQuantityUnit(), "us"));
 
             autoCompIngredient2.setText(ingredientArray.get(1).getName());
-            amountView2.setText(ingredientArray.get(1).getQuantity());
+            amountView2.setText(Integer.toString(ingredientArray.get(1).getQuantity()));
             spinnerMeasurements2.setSelection(getUnitIndex(ingredientArray.get(1).getQuantityUnit(), "us"));
 
             autoCompIngredient3.setText(ingredientArray.get(2).getName());
-            amountView3.setText(ingredientArray.get(2).getQuantity());
+            amountView3.setText(Integer.toString(ingredientArray.get(2).getQuantity()));
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
 
             TableRow tableRow;
@@ -442,7 +443,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 tableRow.addView(autoView);
 
                 editText = new EditText(this);
-                editText.setText(ingredientArray.get(x).getQuantity());
+                editText.setText(Integer.toString(ingredientArray.get(x).getQuantity()));
                 editText.setTextSize(15);
                 editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
                 tableRow.addView(editText);

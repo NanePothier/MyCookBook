@@ -160,11 +160,11 @@ public class ViewRecipe extends AppCompatActivity {
                 if(unit.equals(fromUnit) && !(unit.equals("tablespoon")) && !(unit.equals("teaspoon"))){
 
                     measCategory = conversionArray.get(y).getMeasureCategory();
+                    double convertedNumber;
 
                     // match default measurement category (solid or liquid)
                     if(defaultMeas.equals(measCategory)){
 
-                        double convertedNumber;
                         toUnit = conversionArray.get(y).getMeasureTo();
 
                         // determine which metric measurement to convert to since there may be more than one option
@@ -195,6 +195,21 @@ public class ViewRecipe extends AppCompatActivity {
 
                             metricArray.add(metricIngredient);
                         }
+                    }
+
+                    if(unit.equals("cup") && ingArray.get(x).getDefaultMeasurement().equals("w")){
+
+                        metricIngredient = new Ingredient();
+
+                        // convert from cup to ml
+                        convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
+
+                        metricIngredient.setQuantity((int)convertedNumber);
+                        metricIngredient.setQuantityUnit("g");
+                        metricIngredient.setName(ingArray.get(x).getName());
+                        metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
+
+                        metricArray.add(metricIngredient);
                     }
                 }
 
@@ -228,8 +243,8 @@ public class ViewRecipe extends AppCompatActivity {
 
                 Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
                 intent.putExtra("user_email", userEmail);
-                intent.putExtra("StatusIndicator", "EditRecipe");
-                intent.putExtra("RecipeToEdit", recipe);
+                intent.putExtra("status_indicator", "EditRecipe");
+                intent.putExtra("recipe_to_edit", recipe);
                 startActivity(intent);
 
                 return true;
@@ -367,13 +382,13 @@ public class ViewRecipe extends AppCompatActivity {
             ingredientNameCol = new TextView(this);
             ingredientNameCol.setText(arrayIngredients.get(x).getName());
             ingredientNameCol.setTextSize(15);
-            ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(850, TableRow.LayoutParams.WRAP_CONTENT));
+            ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(870, TableRow.LayoutParams.WRAP_CONTENT));
             tableRow.addView(ingredientNameCol);
 
 
             quantityCol = new TextView(this);
             quantityCol.setTextSize(15);
-            quantityCol.setLayoutParams(new TableRow.LayoutParams(70, TableRow.LayoutParams.WRAP_CONTENT));
+            quantityCol.setLayoutParams(new TableRow.LayoutParams(130, TableRow.LayoutParams.WRAP_CONTENT));
 
             if(arrayIngredients.get(x).getQuantity() == -1){
                 quantityCol.setText(" ");
