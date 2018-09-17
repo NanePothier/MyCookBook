@@ -74,11 +74,13 @@ public class MainActivity extends AppCompatActivity {
     public void handleAction(String takeAction){
 
         if(takeAction.equals("save_action")){
-            Snackbar.make(findViewById(R.id.main_activity_coordinator_layout), "Recipe saved successfully", Snackbar.LENGTH_LONG);
+            Snackbar.make(findViewById(R.id.main_activity_coordinator_layout), "Recipe saved successfully", Snackbar.LENGTH_LONG)
+            .show();
         }
 
         if(takeAction.equals("cancel_action")){
-            Snackbar.make(findViewById(R.id.main_activity_coordinator_layout), "Recipe not saved", Snackbar.LENGTH_LONG);
+            Snackbar.make(findViewById(R.id.main_activity_coordinator_layout), "Recipe not saved", Snackbar.LENGTH_LONG)
+            .show();
         }
     }
 

@@ -94,6 +94,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // toolbar
     private ImageButton backButton;
 
+    private boolean firstTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +120,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     Intent intent = new Intent(NewRecipe.this, ViewRecipe.class);
                     intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_edit_recipe");
+                    intent.putExtra("recipe_id", recipe.getRecipeId());
+                    intent.putExtra("recipe_name", recipe.getRecipeName());
                     startActivity(intent);
                 }
             }
@@ -181,6 +185,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         measurementSpinners.add(spinnerMeasurements2);
         measurementSpinners.add(spinnerMeasurements3);
 
+        firstTime = true;
+
         createUSMeasurementList();
         createMetricMeasurementList();
         setSpinners(measurementSpinners, USMeasurements);
@@ -209,7 +215,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         addIngredientImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addIngredientRowToIngredientTable();
+                addIngredientRowToIngredientTable(0);
             }
         });
 
@@ -249,7 +255,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         setSpinners(measurementSpinners, MetricMeasurements);
     }
 
-    public void addIngredientRowToIngredientTable(){
+    public void addIngredientRowToIngredientTable(int index){
 
         final TableRow tableRow;
         final TextView countCol;
@@ -277,6 +283,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         autoView.setMaxLines(2);
         autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
         autoView.setBackgroundResource(R.drawable.thin_black_border_background);
+
+        if(statusIndicator.equals("EditRecipe") && firstTime){
+            autoView.setText(ingredientArray.get(index).getName());
+        }
         ingredientViews.add(autoView);
         tableRow.addView(autoView);
 
@@ -286,12 +296,20 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         editText.setTextSize(15);
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackgroundResource(R.drawable.thin_black_border_background);
+
+        if(statusIndicator.equals("EditRecipe") && firstTime){
+            editText.setText(Integer.toString(ingredientArray.get(index).getQuantity()));
+        }
         quantityViews.add(editText);
         tableRow.addView(editText);
 
         mSpinner = new Spinner(this);
         mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         mSpinner.setAdapter(measurementAdapter);
+
+        if(statusIndicator.equals("EditRecipe") && firstTime){
+            mSpinner.setSelection(getUnitIndex(ingredientArray.get(index).getQuantityUnit(), "us"));
+        }
         measurementSpinners.add(mSpinner);
         tableRow.addView(mSpinner);
 
@@ -424,6 +442,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             for(int x = 3; x < ingredientArray.size(); x++){
 
+                addIngredientRowToIngredientTable(x);
+
+                /*
                 tableRow = new TableRow(this);
                 tableRow.setId(count);
                 tableRow.setPadding(5, 5, 5, 5);
@@ -455,7 +476,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 tableLayoutIngredients.addView(tableRow);
                 count++;
+                */
             }
+            firstTime = false;
         }
     }
 
@@ -739,9 +762,16 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 if(hasRecipeName && haveQuantityAndUnit && ingredientsHaveNames && categoriesHaveNames && ingredientExists && categoryExists) {
 
                     // execute new asynchronous save task
-                    saveTask = new SaveTask(userEmail, recipeName, ingredients, primCategory, addCategories, prepTime
-                                            , ovenTime, ovenTemp, servings, calories, instructions, systemIndicator
-                                            , statusIndicator);
+                    if(statusIndicator.equals("NewRecipe")){
+                        saveTask = new SaveTask(userEmail, recipeName, ingredients, primCategory, addCategories, prepTime
+                                , ovenTime, ovenTemp, servings, calories, instructions, systemIndicator
+                                , statusIndicator);
+                    }else{
+                        saveTask = new SaveTask(recipe.getRecipeId(), userEmail, recipeName, ingredients, primCategory, addCategories, prepTime
+                                , ovenTime, ovenTemp, servings, calories, instructions, systemIndicator
+                                , statusIndicator);
+                    }
+
                     saveTask.execute((String) null);
 
                     return true;
@@ -788,7 +818,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
                         ingredientTask.execute();
                         ingredientPopup.dismiss();
-                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT);
+                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT)
+                        .show();
                     }
                 });
 
@@ -827,7 +858,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
                         categoryTask.execute();
                         categoryPopup.dismiss();
-                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT);
+                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT)
+                        .show();
                     }
                 });
 
@@ -946,27 +978,30 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     public void onBackgroundDeleteTaskSuccess(){
-        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category successfully deleted", Snackbar.LENGTH_SHORT);
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category successfully deleted", Snackbar.LENGTH_SHORT)
+        .show();
     }
 
     public void onBackgroundDeleteTaskFailure(){
-        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category cannot be deleted. One or more recipes belong to this category", Snackbar.LENGTH_LONG);
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category cannot be deleted. One or more recipes belong to this category", Snackbar.LENGTH_LONG)
+        .show();
     }
 
     public void onBackgroundDeleteTaskNeutral(){
-        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category to be deleted does not exist", Snackbar.LENGTH_LONG);
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category to be deleted does not exist", Snackbar.LENGTH_LONG)
+        .show();
     }
 
     public void onBackgroundTaskSavedItem(String indicator, String finalResult){
 
         if(indicator.equals("ingredient") && finalResult.equals("success")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient stored successfully", Snackbar.LENGTH_SHORT);
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient stored successfully", Snackbar.LENGTH_SHORT).show();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG);
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category stored successfully", Snackbar.LENGTH_SHORT);
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category stored successfully", Snackbar.LENGTH_SHORT).show();
         }else if(indicator.equals("category") && finalResult.equals("exists")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category already exists", Snackbar.LENGTH_LONG);
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category already exists", Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -1002,6 +1037,26 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             actionIndicator = actInd;
         }
 
+        public SaveTask(String recipeId, String user, String rName, ArrayList<Ingredient> ingredients, String primCat,
+                        ArrayList<Category> categories, String pTime, String oTime, String oTemp,
+                        String servings, String calories, String instruct, String sysInd, String actInd){
+
+            uniqueID = recipeId;
+            userEmail = user;
+            recipeName = rName;
+            this.ingredients = ingredients;
+            this.categories = categories;
+            primCategory = primCat;
+            prepTime = pTime;
+            ovenTime = oTime;
+            ovenTemp = oTemp;
+            this.servings = servings;
+            this.calories = calories;
+            instructions = instruct;
+            systemIndicator = sysInd;
+            actionIndicator = actInd;
+        }
+
         @Override
         protected String doInBackground(String... params){
 
@@ -1020,7 +1075,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     JSONArray jsonArrayCat = new JSONArray();
 
                     // create unique id for this recipe
-                    uniqueID = UUID.randomUUID().toString();
+                    if(actionIndicator.equals("NewRecipe")){
+                        uniqueID = UUID.randomUUID().toString();
+                    }
                     System.out.println("Unique ID generated: " + uniqueID);
 
                     System.out.println("Recipe data being passed: " + userEmail + " " + recipeName + " " + primCategory);

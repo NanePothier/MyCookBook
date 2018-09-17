@@ -1,11 +1,9 @@
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,49 +21,37 @@ import org.json.JSONObject;
 public class GetConversionFactors extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
        
-    public GetConversionFactors() {
-        
-    }
+    public GetConversionFactors() {}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		String line = "";
-		String result = "";
 		Connection connection = null;
 		Statement queryStatement = null;
 		ResultSet resultSet = null;
-		String measureFrom, measureTo, measureCategory;
-		double factor;
+		String measureFrom;
 		JSONArray responseArray = new JSONArray();
 		
 		try {
-			
-			BufferedReader reader = request.getReader();
-			
-			while((line = reader.readLine()) != null) {
-				result += line;
-			}
-			
-			JSONObject jsonObject = new JSONObject(result);
-			
+				
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
 			
+			// get all conversion factors
 			String selectQuery = "SELECT * FROM conversion";
 			queryStatement = connection.createStatement();
 			resultSet = queryStatement.executeQuery(selectQuery);
+			JSONObject jObject;
 			
 			while(resultSet.next()) {
 				
-				JSONObject jObject = new JSONObject();
+				measureFrom = getAbbreviation(resultSet.getString("measure_from"));
 				
-				jObject.put("measure_from", resultSet.getString("measure_from"));
+				jObject = new JSONObject();
+				
+				jObject.put("measure_from", measureFrom);
 				jObject.put("measure_to", resultSet.getString("measure_to"));
 				jObject.put("measure_cat", resultSet.getString("measure_category"));
 				jObject.put("factor", resultSet.getDouble("factor"));
@@ -73,10 +59,8 @@ public class GetConversionFactors extends HttpServlet {
 				responseArray.put(jObject);
 			}
 			
-			LOGGER.info("sending conversion information back to application");
-			
+			// send array with conversion data back to app
 			String json = responseArray.toString();
-			
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			response.getWriter().write(json);
@@ -88,10 +72,8 @@ public class GetConversionFactors extends HttpServlet {
 			ex.printStackTrace();
 		}catch(ClassNotFoundException en) {
 			en.printStackTrace();
-		}finally {
-			
+		}finally {		
 			try {
-				
 				if(queryStatement != null) {
 					queryStatement.close();
 				}
@@ -107,5 +89,36 @@ public class GetConversionFactors extends HttpServlet {
 				s.printStackTrace();
 			}
 		}		
+	}
+	
+	public String getAbbreviation(String unit) {
+		
+		String abbUnit;
+		
+		switch(unit) {
+		
+			case "ounces":
+				abbUnit = "oz";
+				break;
+			case "pounds":
+				abbUnit = "lb";
+				break;
+			case "quart":
+				abbUnit = "qt";
+				break;
+			case "tablespoon":
+				abbUnit = "tbsp";
+				break;
+			case "teaspoon":
+				abbUnit = "tsp";
+				break;
+			case "cup":
+				abbUnit = "cup";
+				break;
+				default:
+					abbUnit = "oz";
+		}
+		
+		return abbUnit;	
 	}
 }

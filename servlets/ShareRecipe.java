@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.logging.Logger;
 
@@ -44,7 +45,7 @@ public class ShareRecipe extends HttpServlet {
 		PreparedStatement queryStatement = null;
 		Statement duplicateQuery = null;
 		ResultSet duplicateSet = null;
-		String item, userEmail, recipeId, sharedByEmail;
+		String userEmail, recipeId, sharedByEmail;
 		
 		try {
 		
@@ -59,7 +60,6 @@ public class ShareRecipe extends HttpServlet {
 			recipeId = jsonObject.getString("recipe_id");
 			userEmail = jsonObject.getString("user_email");
 			sharedByEmail = jsonObject.getString("shared_by_email");
-			item = jsonObject.getString("item");
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
@@ -73,10 +73,7 @@ public class ShareRecipe extends HttpServlet {
 			if(!duplicateSet.next()) {
 				
 				// get current date
-				Calendar calendar = Calendar.getInstance();
-				java.util.Date currentDate = calendar.getTime();
-				java.sql.Date date = new java.sql.Date(currentDate.getTime());
-				String currDate = date.toString();
+				Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 				
 				// store the recipe
 				String queryString = "INSERT INTO sharedrecipes VALUES(?,?,?,?)";
@@ -84,7 +81,7 @@ public class ShareRecipe extends HttpServlet {
 				queryStatement.setString(1, recipeId);
 				queryStatement.setString(2, userEmail);
 				queryStatement.setString(3, sharedByEmail);
-				queryStatement.setString(4, currDate);
+				queryStatement.setTimestamp(4, timestamp);
 				queryStatement.executeUpdate();
 				
 				responseToApp = "success";

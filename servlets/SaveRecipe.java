@@ -17,6 +17,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 /**
  * Servlet implementation class SaveRecipe
@@ -134,10 +135,7 @@ public class SaveRecipe extends HttpServlet {
 			recipeName = recipeName.substring(0, 1).toUpperCase() + recipeName.substring(1);
 			
 			// get current date
-			Calendar calendar = Calendar.getInstance();
-			java.util.Date currentDate = calendar.getTime();
-			java.sql.Date date = new java.sql.Date(currentDate.getTime());
-			String currDate = date.toString();
+			Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
@@ -170,7 +168,7 @@ public class SaveRecipe extends HttpServlet {
 				queryStatement.setInt(8, numIngredients);
 				queryStatement.setInt(9, calories);
 				queryStatement.setString(10, instructions);
-				queryStatement.setString(11, currDate);
+				queryStatement.setTimestamp(11, timestamp);
 				queryStatement.setString(12, measSystemIndicator);
 				
 			}else {
@@ -187,7 +185,7 @@ public class SaveRecipe extends HttpServlet {
 				queryStatement.setInt(7, numIngredients);
 				queryStatement.setInt(8, calories);
 				queryStatement.setString(9, instructions);
-				queryStatement.setString(10, currDate);
+				queryStatement.setTimestamp(10, timestamp);
 				queryStatement.setString(11, measSystemIndicator);
 				queryStatement.setString(12, uniqueRecipeId);	
 			}

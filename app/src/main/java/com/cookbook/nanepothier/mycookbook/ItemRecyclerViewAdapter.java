@@ -53,6 +53,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
                 intent.putExtra("recipe_name", name);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("recipe_id", id);
+                intent.putExtra("action", "coming_from_cookbook");
                 context.startActivity(intent);
             }
         });
