@@ -28,10 +28,15 @@ public class Cookbook extends AppCompatActivity {
 
     private ArrayList<String> arrayRecipeNames;
     private ArrayList<String> arrayUserCategories;
-    private ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels;
-    private Map<String, ArrayList<RecipeNameId>> categoryRecipesMap;
+
+    private ArrayList<HeaderRecipeModel> allHeaderRecipeModelsArray;
+    private ArrayList<HeaderRecipeModel> sharedHeaderRecipeModelsArray;
+    private ArrayList<HeaderRecipeModel> ownHeaderRecipeModelsArray;
+
+    private Map<String, ArrayList<RecipeNameId>> allRecipesMap;
     private Map<String, ArrayList<RecipeNameId>> sharedRecipesMap;
     private Map<String, ArrayList<RecipeNameId>> ownRecipesMap;
+
     private String userEmail;
     private RecyclerView recyclerView;
 
@@ -84,8 +89,11 @@ public class Cookbook extends AppCompatActivity {
         // retrieve user email through intent
         // Intent intentReceived = getIntent();
         // userEmail = intentReceived.getStringExtra("user_email");
-
         userEmail = "haleyiron@gmail.com";
+
+        allHeaderRecipeModelsArray = new ArrayList<>();
+        ownHeaderRecipeModelsArray = new ArrayList<>();
+        sharedHeaderRecipeModelsArray = new ArrayList<>();
 
         getRecipeNamesAndCategories();
         setUpRecyclerView();
@@ -99,16 +107,19 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    // create views using retrieved categories and recipe names
-    public void populateCategoryRecyclerView(Map<String, ArrayList<RecipeNameId>> map){
+    public void generateHeaderRecipeModelsFromMap(Map<String, ArrayList<RecipeNameId>> map, ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels){
 
-        arrayHeaderRecipeModels = new ArrayList<>();
         String categoryName;
+        arrayUserCategories = new ArrayList<>(map.keySet());
 
         for(int x = 0; x < arrayUserCategories.size(); x++){
             categoryName = arrayUserCategories.get(x);
             arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, map.get(categoryName)));
         }
+    }
+
+    // create views using retrieved categories and recipe names
+    public void populateCategoryRecyclerView(ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels){
 
         // TODO: sort categories
 
@@ -136,11 +147,17 @@ public class Cookbook extends AppCompatActivity {
     // receive recipe names and categories retrieved from database
     public void onBackgroundTaskObtainedRecipeNamesAndCategories(Map<String, ArrayList<RecipeNameId>> map, Map<String, ArrayList<RecipeNameId>> sharedMap, Map<String, ArrayList<RecipeNameId>> ownMap){
 
-        categoryRecipesMap = map;
+        allRecipesMap = map;
         sharedRecipesMap = sharedMap;
         ownRecipesMap = ownMap;
-        arrayUserCategories = new ArrayList<>(categoryRecipesMap.keySet());
-        populateCategoryRecyclerView(categoryRecipesMap);
+
+        // generate array lists holding category-recipes data so view can easily be switched
+        generateHeaderRecipeModelsFromMap(allRecipesMap, allHeaderRecipeModelsArray);
+        generateHeaderRecipeModelsFromMap(sharedRecipesMap, sharedHeaderRecipeModelsArray);
+        generateHeaderRecipeModelsFromMap(ownRecipesMap, ownHeaderRecipeModelsArray);
+
+        // populate the initial view with all categories and all recipes
+        populateCategoryRecyclerView(allHeaderRecipeModelsArray);
     }
 
     public void onBackgroundTaskObtainedSearchResult(ArrayList<RecipeNameId> nameIdArray){
@@ -165,17 +182,17 @@ public class Cookbook extends AppCompatActivity {
 
             case R.id.action_view_own:
 
-                populateCategoryRecyclerView(ownRecipesMap);
+                populateCategoryRecyclerView(ownHeaderRecipeModelsArray);
                 return true;
 
             case R.id.action_view_shared:
 
-                populateCategoryRecyclerView(sharedRecipesMap);
+                populateCategoryRecyclerView(sharedHeaderRecipeModelsArray);
                 return true;
 
             case R.id.action_view_all:
 
-                populateCategoryRecyclerView(categoryRecipesMap);
+                populateCategoryRecyclerView(allHeaderRecipeModelsArray);
                 return true;
 
             default:
@@ -339,17 +356,17 @@ public class Cookbook extends AppCompatActivity {
         @Override
         protected void onPostExecute(String data){
 
-            Map<String, ArrayList<RecipeNameId>> recipeNameCategoryMap;
+            Map<String, ArrayList<RecipeNameId>> allRecipesMap;
             Map<String, ArrayList<RecipeNameId>> sharedRecipesMap;
             Map<String, ArrayList<RecipeNameId>> ownRecipesMap;
             ArrayList<HashMap<String, ArrayList<RecipeNameId>>> mapsArray = new ArrayList<>();
 
             try{
                 mapsArray = ParseJSON.parseJSONRecipeNameCategory(data);
-                recipeNameCategoryMap = mapsArray.get(0);
+                allRecipesMap = mapsArray.get(0);
                 sharedRecipesMap = mapsArray.get(1);
                 ownRecipesMap = mapsArray.get(2);
-                onBackgroundTaskObtainedRecipeNamesAndCategories(recipeNameCategoryMap, sharedRecipesMap, ownRecipesMap);
+                onBackgroundTaskObtainedRecipeNamesAndCategories(allRecipesMap, sharedRecipesMap, ownRecipesMap);
 
             }catch(Exception e) {
                 e.printStackTrace();

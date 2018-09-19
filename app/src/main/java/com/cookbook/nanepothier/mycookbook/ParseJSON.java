@@ -5,17 +5,50 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+
+/**
+ * ParseJSON class implements methods
+ * to parse JSON data of various forms
+ * coming in from Java servlets
+ */
 
 public class ParseJSON {
 
+    /**
+     * method parseJSON parses a JSON object containing a single string
+     * this method is used when only one string is returned from a Java
+     * servlet that indicates whether storing, updating, deleting of data
+     * was successful
+     *
+     * @param jsonData
+     * @return
+     */
+    public static String parseJSON(String jsonData){
+
+        String stringResult = "";
+
+        try{
+            JSONObject json = new JSONObject(jsonData);
+            stringResult = json.getString("successIndicator");
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return stringResult;
+    }
+
+    /**
+     * method parseJSONArray parses JSON array containing a JSON Object holding one string
+     *
+     * @param jsonData
+     * @param placeholder
+     * @return
+     */
     public static ArrayList<String> parseJSONArray(String jsonData, String placeholder){
 
         ArrayList<String> listItems = new ArrayList<>();
 
         try{
-            System.out.println("parsing json array");
-
             JSONArray json = new JSONArray(jsonData);
 
             for(int x = 0; x < json.length(); x++){
@@ -23,20 +56,21 @@ public class ParseJSON {
                 JSONObject jObject = json.getJSONObject(x);
                 String s = jObject.getString(placeholder);
 
-                System.out.println("Category string: " + s);
-
                 listItems.add(s);
             }
-
         }catch(Exception e){
             e.printStackTrace();
         }
-
-        System.out.println("Done parsing JSON array");
-
         return listItems;
     }
 
+    /**
+     * method parseJSONArrayModel parses a JSON array containing JSON objects that contain two strings:
+     * recipe Id and recipe name
+     *
+     * @param jsonData
+     * @return
+     */
     public static ArrayList<RecipeNameId> parseJSONArrayModel(String jsonData){
 
         ArrayList<RecipeNameId> listItems = new ArrayList<>();
@@ -60,22 +94,16 @@ public class ParseJSON {
         return listItems;
     }
 
-    public static String parseJSON(String jsonData){
-
-        String stringResult = "";
-
-        try{
-
-            JSONObject json = new JSONObject(jsonData);
-            stringResult = json.getString("successIndicator");
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return stringResult;
-    }
-
+    /**
+     * method parseJSONRecipe parses recipe data
+     * it receives a JSON object containing all that data
+     * and returns a recipe object
+     *
+     * @param jsonData
+     * @param recipeName
+     * @param recipeId
+     * @return
+     */
     public static Recipe parseJSONRecipe(String jsonData, String recipeName, String recipeId){
 
         Recipe recipe = new Recipe(recipeName, recipeId);
@@ -106,8 +134,6 @@ public class ParseJSON {
                 ingredient.setQuantityUnit(ingObject.getString("quantity_unit"));
                 ingredient.setDefaultMeasurement(ingObject.getString("default_meas"));
 
-                System.out.println("ingredient name in json: " + ingObject.getString("ingredient_name"));
-
                 recipe.addIngredient(ingredient);
             }
 
@@ -123,12 +149,8 @@ public class ParseJSON {
                 category.setName(catObject.getString("category"));
                 category.setCategory(catObject.getString("primary"));
 
-                System.out.println("category flag in json: " + catObject.getString("primary"));
-
                 recipe.addCategory(category);
             }
-
-
         }catch(JSONException jsonException){
             jsonException.printStackTrace();
         }
@@ -136,9 +158,20 @@ public class ParseJSON {
         return recipe;
     }
 
+    /**
+     * method parseJSONRecipeNameCategory parses JSON array containing JSON objects
+     * that include the recipe Id, recipe name and recipe category
+     * this method is used to display the user's recipes and the categories they belong
+     * to in the user's Cookbook UI
+     * it generates a map containing all recipes, a map containing only recipes this user
+     * created and a map that contains recipes that were shared with this user
+     *
+     * @param jsonData
+     * @return
+     */
     public static ArrayList<HashMap<String, ArrayList<RecipeNameId>>> parseJSONRecipeNameCategory(String jsonData){
 
-        HashMap<String, ArrayList<RecipeNameId>> map = new HashMap<>();
+        HashMap<String, ArrayList<RecipeNameId>> allMap = new HashMap<>();
         HashMap<String, ArrayList<RecipeNameId>> sharedMap = new HashMap<>();
         HashMap<String, ArrayList<RecipeNameId>> ownMap = new HashMap<>();
         ArrayList<HashMap<String, ArrayList<RecipeNameId>>> mapsArray = new ArrayList<>();
@@ -155,10 +188,12 @@ public class ParseJSON {
 
                 if(jObject.getString("recipe_id").equals("noid") && jObject.getString("recipe_name").equals("noname")){
 
-                    if(!map.containsKey(categoryName)){
+                    if(!allMap.containsKey(categoryName)){
 
                         ArrayList<RecipeNameId> list = new ArrayList<>();
-                        map.put(categoryName, list);
+                        allMap.put(categoryName, list);
+                        ownMap.put(categoryName, list);
+                        sharedMap.put(categoryName, list);
                     }
                 }else{
 
@@ -172,29 +207,64 @@ public class ParseJSON {
 
                     System.out.println("Category name, recipe name and recipe id: " + categoryName + " " + nameIdObject.getRecipeName() + " " + nameIdObject.getRecipeId());
 
-                    // if map already contains the current category, add current object to that category's list
-                    if(map.containsKey(categoryName)){
+                    /**
+                     * add all recipes to allMap
+                     * if map already contains the current category, add current object to that category's list
+                     * if this category does not yet exist in the map create new list and add category and list to map
+                     */
+                    if(allMap.containsKey(categoryName)){
 
-                        map.get(categoryName).add(nameIdObject);
+                        allMap.get(categoryName).add(nameIdObject);
 
-                        // if this category does not yet exist in the map create new list and add category and list to map
                     }else{
 
                         ArrayList<RecipeNameId> list = new ArrayList<>();
                         list.add(nameIdObject);
-                        map.put(categoryName, list);
+                        allMap.put(categoryName, list);
+                    }
+
+                    // add recipes that the user owns to ownMap
+                    if(ownMap.containsKey(categoryName) && ownsRecipe){
+
+                        ownMap.get(categoryName).add(nameIdObject);
+
+                    }else if(!ownMap.containsKey(categoryName) && ownsRecipe){
+
+                        ArrayList<RecipeNameId> list = new ArrayList<>();
+                        list.add(nameIdObject);
+                        ownMap.put(categoryName, list);
+                    }
+
+                    // add recipes that have been shared with this user to sharedMap
+                    if(sharedMap.containsKey(categoryName) && !ownsRecipe){
+
+                        sharedMap.get(categoryName).add(nameIdObject);
+
+                    }else if(!sharedMap.containsKey(categoryName) && !ownsRecipe){
+
+                        ArrayList<RecipeNameId> list = new ArrayList<>();
+                        list.add(nameIdObject);
+                        sharedMap.put(categoryName, list);
                     }
                 }
             }
-            mapsArray.add(map);
+            mapsArray.add(allMap);
             mapsArray.add(sharedMap);
             mapsArray.add(ownMap);
         }catch(JSONException jsonException) {
             jsonException.printStackTrace();
         }
+
         return mapsArray;
     }
 
+    /**
+     * method parseJSONConversionArray parses the JSON array containing all
+     * the conversion data needed to perform conversions on ingredient quantities
+     *
+     * @param data
+     * @return
+     */
     public static ArrayList<ConversionObject> parseJSONConversionArray(String data){
 
         ArrayList<ConversionObject> conversionArray = new ArrayList<>();
@@ -222,4 +292,4 @@ public class ParseJSON {
         return conversionArray;
     }
 
-}//end class
+}
