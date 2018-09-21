@@ -1,8 +1,12 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,6 +19,11 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+/**
+ * The Account Creation Activity allows the user to
+ * create an account using their email address and a chosen password
+ */
+
 public class AccountCreation extends AppCompatActivity {
 
     private EditText firstNameView;
@@ -25,8 +34,11 @@ public class AccountCreation extends AppCompatActivity {
     private boolean firstNameFirstTime, lastNameFirstTime, emailFirstTime;
     private boolean passwordFirstTime, passwordConfirmFirstTime;
 
+    private View progressView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_creation);
 
@@ -35,6 +47,8 @@ public class AccountCreation extends AppCompatActivity {
         emailView = (EditText) findViewById(R.id.email);
         passwordView = (EditText) findViewById(R.id.password);
         passwordViewConfirm = (EditText) findViewById(R.id.password_confirm);
+
+        progressView = findViewById(R.id.account_creation_progress);
 
         firstNameFirstTime = true;
         lastNameFirstTime = true;
@@ -110,7 +124,10 @@ public class AccountCreation extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * start asyncronous background task to store user info if entered
+     * information is valid
+     */
     public void storeInfo(){
 
         String first = firstNameView.getText().toString();
@@ -131,6 +148,7 @@ public class AccountCreation extends AppCompatActivity {
             if(validPass && !TextUtils.isEmpty(password)){
 
                 if(password.equals(confirmPassword)){
+                    showProgress(true);
                     UserInfoTask userInfoTask = new UserInfoTask(first, last, email, password);
                     userInfoTask.execute((String) null);
                 }else{
@@ -152,8 +170,9 @@ public class AccountCreation extends AppCompatActivity {
         }
     }
 
+    // check if email entered is valid
     private boolean isEmailValid(String email) {
-        //ensure email entered is valid
+
         boolean isValid = false;
 
         if(email.contains("@") && email.contains(".") && email.length() <= 35 && email.length() >= 8){
@@ -162,8 +181,9 @@ public class AccountCreation extends AppCompatActivity {
         return isValid;
     }
 
+    // check if password is at least 8 characters and at most 16 characters long
     private boolean isPasswordValid(String password) {
-        //ensure password is at least 8 characters and at most 16 characters long
+
         boolean isValid = false;
 
         if(password.length() >= 8 && password.length() <= 16){
@@ -172,7 +192,78 @@ public class AccountCreation extends AppCompatActivity {
         return isValid;
     }
 
+    public void stopProgressbar(){
+        showProgress(false);
+    }
 
+    // display progress bar
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+
+            if(show){
+                emailView.setEnabled(false);
+                firstNameView.setEnabled(false);
+                lastNameView.setEnabled(false);
+                passwordView.setEnabled(false);
+                passwordViewConfirm.setEnabled(false);
+            }else{
+                emailView.setEnabled(true);
+                firstNameView.setEnabled(true);
+                lastNameView.setEnabled(true);
+                passwordView.setEnabled(true);
+                passwordViewConfirm.setEnabled(true);
+            }
+
+            /*
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+            */
+        } else {
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+
+            if(show){
+                emailView.setEnabled(false);
+                firstNameView.setEnabled(false);
+                lastNameView.setEnabled(false);
+                passwordView.setEnabled(false);
+                passwordViewConfirm.setEnabled(false);
+            }else{
+                emailView.setEnabled(true);
+                firstNameView.setEnabled(true);
+                lastNameView.setEnabled(true);
+                passwordView.setEnabled(true);
+                passwordViewConfirm.setEnabled(true);
+            }
+
+            /*
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            */
+        }
+    }
+
+    // async task used to store user account data
     public class UserInfoTask extends AsyncTask<String, Void, String> {
 
         String firstName, lastName, userEmail, password;
@@ -186,6 +277,7 @@ public class AccountCreation extends AppCompatActivity {
             encodePassword();
         }
 
+        // send and store password in encoded form
         public void encodePassword(){
             try{
                 byte [] data = password.getBytes("UTF-8");
@@ -208,6 +300,7 @@ public class AccountCreation extends AppCompatActivity {
             try{
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/CreateAccount");
 
+                // send data to be stored
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("first", firstName);
                 jsonObject.put("last", lastName);
@@ -262,7 +355,11 @@ public class AccountCreation extends AppCompatActivity {
 
             String finalResult = ParseJSON.parseJSON(data);
 
+            stopProgressbar();
+
+            // if data was stored successfully, go to login activity
             if(finalResult.equals("success")){
+
                 startActivity(new Intent(AccountCreation.this, Login.class));
             }else if(finalResult.equals("exists")){
 
@@ -270,11 +367,11 @@ public class AccountCreation extends AppCompatActivity {
                 emailView.requestFocus();
                 emailView.setText("");
             }else{
+
                 firstNameView.setError("Unable to create account. Please try again.");
                 firstNameView.requestFocus();
             }
         }
-
     }
 }
 

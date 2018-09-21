@@ -1,5 +1,9 @@
 package com.cookbook.nanepothier.mycookbook;
 
+/**
+ * class ConversionObject is used to store data needed
+ * for converting measurements
+ */
 public class ConversionObject {
 
     private String measureFrom;

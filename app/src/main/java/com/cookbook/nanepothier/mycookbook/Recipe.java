@@ -3,6 +3,9 @@ package com.cookbook.nanepothier.mycookbook;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * class Recipe is used to store recipe information
+ */
 public class Recipe implements Serializable{
 
     private String recipeName;

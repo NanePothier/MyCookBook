@@ -1,6 +1,11 @@
 package com.cookbook.nanepothier.mycookbook;
 
-public class Service {
+/**
+ * class ViewCountService is used to count the ingredient
+ * and category views that are currently displayed on the
+ * screen in the NewRecipe activity
+ */
+public class ViewCountService {
 
     private static int ingredientViewCount = 3;
     private static int categoryViewCount = 0;

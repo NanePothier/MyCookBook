@@ -11,12 +11,18 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * class ItemRecyclerViewAdapter stores an array of recipes names and their Id's
+ * and is used to display the recipe names in a recycler view which will display the recipes
+ * as a list
+ */
 public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerViewAdapter.ItemViewHolder>{
 
     private Context context;
     private ArrayList<RecipeNameId> arrayRecipeNames;
     private String userEmail;
 
+    // view holder that uses the item_recipe_name layout for each item in the recipe array
     class ItemViewHolder extends RecyclerView.ViewHolder {
         private TextView recipeName;
 
@@ -38,6 +44,11 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         return new ItemViewHolder(view);
     }
 
+    /**
+     * bind the view holder to each recipe in the array
+     * set onClickListener to start ViewRecipe activity when a recipe is
+     * clicked
+     */
     @Override
     public void onBindViewHolder(ItemViewHolder holder, int position) {
         holder.recipeName.setText(arrayRecipeNames.get(position).getRecipeName());
@@ -48,7 +59,8 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         holder.recipeName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("Pressed recipe name " + name + " Recipe id is: " + id);
+
+                // send data necessary to display a recipe
                 Intent intent = new Intent(context, ViewRecipe.class);
                 intent.putExtra("recipe_name", name);
                 intent.putExtra("user_email", userEmail);
@@ -63,5 +75,4 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
     public int getItemCount() {
         return arrayRecipeNames.size();
     }
-
 }

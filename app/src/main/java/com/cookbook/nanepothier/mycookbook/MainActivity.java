@@ -12,17 +12,30 @@ import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+/**
+ * activity MainActivity displays the menu
+ * the menu allows the user to go to the Cookbook activity,
+ * the NewRecipe activity or to exit the application
+ */
 public class MainActivity extends AppCompatActivity {
 
-    String userEmail;
+    private String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // retrieve data sent by other activity
+        Intent receivedIntent = getIntent();
+        userEmail = receivedIntent.getExtras().getString("user_email");
+        String action = receivedIntent.getExtras().getString("action");
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // go to cookbook activivty
         ImageView cookbookBtn = (ImageView) findViewById(R.id.cookbook_btn);
         cookbookBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -34,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // go to new recipe activity
         ImageView newRecipeBtn = (ImageView) findViewById(R.id.newrecipe_btn);
         newRecipeBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -46,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // exit activity
         ImageView exitBtn = (ImageView) findViewById(R.id.exit_btn);
         exitBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -65,12 +80,10 @@ public class MainActivity extends AppCompatActivity {
         });
         */
 
-        Intent receivedIntent = getIntent();
-        userEmail = receivedIntent.getExtras().getString("user_email");
-        String action = receivedIntent.getExtras().getString("action");
         handleAction(action);
     }
 
+    // display message to user depending on what activity user came from
     public void handleAction(String takeAction){
 
         if(takeAction.equals("save_action")){
@@ -84,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // toolbar menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -91,18 +105,19 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // handle menu item clicks
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch(item.getItemId()){
+
+            case R.id.action_info:
+
+
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
 
-        return super.onOptionsItemSelected(item);
     }
 }

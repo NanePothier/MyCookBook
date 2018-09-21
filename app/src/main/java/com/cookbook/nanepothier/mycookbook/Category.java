@@ -2,6 +2,10 @@ package com.cookbook.nanepothier.mycookbook;
 
 import java.io.Serializable;
 
+/**
+ * class Category is used to store a category name and
+ * if this category is a primary category
+ */
 public class Category implements Serializable{
 
     private String categoryName;
@@ -12,12 +16,7 @@ public class Category implements Serializable{
     public Category(String catName, String primary){
 
         categoryName = catName;
-
-        if(primary.equals("y")){
-            isPrimary = true;
-        }else{
-            isPrimary = false;
-        }
+        isPrimaryCategory(primary);
     }
 
     public void setName(String n){
@@ -30,14 +29,19 @@ public class Category implements Serializable{
 
     public void setCategory(String c){
 
-        if(c.equals("y")){
-            isPrimary = true;
-        }else{
-            isPrimary = false;
-        }
+        isPrimaryCategory(c);
     }
 
     public boolean getCategory(){
         return isPrimary;
+    }
+
+    public void isPrimaryCategory(String primary){
+
+        if(primary.equals("y")){
+            isPrimary = true;
+        }else{
+            isPrimary = false;
+        }
     }
 }

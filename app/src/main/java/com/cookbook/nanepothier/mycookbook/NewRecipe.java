@@ -264,14 +264,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         final Spinner mSpinner;
         ImageView deleteIngredientRowView;
 
-        Service.incrementIngredientViewCount();
+        ViewCountService.incrementIngredientViewCount();
 
         tableRow = new TableRow(this);
         tableRow.setPadding(5, 5, 5, 5);
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
         countCol = new TextView(this);
-        countCol.setText(Integer.toString(Service.getIngredientViewCount()) + ".");
+        countCol.setText(Integer.toString(ViewCountService.getIngredientViewCount()) + ".");
         countCol.setTextSize(15);
         countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
         ingCountArray.add(countCol);
@@ -327,7 +327,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 ingCountArray.remove(countCol);
                 updateIngCountNumbers();
                 tableLayoutIngredients.removeView(tableRow);
-                Service.decrementIngredientViewCount();
+                ViewCountService.decrementIngredientViewCount();
             }
         });
 
@@ -341,15 +341,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         final AutoCompleteTextView autoCompCat;
         ImageView deleteCategoryRowView;
 
-        Service.incrementCategoryViewCount();
+        ViewCountService.incrementCategoryViewCount();
 
         tableRow = new TableRow(this);
         tableRow.setPadding(5, 5, 5, 5);
-        tableRow.setId(Service.getCategoryViewCount());
+        tableRow.setId(ViewCountService.getCategoryViewCount());
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
         countCol = new TextView(this);
-        countCol.setText(Integer.toString(Service.getCategoryViewCount()) + ".");
+        countCol.setText(Integer.toString(ViewCountService.getCategoryViewCount()) + ".");
         countCol.setTextSize(15);
         countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
         catCountArray.add(countCol);
@@ -376,9 +376,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 updateCatCountNumbers();
                 additionalCategories.remove(autoCompCat);
                 tableLayoutCategories.removeView(tableRow);
-                Service.decrementCategoryViewCount();
+                ViewCountService.decrementCategoryViewCount();
 
-                if(Service.getCategoryViewCount() == 0){
+                if(ViewCountService.getCategoryViewCount() == 0){
                     tableLayoutCategories.setVisibility(View.GONE);
                 }
             }
@@ -419,7 +419,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         if(ingredientArray.size() >= 3){
 
-            Service.setIngredientViewCount(ingredientArray.size());
+            ViewCountService.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
             amountView.setText(Integer.toString(ingredientArray.get(0).getQuantity()));
@@ -488,7 +488,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         if(categoryArray.size() > 1){
 
-            Service.setCategoryViewCount(categoryArray.size());
+            ViewCountService.setCategoryViewCount(categoryArray.size());
 
             TableRow tableRow;
             int count = 2;

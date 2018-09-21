@@ -12,6 +12,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+/**
+ * class SectionRecyclerViewAdapter is used to display the categories
+ * as sections in the Cookbook activity
+ */
 public class SectionRecyclerViewAdapter extends RecyclerView.Adapter<SectionRecyclerViewAdapter.SectionViewHolder> {
 
     private Context context;

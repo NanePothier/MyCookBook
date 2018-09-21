@@ -2,6 +2,10 @@ package com.cookbook.nanepothier.mycookbook;
 
 import java.io.Serializable;
 
+/**
+ * class Ingredient is used to store an ingredient's name,
+ * quantity, quantity unit and default measurement property
+ */
 public class Ingredient implements Serializable{
 
     private String ingredientName, quantityUnit;

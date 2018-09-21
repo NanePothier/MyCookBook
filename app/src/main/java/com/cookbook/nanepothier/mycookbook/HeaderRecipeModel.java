@@ -2,6 +2,12 @@ package com.cookbook.nanepothier.mycookbook;
 
 import java.util.ArrayList;
 
+/**
+ * class HeaderRecipeModel is used to store a category and an
+ * array of recipes that belong to that category
+ * this class is used to display the recipes in each category
+ * in a recycler view in the Cookbook activity
+ */
 public class HeaderRecipeModel {
 
     private String category;

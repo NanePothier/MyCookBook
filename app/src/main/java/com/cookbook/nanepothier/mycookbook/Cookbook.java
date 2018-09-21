@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * class/activity Cookbook is responsible for displaying the user's
+ * recipes in a list view
+ */
 public class Cookbook extends AppCompatActivity {
 
     private ArrayList<String> arrayRecipeNames;
@@ -45,8 +47,14 @@ public class Cookbook extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cookbook);
 
+        // retrieve user email through intent
+        // Intent intentReceived = getIntent();
+        // userEmail = intentReceived.getStringExtra("user_email");
+        userEmail = "haleyiron@gmail.com";
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.cookbook_toolbar);
         setSupportActionBar(toolbar);
+
         ImageButton backButton = (ImageButton) toolbar.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,28 +85,13 @@ public class Cookbook extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        // retrieve user email through intent
-        // Intent intentReceived = getIntent();
-        // userEmail = intentReceived.getStringExtra("user_email");
-        userEmail = "haleyiron@gmail.com";
-
         allHeaderRecipeModelsArray = new ArrayList<>();
         ownHeaderRecipeModelsArray = new ArrayList<>();
         sharedHeaderRecipeModelsArray = new ArrayList<>();
 
         getRecipeNamesAndCategories();
         setUpRecyclerView();
-
-    }// onCreate
+    }
 
     public void setUpRecyclerView(){
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
@@ -107,6 +100,10 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
+    /**
+     * create a different array for all, shared and personal recipes to easily switch between displaying a certain
+     * group of recipes in the recycler view
+     */
     public void generateHeaderRecipeModelsFromMap(Map<String, ArrayList<RecipeNameId>> map, ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels){
 
         String categoryName;
@@ -127,12 +124,20 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setAdapter(recyclerViewAdapter);
     }
 
+    /**
+     * display recipes retrieved due to a search initiated by the user
+     * display only recipe names, no categories
+     */
     public void populateSearchRecyclerView(ArrayList<RecipeNameId> array){
 
         ItemRecyclerViewAdapter recyclerViewAdapter = new ItemRecyclerViewAdapter(this, array, userEmail);
         recyclerView.setAdapter(recyclerViewAdapter);
     }
 
+    /**
+     * start an asynchronous background task to retrieve all of the user's recipes and the categories
+     * they belong to
+     */
     public void getRecipeNamesAndCategories(){
 
         GetItemsTask nameTask = new GetItemsTask(userEmail);
@@ -166,6 +171,7 @@ public class Cookbook extends AppCompatActivity {
         populateSearchRecyclerView(nameIdArray);
     }
 
+    // create menu on toolbar
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         MenuInflater menuInflater = getMenuInflater();
@@ -174,7 +180,7 @@ public class Cookbook extends AppCompatActivity {
         return true;
     }
 
-    // method invoked by appbar
+    // method invoked when a menu item is clicked from toolbar menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
@@ -200,6 +206,10 @@ public class Cookbook extends AppCompatActivity {
         }
     }
 
+    /**
+     * asynchronous background task used to search all of the user's recipes
+     * for the given search keyword
+     */
     public class SearchRecipesTask extends AsyncTask<String, Void, String>{
 
         private String userEmail, searchItem, data;
@@ -281,6 +291,9 @@ public class Cookbook extends AppCompatActivity {
         }
     }
 
+    /**
+     * asynchronous background task used to retrieve recipes
+     */
     public class GetItemsTask extends AsyncTask<String, Void, String> {
 
         String userEmail, data;
@@ -366,6 +379,8 @@ public class Cookbook extends AppCompatActivity {
                 allRecipesMap = mapsArray.get(0);
                 sharedRecipesMap = mapsArray.get(1);
                 ownRecipesMap = mapsArray.get(2);
+
+                // send retrieved data back to main UI thread so data can be displayed
                 onBackgroundTaskObtainedRecipeNamesAndCategories(allRecipesMap, sharedRecipesMap, ownRecipesMap);
 
             }catch(Exception e) {
@@ -373,8 +388,4 @@ public class Cookbook extends AppCompatActivity {
             }
         }
     }
-
-
-
-
-}//end class
+}
