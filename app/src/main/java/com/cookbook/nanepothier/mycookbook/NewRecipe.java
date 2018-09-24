@@ -228,10 +228,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         });
 
         // get data passed to this activity
-        intentReceived = getIntent();
-        //statusIndicator = "NewRecipe";
-        userEmail = intentReceived.getExtras().getString("user_email");
-        statusIndicator = intentReceived.getExtras().getString("status_indicator");
+        //intentReceived = getIntent();
+        statusIndicator = "NewRecipe";
+        //userEmail = intentReceived.getExtras().getString("user_email");
+        //statusIndicator = intentReceived.getExtras().getString("status_indicator");
 
         // get ingredients and categories from database
         getIngredients();
@@ -273,15 +273,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         countCol = new TextView(this);
         countCol.setText(Integer.toString(ViewCountService.getIngredientViewCount()) + ".");
         countCol.setTextSize(15);
-        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.04f));
         ingCountArray.add(countCol);
         tableRow.addView(countCol);
 
         autoView = new AutoCompleteTextView(this);
         autoView.setAdapter(ingredientAdapter);
         autoView.setTextSize(15);
-        autoView.setMaxLines(2);
-        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
+        autoView.setPadding(5,40,0,0);
+        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.5f));
         autoView.setBackgroundResource(R.drawable.thin_black_border_background);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
@@ -291,9 +291,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         tableRow.addView(autoView);
 
         editText = new EditText(this);
-        editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95));
+        editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 0.04f));
         editText.setMaxLines(1);
         editText.setTextSize(15);
+        editText.setPadding(5,35,0,0);
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackgroundResource(R.drawable.thin_black_border_background);
 

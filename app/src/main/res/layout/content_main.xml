@@ -18,13 +18,13 @@
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="0dp"
+        android:minHeight="160dp"
+        android:minWidth="280dp"
         app:layout_constraintBottom_toTopOf="@+id/cookbook_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/heading4"
-        android:minHeight="160dp"
-        android:minWidth="280dp" />
+        app:srcCompat="@mipmap/heading4"/>
 
     <ImageView
         android:id="@+id/cookbook_btn"
@@ -39,6 +39,8 @@
         android:minHeight="100dp"
         android:minWidth="200dp"
         android:scaleType="fitCenter"
+        android:background="@color/darkgrey"
+        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/newrecipe_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -59,6 +61,8 @@
         android:minHeight="100dp"
         android:minWidth="200dp"
         android:scaleType="fitCenter"
+        android:background="@color/darkgrey"
+        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/exit_btn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
@@ -79,6 +83,8 @@
         android:minHeight="100dp"
         android:minWidth="200dp"
         android:scaleType="fitCenter"
+        android:background="@color/darkgrey"
+        android:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
