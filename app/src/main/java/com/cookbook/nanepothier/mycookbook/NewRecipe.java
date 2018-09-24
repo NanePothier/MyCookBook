@@ -2,6 +2,7 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
@@ -273,16 +274,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         countCol = new TextView(this);
         countCol.setText(Integer.toString(ViewCountService.getIngredientViewCount()) + ".");
         countCol.setTextSize(15);
-        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.04f));
+        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
         ingCountArray.add(countCol);
         tableRow.addView(countCol);
 
         autoView = new AutoCompleteTextView(this);
         autoView.setAdapter(ingredientAdapter);
         autoView.setTextSize(15);
-        autoView.setPadding(5,40,0,0);
-        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.5f));
+        autoView.setPadding(5,0,0,0);
+        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.8f));
         autoView.setBackgroundResource(R.drawable.thin_black_border_background);
+        autoView.setShadowLayer(5.0f, 1.0f, 1.0f, Color.GRAY);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
             autoView.setText(ingredientArray.get(index).getName());
@@ -291,10 +293,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         tableRow.addView(autoView);
 
         editText = new EditText(this);
-        editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 0.04f));
+        editText.setLayoutParams(new TableRow.LayoutParams(20, 95, 0.001f));
         editText.setMaxLines(1);
         editText.setTextSize(15);
-        editText.setPadding(5,35,0,0);
+        editText.setPadding(20,0,0,0);
         editText.setInputType(InputType.TYPE_CLASS_NUMBER);
         editText.setBackgroundResource(R.drawable.thin_black_border_background);
 
@@ -345,7 +347,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         ViewCountService.incrementCategoryViewCount();
 
         tableRow = new TableRow(this);
-        tableRow.setPadding(5, 5, 5, 5);
+        tableRow.setPadding(5, 36, 5, 5);
         tableRow.setId(ViewCountService.getCategoryViewCount());
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
 
@@ -359,7 +361,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         autoCompCat = new AutoCompleteTextView(this);
         autoCompCat.setAdapter(categoryAdapter);
         autoCompCat.setTextSize(15);
-        autoCompCat.setPadding(0, 35, 0, 0);
+        autoCompCat.setPadding(0, 0, 0, 0);
         autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
         autoCompCat.setBackgroundResource(R.drawable.thin_black_border_background);
         additionalCategories.add(autoCompCat);
@@ -368,7 +370,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         deleteCategoryRowView = new ImageView(this);
         deleteCategoryRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
         deleteCategoryRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
-        deleteCategoryRowView.setPadding(0, 45, 0, 0);
+        deleteCategoryRowView.setPadding(0, 5, 0, 0);
         tableRow.addView(deleteCategoryRowView);
         deleteCategoryRowView.setOnClickListener(new View.OnClickListener() {
             @Override

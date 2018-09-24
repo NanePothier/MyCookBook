@@ -46,6 +46,7 @@
                     android:layout_height="24dp"
                     android:inputType="textPersonName"
                     android:background="@drawable/thin_black_border_background"
+                    android:elevation="2dp"
                     android:ems="10"
                     android:id="@+id/recipe_name"
                     android:textSize="15dp"
@@ -94,6 +95,7 @@
                         android:layout_weight="1.0"
                         android:layout_marginLeft="6dp"
                         android:maxLines="2"
+                        android:elevation="2dp"
                         android:id="@+id/auto_complete_view1"
                         android:background="@drawable/thin_black_border_background"
                         android:textSize="15dp"
@@ -108,6 +110,7 @@
                            android:textSize="15dp"
                            android:inputType="number"
                            android:layout_marginLeft="5dp"
+                           android:elevation="2dp"
                            android:background="@drawable/thin_black_border_background"
                    />
 
@@ -142,6 +145,7 @@
                            android:layout_weight="1.0"
                            android:textSize="15dp"
                            android:maxLines="2"
+                           android:elevation="2dp"
                            android:background="@drawable/thin_black_border_background"
                            android:layout_marginLeft="6dp"
                            android:id="@+id/auto_complete_view2"
@@ -153,6 +157,7 @@
                            android:id="@+id/quantity2"
                            android:textSize="15dp"
                            android:inputType="number"
+                           android:elevation="2dp"
                            android:background="@drawable/thin_black_border_background"
                            android:layout_marginLeft="5dp"
                            android:maxLines="1"
@@ -190,6 +195,7 @@
                            android:textSize="15dp"
                            android:layout_marginLeft="6dp"
                            android:maxLines="2"
+                           android:elevation="2dp"
                            android:background="@drawable/thin_black_border_background"
                            android:id="@+id/auto_complete_view3"
                    />
@@ -202,6 +208,7 @@
                            android:inputType="number"
                            android:background="@drawable/thin_black_border_background"
                            android:layout_marginLeft="5dp"
+                           android:elevation="2dp"
                            android:maxLines="1"
                    />
 
@@ -262,14 +269,26 @@
                      app:layout_constraintTop_toBottomOf="@+id/add_ingredient_text"
             />
 
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Additional Categories:"
+                    android:id="@+id/additional_cat_label"
+                    android:textSize="15dp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="25dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/category_label"
+            />
+
             <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/table_layout_categories"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="10dp"
                     android:visibility="gone"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/category_label">
+                    app:layout_constraintTop_toBottomOf="@id/additional_cat_label">
             </TableLayout>
 
             <ImageView
@@ -299,7 +318,7 @@
                     android:layout_width="142dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/servings_label"
-                    android:layout_marginTop="24dp"
+                    android:layout_marginTop="28dp"
                     android:textSize="15dp"
                     android:textStyle="bold"
                     app:layout_constraintTop_toBottomOf="@+id/add_category_circle"
@@ -313,8 +332,9 @@
                     android:ems="10"
                     android:textSize="15dp"
                     android:id="@+id/servings"
-                    android:layout_marginTop="21dp"
+                    android:layout_marginTop="25dp"
                     android:background="@drawable/thin_black_border_background"
+                    android:elevation="2dp"
                     app:layout_constraintTop_toBottomOf="@+id/add_category_text"
                     app:layout_constraintStart_toEndOf="@+id/servings_label"
                     />
@@ -340,6 +360,7 @@
                     android:background="@drawable/thin_black_border_background"
                     android:id="@+id/prep_time"
                     android:layout_marginTop="20dp"
+                    android:elevation="2dp"
                     app:layout_constraintTop_toBottomOf="@+id/servings"
                     app:layout_constraintStart_toEndOf="@+id/prep_time_label"
                     />
@@ -373,6 +394,7 @@
                     android:ems="10"
                     android:id="@+id/oven_time"
                     android:textSize="15dp"
+                    android:elevation="2dp"
                     android:background="@drawable/thin_black_border_background"
                     android:layout_marginTop="22dp"
                     app:layout_constraintTop_toBottomOf="@+id/prep_time"
@@ -408,6 +430,7 @@
                     android:ems="10"
                     android:id="@+id/oven_temp"
                     android:textSize="15dp"
+                    android:elevation="2dp"
                     android:layout_marginTop="22dp"
                     android:background="@drawable/thin_black_border_background"
                     app:layout_constraintTop_toBottomOf="@+id/oven_time"
@@ -445,6 +468,7 @@
                     android:id="@+id/calories"
                     android:textSize="15dp"
                     android:layout_marginTop="24dp"
+                    android:elevation="2dp"
                     android:background="@drawable/thin_black_border_background"
                     android:shadowColor="@color/grey"
                     android:shadowDx="0"
@@ -481,6 +505,7 @@
                     android:gravity="top|left"
                     android:scrollbars="vertical"
                     android:background="@drawable/thin_black_border_background"
+                    android:elevation="4dp"
                     android:layout_marginTop="5dp"
                     app:layout_constraintTop_toBottomOf="@+id/instruction_label"
                     app:layout_constraintStart_toStartOf="parent"
