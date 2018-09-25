@@ -5,6 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/new_recipe_activity_layout"
         tools:context=".NewRecipe">
 
     <android.support.design.widget.AppBarLayout
@@ -17,12 +18,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_arrow_back_white_24dp"
+                    android:id="@+id/back_button"
+                    android:background="@color/colorPrimary"
+                    android:layout_gravity="left"/>
+
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_new_recipe"
+                    android:textSize="20dp"
+
+                    android:textColor="@color/white"
+                    android:layout_marginLeft="30dp"
+
+            />
+
+        </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout= "@layout/content_new_recipe"/>
-
 
 </android.support.design.widget.CoordinatorLayout>
 

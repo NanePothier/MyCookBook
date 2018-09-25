@@ -1,0 +1,21 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.cookbook.nanepothier.mycookbook.activity_cookbook">
+
+    <item
+            android:id="@+id/action_view_own"
+            android:title="@string/view_own"
+            app:showAsAction="never" />
+
+    <item
+            android:id="@+id/action_view_shared"
+            android:title="@string/view_shared"
+            app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_all"
+        android:title="@string/view_all"
+        app:showAsAction="never" />
+
+</menu>

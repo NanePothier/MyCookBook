@@ -1,21 +1,28 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+
+/**
+ * The Account Creation Activity allows the user to
+ * create an account using their email address and a chosen password
+ */
 
 public class AccountCreation extends AppCompatActivity {
 
@@ -24,9 +31,14 @@ public class AccountCreation extends AppCompatActivity {
     private EditText emailView;
     private EditText passwordView;
     private EditText passwordViewConfirm;
+    private boolean firstNameFirstTime, lastNameFirstTime, emailFirstTime;
+    private boolean passwordFirstTime, passwordConfirmFirstTime;
+
+    private View progressView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_creation);
 
@@ -36,7 +48,13 @@ public class AccountCreation extends AppCompatActivity {
         passwordView = (EditText) findViewById(R.id.password);
         passwordViewConfirm = (EditText) findViewById(R.id.password_confirm);
 
+        progressView = findViewById(R.id.account_creation_progress);
 
+        firstNameFirstTime = true;
+        lastNameFirstTime = true;
+        emailFirstTime = true;
+        passwordFirstTime = true;
+        passwordConfirmFirstTime = true;
 
         Button createBtn = (Button) findViewById(R.id.create_btn);
         createBtn.setOnClickListener(new View.OnClickListener(){
@@ -46,10 +64,70 @@ public class AccountCreation extends AppCompatActivity {
             }
         });
 
+        firstNameView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
 
+                firstNameView.setTextColor(Color.BLACK);
+
+                if(hasFocus && firstNameFirstTime){
+                    firstNameView.setText("");
+                    firstNameFirstTime = false;
+                }
+            }
+        });
+
+        lastNameView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && lastNameFirstTime){
+                    lastNameView.setText("");
+                    lastNameView.setTextColor(Color.BLACK);
+                    lastNameFirstTime = false;
+                }
+            }
+        });
+
+        emailView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && emailFirstTime){
+                    emailView.setText("");
+                    emailView.setTextColor(Color.BLACK);
+                    emailFirstTime = false;
+                }
+            }
+        });
+
+        passwordView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && emailFirstTime){
+                    passwordView.setText("");
+                    passwordFirstTime = false;
+                }
+            }
+        });
+
+        passwordViewConfirm.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus){
+
+                if(hasFocus && emailFirstTime){
+                    passwordViewConfirm.setText("");
+                    passwordConfirmFirstTime = false;
+                }
+            }
+        });
     }
 
-
+    /**
+     * start asyncronous background task to store user info if entered
+     * information is valid
+     */
     public void storeInfo(){
 
         String first = firstNameView.getText().toString();
@@ -70,6 +148,7 @@ public class AccountCreation extends AppCompatActivity {
             if(validPass && !TextUtils.isEmpty(password)){
 
                 if(password.equals(confirmPassword)){
+                    showProgress(true);
                     UserInfoTask userInfoTask = new UserInfoTask(first, last, email, password);
                     userInfoTask.execute((String) null);
                 }else{
@@ -85,36 +164,106 @@ public class AccountCreation extends AppCompatActivity {
                 passwordViewConfirm.setText("");
             }
         }else{
-
             emailView.setError("Incorrect Email Format");
             emailView.requestFocus();
             emailView.setText("");
         }
     }
 
+    // check if email entered is valid
     private boolean isEmailValid(String email) {
-        //ensure email entered is valid
+
         boolean isValid = false;
 
         if(email.contains("@") && email.contains(".") && email.length() <= 35 && email.length() >= 8){
             isValid = true;
         }
-
         return isValid;
     }
 
+    // check if password is at least 8 characters and at most 16 characters long
     private boolean isPasswordValid(String password) {
-        //ensure password is at least 8 characters and at most 16 characters long
+
         boolean isValid = false;
 
         if(password.length() >= 8 && password.length() <= 16){
             isValid = true;
         }
-
         return isValid;
     }
 
+    public void stopProgressbar(){
+        showProgress(false);
+    }
 
+    // display progress bar
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+
+            if(show){
+                emailView.setEnabled(false);
+                firstNameView.setEnabled(false);
+                lastNameView.setEnabled(false);
+                passwordView.setEnabled(false);
+                passwordViewConfirm.setEnabled(false);
+            }else{
+                emailView.setEnabled(true);
+                firstNameView.setEnabled(true);
+                lastNameView.setEnabled(true);
+                passwordView.setEnabled(true);
+                passwordViewConfirm.setEnabled(true);
+            }
+
+            /*
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mProgressView.animate().setDuration(shortAnimTime).alpha(
+                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+                }
+            });
+            */
+        } else {
+
+            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+
+            if(show){
+                emailView.setEnabled(false);
+                firstNameView.setEnabled(false);
+                lastNameView.setEnabled(false);
+                passwordView.setEnabled(false);
+                passwordViewConfirm.setEnabled(false);
+            }else{
+                emailView.setEnabled(true);
+                firstNameView.setEnabled(true);
+                lastNameView.setEnabled(true);
+                passwordView.setEnabled(true);
+                passwordViewConfirm.setEnabled(true);
+            }
+
+            /*
+            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            */
+        }
+    }
+
+    // async task used to store user account data
     public class UserInfoTask extends AsyncTask<String, Void, String> {
 
         String firstName, lastName, userEmail, password;
@@ -124,6 +273,18 @@ public class AccountCreation extends AppCompatActivity {
             lastName = last;
             userEmail = user;
             password = pass;
+
+            encodePassword();
+        }
+
+        // send and store password in encoded form
+        public void encodePassword(){
+            try{
+                byte [] data = password.getBytes("UTF-8");
+                password = Base64.encodeToString(data, Base64.DEFAULT);
+            }catch(UnsupportedEncodingException exception){
+                exception.printStackTrace();
+            }
         }
 
         @Override
@@ -134,14 +295,13 @@ public class AccountCreation extends AppCompatActivity {
             OutputStream outputStream = null;
             HttpURLConnection connection;
             URL url = null;
-            StringBuilder result2 = null;
             String result = "";
 
             try{
-                url = new URL("http://weblab.salemstate.edu/~S0280202/android_connect/create_account.php");
+                url = new URL("http://10.0.0.18:9999/mycookbookservlets/CreateAccount");
 
+                // send data to be stored
                 JSONObject jsonObject = new JSONObject();
-
                 jsonObject.put("first", firstName);
                 jsonObject.put("last", lastName);
                 jsonObject.put("user", userEmail);
@@ -156,16 +316,13 @@ public class AccountCreation extends AppCompatActivity {
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
                 connection.setFixedLengthStreamingMode(message.getBytes().length);
-
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(message.getBytes());
                 outputStream.flush();
-
 
                 int responseCode = connection.getResponseCode();
 
@@ -179,11 +336,9 @@ public class AccountCreation extends AppCompatActivity {
                         result += line;
                     }
                 }
-
             }catch(Exception ioe){
                 ioe.printStackTrace();
             }finally{
-
                 try{
                     outputStream.close();
                     inputStream.close();
@@ -192,51 +347,32 @@ public class AccountCreation extends AppCompatActivity {
                     ie.printStackTrace();
                 }
             }
-
             return result;
         }
 
         @Override
         protected void onPostExecute(String data){
 
+            String finalResult = ParseJSON.parseJSON(data);
 
-            String finalResult = parseJSON(data);
-            lastNameView.setText(finalResult);
+            stopProgressbar();
 
+            // if data was stored successfully, go to login activity
             if(finalResult.equals("success")){
-                //firstNameView.setText("success");
+
                 startActivity(new Intent(AccountCreation.this, Login.class));
             }else if(finalResult.equals("exists")){
-                //firstNameView.setText(finalResult);
+
                 emailView.setError("Email already exists.");
                 emailView.requestFocus();
                 emailView.setText("");
-
             }else{
+
                 firstNameView.setError("Unable to create account. Please try again.");
                 firstNameView.requestFocus();
             }
-
-
-        }
-
-        private String parseJSON(String jsonData){
-
-            String stringResult = "";
-
-            try{
-
-                JSONObject json = new JSONObject(jsonData);
-                stringResult = json.getString("successIndicator");
-
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-
-            return stringResult;
         }
     }
-
 }
 
 

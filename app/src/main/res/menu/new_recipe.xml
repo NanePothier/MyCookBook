@@ -4,17 +4,33 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.cookbook.nanepothier.mycookbook.NewRecipe">
 
-
+    <item
+            android:id="@+id/save_action"
+            android:title="@string/save_recipe"
+            app:showAsAction="never"
+    />
 
     <item
-        android:id="@+id/save_action"
-        android:title="Save"
-        app:showAsAction="never"
-        />
+            android:id="@+id/new_ingredient_action"
+            android:title="@string/new_ingredient"
+            app:showAsAction="never"
+    />
+
+    <item
+            android:id="@+id/new_category_action"
+            android:title="@string/new_category"
+            app:showAsAction="never"
+    />
+
+    <item
+            android:id="@+id/delete_category_action"
+            android:title="@string/delete_category"
+            app:showAsAction="never"
+    />
 
     <item
             android:id="@+id/cancel_action"
-            android:title="Cancel"
+            android:title="@string/cancel"
             app:showAsAction="never"
     />
 

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/cookbook_coordinator_layout"
     tools:context=".Cookbook">
 
     <android.support.design.widget.AppBarLayout
@@ -12,22 +13,33 @@
         android:theme="@style/AppTheme.AppBarOverlay">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/cookbook_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+            <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@mipmap/ic_arrow_back_white_24dp"
+                    android:id="@+id/back_button"
+                    android:background="@color/colorPrimary"
+                    android:layout_gravity="left"/>
+
+            <SearchView
+                    android:id="@+id/search_view"
+                    android:layout_width="250dp"
+                    android:layout_height="28dp"
+                    android:iconifiedByDefault="false"
+                    android:queryHint="Search Recipes"
+                    android:queryBackground="@color/white">
+            </SearchView>
+
+        </android.support.v7.widget.Toolbar>
 
     </android.support.design.widget.AppBarLayout>
 
     <include layout="@layout/content_cookbook" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
 
 </android.support.design.widget.CoordinatorLayout>

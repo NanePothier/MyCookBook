@@ -5,12 +5,26 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
         tools:context=".ViewRecipe"
         tools:showIn="@layout/activity_view_recipe"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+    <ProgressBar
+            android:id="@+id/view_recipe_progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="200dp"
+            android:visibility="gone" />
 
     <ScrollView
+            android:id="@+id/view_recipe_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -22,11 +36,11 @@
                 tools:text="RecipeName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/recipe_name"
+                android:id="@+id/recipe_name_view"
                 android:textSize="20dp"
                 android:layout_marginLeft="8dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -34,127 +48,256 @@
                 app:layout_constraintTop_toTopOf="parent"
         />
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Primary Category:"
-                android:id="@+id/prim_cat_label"
-                tools:layout_editor_absoluteY="206dp"
-                tools:layout_editor_absoluteX="16dp"/>
+        <ToggleButton
+                android:textOff="US"
+                android:textOn="Metric"
+                android:textSize="13dp"
+                android:layout_width="72dp"
+                android:layout_height="40dp"
+                android:id="@+id/toggle_sys_button"
+                android:layout_marginTop="52dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+        />
 
         <TextView
-                tools:text="Baked Goods"
+                android:text="@string/ingredient"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/primCategory_view"
-                android:layout_weight="1"
-                tools:layout_editor_absoluteY="206dp"
-                tools:layout_editor_absoluteX="151dp"
+                android:id="@+id/ingredient_label_view"
+                android:layout_marginTop="65dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+        />
+
+        <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/table_layout_view"
+                android:layout_marginTop="20dp"
+                app:layout_constraintTop_toBottomOf="@id/ingredient_label_view"
+                app:layout_constraintStart_toStartOf="parent">
+        </TableLayout>
+
+
+        <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:text="Primary Category:"
+                android:id="@+id/prim_cat_label_view"
+                app:layout_constraintTop_toBottomOf="@id/table_layout_view"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="24dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
         />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="No. of Servings:"
-                android:id="@+id/servings_label_view"
-                tools:layout_editor_absoluteY="238dp"
-                tools:layout_editor_absoluteX="16dp"/>
+                android:id="@+id/primCategory_view_view"
+                android:layout_weight="1"
+                android:layout_marginTop="24dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/table_layout_view"
+                app:layout_constraintStart_toEndOf="@id/prim_cat_label_view"
+        />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/other_cat_label_view"
+                app:layout_constraintTop_toBottomOf="@id/prim_cat_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="24dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                android:visibility="gone"
+        />
+
+        <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/table_layout_view_categories"
+                android:layout_marginTop="20dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/other_cat_label_view"
+                app:layout_constraintStart_toStartOf="parent">
+        </TableLayout>
+
+        <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:text="Servings:"
+                android:id="@+id/servings_label_view_view"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/table_layout_view_categories"
+                android:layout_marginTop="20dp"/>
 
         <TextView
                 tools:text="8"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/servings_view"
+                android:id="@+id/servings_view_view"
                 android:layout_weight="1"
-                tools:layout_editor_absoluteY="238dp"
-                tools:layout_editor_absoluteX="151dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/table_layout_view_categories"
+                app:layout_constraintStart_toEndOf="@id/servings_label_view_view"
+                android:layout_marginTop="20dp"
+        />
+
+        <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:text="Preparation Time:"
+                android:id="@+id/prep_time_label_view"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/servings_label_view_view"
+                android:layout_marginTop="20dp"
+                />
+
+        <TextView
+                tools:text="60"
+                android:layout_width="35dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/prep_time_view"
+                android:layout_weight="1"
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/servings_view_view"
+                app:layout_constraintStart_toEndOf="@id/prep_time_label_view"
+                />
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="minutes"
+                android:textSize="15dp"
+                android:layout_marginTop="20dp"
+                app:layout_constraintStart_toEndOf="@id/prep_time_view"
+                app:layout_constraintTop_toBottomOf="@id/servings_view_view"
+
+        />
+
+        <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:text="Oven Time:"
+                android:id="@+id/oven_time_label_view"
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/prep_time_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+        />
+
+        <TextView
+                android:layout_width="35dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/oven_time_view"
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/prep_time_view"
+                app:layout_constraintStart_toEndOf="@id/oven_time_label_view"
         />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Preparation Time:"
-                android:id="@+id/prep_time_label_view"
-                tools:layout_editor_absoluteY="275dp"
-                tools:layout_editor_absoluteX="16dp"/>
+                android:text="minutes"
+                android:textSize="15dp"
+                android:layout_marginTop="20dp"
+                app:layout_constraintStart_toEndOf="@id/oven_time_view"
+                app:layout_constraintTop_toBottomOf="@id/prep_time_view"
+
+        />
 
         <TextView
-                tools:text="60"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/prep_time_view"
-                android:layout_weight="1"
-                tools:layout_editor_absoluteY="275dp"
-                tools:layout_editor_absoluteX="151dp"/>
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Oven Time:"
-                android:id="@+id/oven_time_label_view"
-                tools:layout_editor_absoluteY="305dp"
-                tools:layout_editor_absoluteX="16dp"/>
-
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5555"
-                android:id="@+id/oven_time_view"
-                tools:layout_editor_absoluteY="305dp"
-                tools:layout_editor_absoluteX="151dp"/>
-
-        <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="155dp"
                 android:layout_height="wrap_content"
                 android:text="Oven Temperature:"
                 android:id="@+id/oven_temp_label_view"
-                tools:layout_editor_absoluteY="335dp"
-                tools:layout_editor_absoluteX="16dp"/>
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/oven_time_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+        />
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="35dp"
                 android:layout_height="wrap_content"
-                android:text="oventemp"
                 android:id="@+id/oven_temp_view"
-                tools:layout_editor_absoluteY="335dp"
-                tools:layout_editor_absoluteX="151dp"/>
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/oven_time_view"
+                app:layout_constraintStart_toEndOf="@id/oven_time_label_view"
+        />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Calories per Serving:"
+                android:text="degrees F"
+                android:textSize="15dp"
+                android:layout_marginTop="20dp"
+                app:layout_constraintStart_toEndOf="@id/oven_temp_view"
+                app:layout_constraintTop_toBottomOf="@id/oven_time_view"
+
+        />
+
+        <TextView
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:text="Calories/Serving:"
                 android:id="@+id/calories_label_view"
-                tools:layout_editor_absoluteY="367dp"
-                tools:layout_editor_absoluteX="16dp"/>
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/oven_temp_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+        />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="calo"
                 android:id="@+id/calories_view"
-                tools:layout_editor_absoluteY="367dp"
-                tools:layout_editor_absoluteX="151dp"/>
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/oven_temp_view"
+                app:layout_constraintStart_toEndOf="@id/calories_label_view"
+        />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Instructions:"
                 android:id="@+id/instructions_label_view"
-                tools:layout_editor_absoluteY="399dp"
-                tools:layout_editor_absoluteX="16dp"/>
+                android:layout_marginTop="20dp"
+                android:textSize="15dp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/calories_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+        />
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1. whisk eggs. add flour"
                 android:id="@+id/instructions_view"
-                tools:layout_editor_absoluteY="418dp"
-                tools:layout_editor_absoluteX="16dp"/>
+                android:layout_marginTop="15dp"
+                android:textSize="15dp"
+                app:layout_constraintTop_toBottomOf="@id/instructions_label_view"
+                app:layout_constraintStart_toStartOf="parent"
+        />
 
 
 
-
-</android.support.constraint.ConstraintLayout>
+        </android.support.constraint.ConstraintLayout>
     </ScrollView>
 
 </LinearLayout>
