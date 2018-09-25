@@ -3,6 +3,7 @@ package com.cookbook.nanepothier.mycookbook;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -11,22 +12,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.*;
 import android.widget.*;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class ViewRecipe extends AppCompatActivity {
 
     enum Indicator{
-        SHARE, DELETE
+        SHARE, DELETE, SAVE_SHARED
     }
 
     private String recipeName;
     private String userEmail;
     private String recipeId;
     private Recipe recipe;
+    private String shareEmail;
 
     private TextView recipeNameView;
     private TextView primCategoryView;
@@ -48,6 +52,8 @@ public class ViewRecipe extends AppCompatActivity {
 
     private CoordinatorLayout coordinatorLayout;
     private PopupWindow sharePopup;
+    private View progressView;
+    private View scrollView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,12 +74,21 @@ public class ViewRecipe extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        scrollView = findViewById(R.id.view_recipe_scroll);
+        scrollView.setVisibility(View.GONE);
+        progressView = findViewById(R.id.view_recipe_progress);
+        progressView.setVisibility(View.VISIBLE);
+
+        FloatingActionButton editfab = (FloatingActionButton) findViewById(R.id.edit_fab);
+        editfab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
+                intent.putExtra("user_email", userEmail);
+                intent.putExtra("status_indicator", "EditRecipe");
+                intent.putExtra("recipe_to_edit", recipe);
+                startActivity(intent);
             }
         });
 
@@ -265,8 +280,19 @@ public class ViewRecipe extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        MenuTask shareTask = new MenuTask(Indicator.SHARE, recipe.getRecipeId(), enterEmailView.getText().toString(), userEmail);
-                        shareTask.execute();
+                        shareEmail = enterEmailView.getText().toString();
+
+                        MenuTask saveRecipeTask = new MenuTask(Indicator.SAVE_SHARED, shareEmail, recipe.getRecipeName(), recipe.getIngredientArray(), recipe.getPrimaryCategory().getName(),
+                                recipe.getCategoriesArray(), Integer.toString(recipe.getPreparationTime()), Integer.toString(recipe.getOvenTime()),
+                                Integer.toString(recipe.getOvenTemperature()), Integer.toString(recipe.getServings()), Integer.toString(recipe.getCalories()),
+                                recipe.getInstructions(), "US", "NewRecipe");
+
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+                            saveRecipeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+                        }else{
+                            saveRecipeTask.execute((String) null);
+                        }
+
                         sharePopup.dismiss();
                     }
                 });
@@ -354,7 +380,6 @@ public class ViewRecipe extends AppCompatActivity {
 
         if(measurementSystem.equals("metric")){
             arrayIngredients = recipe.getMetricIngredientArray();
-            // System.out.println("One of the metric ingredients " + recipe.getMetricIngredientArray().get(0).getName() + " " + recipe.getMetricIngredientArray().get(0).getQuantity());
         }else{
             arrayIngredients = recipe.getIngredientArray();
         }
@@ -384,7 +409,6 @@ public class ViewRecipe extends AppCompatActivity {
             ingredientNameCol.setTextSize(15);
             ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(870, TableRow.LayoutParams.WRAP_CONTENT));
             tableRow.addView(ingredientNameCol);
-
 
             quantityCol = new TextView(this);
             quantityCol.setTextSize(15);
@@ -457,6 +481,20 @@ public class ViewRecipe extends AppCompatActivity {
         conversionArray = convArray;
 
         generateMetricIngredientArray();
+
+        progressView.setVisibility(View.GONE);
+        scrollView.setVisibility(View.VISIBLE);
+    }
+
+    public void onBackgroundTaskObtainedRecipeId(String uniqueID){
+
+        MenuTask shareTask = new MenuTask(Indicator.SHARE, uniqueID, shareEmail, userEmail);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            shareTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+        }else{
+            shareTask.execute((String) null);
+        }
     }
 
     // asynchronous background task getting recipe data from database
@@ -527,9 +565,6 @@ public class ViewRecipe extends AppCompatActivity {
                         result += line;
                     }
                 }
-
-                System.out.println("result string: " + result);
-
             }catch(Exception ioe){
                 ioe.printStackTrace();
             }finally{
@@ -564,14 +599,47 @@ public class ViewRecipe extends AppCompatActivity {
         String recipeId;
         String shareEmail;
         String sharedByEmail;
+        String recipeName;
+        ArrayList<Ingredient> ingredients;
+        ArrayList<Category> categories;
+        String primCategory;
+        String prepTime, ovenTime, ovenTemp, servings, calories;
+        String instructions;
+        String systemIndicator;
+        String actionIndicator;
+        String uniqueID;
 
-        public MenuTask(Indicator in, String id, String email, String sharedByEmail){
+        // constructor for saving a copy of a shared recipe with new recipe Id
+        public MenuTask(Indicator in, String email, String recipeName, ArrayList<Ingredient> ingredients, String primCat,
+                        ArrayList<Category> categories, String pTime, String oTime, String oTemp,
+                        String servings, String calories, String instruct, String sysInd, String actInd){
+
             indicator = in;
-            recipeId = id;
             shareEmail = email;
+            this.recipeName = recipeName;
+            this.ingredients = ingredients;
+            this.categories = categories;
+            primCategory = primCat;
+            prepTime = pTime;
+            ovenTime = oTime;
+            ovenTemp = oTemp;
+            this.servings = servings;
+            this.calories = calories;
+            instructions = instruct;
+            systemIndicator = sysInd;
+            actionIndicator = actInd;
+        }
+
+        // constructor for saving shared recipe information
+        public MenuTask(Indicator in, String recipeId, String shareEmail, String sharedByEmail){
+
+            indicator = in;
+            this.recipeId = recipeId;
+            this.shareEmail = shareEmail;
             this.sharedByEmail = sharedByEmail;
         }
 
+        // constructor for deleting a recipe
         public MenuTask(Indicator in, String id){
             indicator = in;
             recipeId = id;
@@ -581,14 +649,13 @@ public class ViewRecipe extends AppCompatActivity {
         protected String doInBackground(String... params){
 
             String result = "";
+            String recipeInfo;
+            InputStream inputStream = null;
+            OutputStream outputStream = null;
+            HttpURLConnection connection = null;
+            URL url = null;
 
             if(indicator.equals(Indicator.DELETE)) {
-
-                String recipeInfo;
-                InputStream inputStream = null;
-                OutputStream outputStream = null;
-                HttpURLConnection connection;
-                URL url = null;
 
                 try {
                     url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteRecipe");
@@ -606,9 +673,7 @@ public class ViewRecipe extends AppCompatActivity {
                     connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
                     connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                     connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                     connection.connect();
-                    System.out.println("Connection established");
 
                     outputStream = new BufferedOutputStream(connection.getOutputStream());
                     outputStream.write(recipeInfo.getBytes());
@@ -630,30 +695,62 @@ public class ViewRecipe extends AppCompatActivity {
                 } catch (Exception ioe) {
                     ioe.printStackTrace();
                 } finally {
-
                     try {
-                        outputStream.close();
-                        inputStream.close();
-
+                        if(outputStream != null){
+                            outputStream.close();
+                        }
+                        if(inputStream != null){
+                            inputStream.close();
+                        }
                     } catch (IOException ie) {
                         ie.printStackTrace();
                     }
                 }
-            }else if(indicator.equals(Indicator.SHARE)){
-
-                String recipeInfo;
-                InputStream inputStream = null;
-                OutputStream outputStream = null;
-                HttpURLConnection connection;
-                URL url = null;
+            }else if(indicator.equals(Indicator.SAVE_SHARED)){
 
                 try {
-                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
+                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
 
                     JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("recipe_id", recipeId);
-                    jsonObject.put("user_email", shareEmail);
-                    jsonObject.put("shared_by_email", sharedByEmail);
+                    JSONArray jsonArray = new JSONArray();
+                    JSONArray jsonArrayCat = new JSONArray();
+
+                    uniqueID = UUID.randomUUID().toString();
+
+                    for(int x = 0; x < ingredients.size(); x++){
+
+                        JSONObject jObject = new JSONObject();
+                        jObject.put("ing_name", ingredients.get(x).getName());
+                        jObject.put("quantity", ingredients.get(x).getQuantity());
+                        jObject.put("quantity_unit", ingredients.get(x).getQuantityUnit());
+
+                        jsonArray.put(jObject);
+                    }
+
+                    for(int y = 0; y < categories.size(); y++){
+
+                        JSONObject catObject = new JSONObject();
+                        catObject.put("cat_name", categories.get(y).getName());
+                        catObject.put("cat_prime", categories.get(y).getCategory());
+
+                        jsonArrayCat.put(catObject);
+                    }
+
+                    jsonObject.put("userEmail", shareEmail);
+                    jsonObject.put("unique", uniqueID);
+                    jsonObject.put("name", recipeName);
+                    jsonObject.put("ingredientObjectArray", jsonArray);
+                    jsonObject.put("primCategory", primCategory);
+                    jsonObject.put("other_categories", jsonArrayCat);
+                    jsonObject.put("prepTime", prepTime);
+                    jsonObject.put("ovenTime", ovenTime);
+                    jsonObject.put("ovenTemp", ovenTemp);
+                    jsonObject.put("servings", servings);
+                    jsonObject.put("calories", calories);
+                    jsonObject.put("instructions", instructions);
+                    jsonObject.put("systemInd", systemIndicator);
+                    jsonObject.put("actionInd", actionIndicator);
+
                     recipeInfo = jsonObject.toString();
 
                     connection = (HttpURLConnection) url.openConnection();
@@ -665,9 +762,7 @@ public class ViewRecipe extends AppCompatActivity {
                     connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
                     connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                     connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                     connection.connect();
-                    System.out.println("Connection established");
 
                     outputStream = new BufferedOutputStream(connection.getOutputStream());
                     outputStream.write(recipeInfo.getBytes());
@@ -700,6 +795,58 @@ public class ViewRecipe extends AppCompatActivity {
                         ie.printStackTrace();
                     }
                 }
+            } else if(indicator.equals(Indicator.SHARE)){
+
+                try {
+                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
+
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("recipe_id", recipeId);
+                    jsonObject.put("user_email", shareEmail);
+                    jsonObject.put("shared_by_email", sharedByEmail);
+                    recipeInfo = jsonObject.toString();
+
+                    connection = (HttpURLConnection) url.openConnection();
+                    connection.setReadTimeout(10000);
+                    connection.setConnectTimeout(15000);
+                    connection.setRequestMethod("POST");
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);
+                    connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
+                    connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                    connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+                    connection.connect();
+
+                    outputStream = new BufferedOutputStream(connection.getOutputStream());
+                    outputStream.write(recipeInfo.getBytes());
+                    outputStream.flush();
+
+                    int responseCode = connection.getResponseCode();
+
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+
+                        inputStream = connection.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                        String line;
+
+                        while ((line = reader.readLine()) != null) {
+                            result += line;
+                        }
+                    }
+                } catch (Exception ioe) {
+                    ioe.printStackTrace();
+                } finally {
+                    try {
+                        if(outputStream != null){
+                            outputStream.close();
+                        }
+                        if(inputStream != null) {
+                            inputStream.close();
+                        }
+                    } catch (IOException ie) {
+                        ie.printStackTrace();
+                    }
+                }
             }
             return result;
         }
@@ -710,10 +857,10 @@ public class ViewRecipe extends AppCompatActivity {
             if(!(data.equals(""))){
 
                 String finalResult = ParseJSON.parseJSON(data);
-                System.out.println("in result string: " + finalResult);
 
                 if(indicator.equals(Indicator.DELETE)){
-                    if(finalResult.equals("deletedFirstSecondThirdFourth")){
+
+                    if(finalResult.equals("deletedDDDD")){
 
                         Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.delete_user_msg, Snackbar.LENGTH_SHORT)
                                 .show();
@@ -721,10 +868,13 @@ public class ViewRecipe extends AppCompatActivity {
                         Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
                         intent.putExtra("user_email", userEmail);
                         startActivity(intent);
-                    }else{
-
                     }
+                }else if (indicator.equals(Indicator.SAVE_SHARED)){
+
+                    ViewRecipe.this.onBackgroundTaskObtainedRecipeId(uniqueID);
+
                 }else if(indicator.equals(Indicator.SHARE)){
+
                     if(finalResult.equals("success")){
 
                         Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.share_user_msg, Snackbar.LENGTH_SHORT)
@@ -766,9 +916,7 @@ public class ViewRecipe extends AppCompatActivity {
                 connection.setFixedLengthStreamingMode(info.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
-                System.out.println("Connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(info.getBytes());
@@ -786,9 +934,6 @@ public class ViewRecipe extends AppCompatActivity {
                         result += line;
                     }
                 }
-
-                System.out.println("Get conversion factors result: " + result);
-
             } catch (Exception ioe) {
                 ioe.printStackTrace();
             } finally {

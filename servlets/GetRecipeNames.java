@@ -54,7 +54,7 @@ public class GetRecipeNames extends HttpServlet {
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
 			
 			jsonRecipeArray = getRecipes(connection, userEmail, jsonRecipeArray);
-			jsonRecipeArray = getSharedRecipes(connection, userEmail, jsonRecipeArray);
+			jsonRecipeArray = setSharedRecipes(connection, userEmail, jsonRecipeArray);
 			
 			/**
 			 * retrieve categories that are visible to all even if user has not added any recipes to
@@ -126,7 +126,7 @@ public class GetRecipeNames extends HttpServlet {
 		try {
 		
 			/**
-			 *  get all recipe IDs for this user
+			 *  get all recipe IDs for this user, own and shared
 			 */
 			String sqlRecipe = "SELECT recipe_id FROM userrecipes WHERE email_address = '" + userEmail + "'";
 			queryStatement = conn.createStatement();
@@ -193,80 +193,37 @@ public class GetRecipeNames extends HttpServlet {
 		return jArray;
 	}
 
-	public JSONArray getSharedRecipes(Connection conn, String userEmail, JSONArray array) {
+	public JSONArray setSharedRecipes(Connection conn, String userEmail, JSONArray array) {
 		
 		JSONArray jArray = array;
-		int count;
 		Statement queryStatement = null;
-		Statement recipeStatement = null;
-		Statement catStatement = null;
-		ResultSet set, catSet, resultSet;
-		set = null;
-		catSet = null;
+		ResultSet resultSet;
 		resultSet = null;
-		String id;
 			
 		try {
 		
 			/**
-			 *  get all recipe IDs for this user
+			 *  get all shared recipe IDs for this user
 			 */
 			String sqlRecipe = "SELECT recipe_id FROM sharedrecipes WHERE email_address = '" + userEmail + "'";
 			queryStatement = conn.createStatement();
 			resultSet = queryStatement.executeQuery(sqlRecipe);
-			recipeStatement = conn.createStatement();
-			String sqlRecipeName;
-			JSONObject jsonOb;
-			
-			/**
-			 *  get recipe name for each recipe ID and store in JSONObject
-			 *  then store JSONObject in response JSONArray
-			 */
-			while(resultSet.next()) {
-				
-				id = resultSet.getString("recipe_id");
-				sqlRecipeName = "SELECT recipe_name FROM recipes WHERE recipe_id = '" + id + "'";		
-				set = recipeStatement.executeQuery(sqlRecipeName);
-				jsonOb = new JSONObject();
-				
-				if(set.next()) {
-					
-					LOGGER.info("Recipe name: " + set.getString("recipe_name") + " belonging to this recipe ID: " + id);
-					
-					jsonOb.put("recipe_id", id);
-					jsonOb.put("recipe_name", set.getString("recipe_name"));	
-					jsonOb.put("own", "n");
-				}
-				
-				jArray.put(jsonOb);
-			}
-			
-			// set to beginning before getting category names 
-			resultSet.beforeFirst();
-			
-			/**
-			 * get primary category that each recipe belongs to and store in corresponding JSONObject
-			 */
-			catStatement = conn.createStatement();
-			count = 0;
-			JSONObject object;
+			String recipeId;
 			
 			while(resultSet.next()) {
 				
-				id = resultSet.getString("recipe_id");
-				String sqlCategory = "SELECT category_name FROM recipecategory WHERE recipe_id = '" + id + "' AND primary_cat = 'y'";
-				
-				catSet = catStatement.executeQuery(sqlCategory);
-				
-				if(catSet.next()) {
+				for(int x = 0; x < array.length(); x++) {
 					
-					LOGGER.info("Category name: " + catSet.getString("category_name") + " belonging to this recipe ID: " + id);
+					recipeId = array.getJSONObject(x).getString("recipe_id");
 					
-					jArray.getJSONObject(count).put("category", catSet.getString("category_name"));
+					if(resultSet.getString("recipe_id").equals(recipeId)) {
+						
+						// if it is a shared recipe, override indicator
+						array.getJSONObject(x).put("own", "n");
+					}
 				}
-				
-				count++;			
 			}
+			
 		}catch(SQLException sqlEx) {
 			sqlEx.printStackTrace();
 		}catch(JSONException jsonEx) {

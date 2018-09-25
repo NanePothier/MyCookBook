@@ -1,11 +1,10 @@
+package com.cookbook.nanepothier.mycookbook;
+
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import com.cookbook.nanepothier.mycookbook.Login;
-import com.cookbook.nanepothier.mycookbook.MainActivity;
 import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;

@@ -26,13 +26,9 @@ public class SearchRecipes extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
    
-    public SearchRecipes() {
-        
-    }
+    public SearchRecipes() {}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -43,7 +39,6 @@ public class SearchRecipes extends HttpServlet {
 		Statement queryStatement = null;
 		ResultSet set = null;
 		ResultSet catSet = null;
-		ResultSet resultSet = null;
 		String item;
 		String userEmail;
 		JSONArray responseArray = new JSONArray();
@@ -59,13 +54,15 @@ public class SearchRecipes extends HttpServlet {
 			JSONObject jsonObject = new JSONObject(result);
 			
 			userEmail = jsonObject.getString("user_email");
-			item = jsonObject.getString("item");
+			item = jsonObject.getString("search_item");
+			
+			item = item.substring(0,1).toUpperCase() + item.substring(1);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
 		
 			responseArray = matchRecipeIngredients(connection, responseArray, item, userEmail);
-			responseArray = matchRecipeCategory(connection, responseArray, item, userEmail);			
+			responseArray = matchRecipeCategory(connection, responseArray, item, userEmail);	
 			
 			String json = responseArray.toString();
 			response.setContentType("application/json");
@@ -101,8 +98,10 @@ public class SearchRecipes extends HttpServlet {
 			}catch(SQLException s) {
 				s.printStackTrace();
 			}	
-		}				
+		}	
+			
 	}
+	
 	
 	public JSONArray matchRecipeIngredients(Connection conn, JSONArray array, String searchItem, String userEmail) {
 		
@@ -191,7 +190,4 @@ public class SearchRecipes extends HttpServlet {
 		}
 		return jArray;	
 	}
-	
-	
-
 }
