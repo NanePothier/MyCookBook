@@ -225,8 +225,15 @@ public class Cookbook extends AppCompatActivity {
                 View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
 
                 ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
                 TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
-                infoText.setText("");
+                TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
+                TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+
+                infoTitle.setText(R.string.cookbook_info_title);
+                infoText.setText(R.string.cookbook_info);
+                infoText2.setText(R.string.cookbook_info_search);
+                infoText3.setText(R.string.cookbook_info_click);
 
                 infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);

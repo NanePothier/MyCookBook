@@ -25,9 +25,10 @@ public class SplashActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        // start async task to retrieve user for this device
+        // TODO: start async task to retrieve user for this device or retrieve cookie that was created when user first logged in
     }
 
+    /*
     public void onBackgroundRetrievedUser(boolean isAvailable, String user){
 
         if(isAvailable){
@@ -43,7 +44,9 @@ public class SplashActivity extends AppCompatActivity {
             startActivity(intent);
         }
     }
+    */
 
+    /*
     public class GetUserCredentials extends AsyncTask<String, Void, String> {
 
         @Override
@@ -117,5 +120,6 @@ public class SplashActivity extends AppCompatActivity {
         }
 
     }
+    */
 
 }

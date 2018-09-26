@@ -64,4 +64,27 @@
     <!-- Info Menu -->
     <string name="app_info">Help</string>
 
+    <!-- Help option strings -->
+    <string name="account_info_title">Account Creation Help</string>
+    <string name="account_string_general">Enter your first name, last name, email address and a password of your choice. Email address and password are required to create an account.</string>
+    <string name="account_string_pw">Your password must be between 8 and 16 characters. Your email address needs to contain an @ sign and a dot such as ".com"</string>
+    <string name="account_press_btn">When you have filled in your information, press 'Create Account' to create an account.</string>
+
+    <string name="menu_info_title">Welcome to MyCookBook!</string>
+    <string name="menu_info">Here you can collect all of your favorite recipes, refer to them for cooking, and share them with your friends!</string>
+    <string name="enjoy">Enjoy!</string>
+
+    <string name="cookbook_info_title">Your Cookbook</string>
+    <string name="cookbook_info">Here you can view all of your recipes. The menu on the top-right allows you to switch between viewing all recipes, only recipes that you have created personally and recipes that have been shared with you by your friends.</string>
+    <string name="cookbook_info_search">The search bar on the top allows you to search your recipes for specific ingredients and categories.</string>
+    <string name="cookbook_info_click">Click on one of the recipes to view the recipe.</string>
+
+    <string name="view_info_title">View a Recipe</string>
+    <string name="view_info">This page shows you all the details of the recipe.</string>
+    <string name="view_info_toggle">The toggle button on the top allows you to switch between viewing your recipe in the US and the Metric measurement system.</string>
+    <string name="view_info_toolbar">The Edit option under the Options Menu allows you to edit your recipe.</string>
+
+    <string name="new_info_title">Create a New Recipe</string>
+    <string name="new_info"></string>
+
 </resources>
