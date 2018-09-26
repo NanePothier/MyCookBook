@@ -3,17 +3,19 @@ package com.cookbook.nanepothier.mycookbook;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.*;
+import android.widget.*;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -35,12 +37,19 @@ public class AccountCreation extends AppCompatActivity {
     private boolean passwordFirstTime, passwordConfirmFirstTime;
 
     private View progressView;
+    private PopupWindow infoPopup;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_creation);
+
+        coordinatorLayout = findViewById(R.id.account_creation_coordinator_layout);
+
+        Toolbar toolbar = findViewById(R.id.account_creation_toolbar);
+        setSupportActionBar(toolbar);
 
         firstNameView = findViewById(R.id.first_name);
         lastNameView = findViewById(R.id.last_name);
@@ -210,6 +219,46 @@ public class AccountCreation extends AppCompatActivity {
             lastNameView.setEnabled(true);
             passwordView.setEnabled(true);
             passwordViewConfirm.setEnabled(true);
+        }
+    }
+
+    // toolbar menu
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_account, menu);
+        return true;
+    }
+
+    // handle menu item clicks
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()){
+
+            case R.id.action_info:
+
+                LayoutInflater inflater = (LayoutInflater) AccountCreation.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                infoText.setText("");
+
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
+                    }
+                });
+
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

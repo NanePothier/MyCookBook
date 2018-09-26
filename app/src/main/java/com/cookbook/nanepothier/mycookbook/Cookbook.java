@@ -1,20 +1,17 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.SearchView;
+import android.view.*;
+import android.widget.*;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -44,6 +41,8 @@ public class Cookbook extends AppCompatActivity {
     private RecyclerView recyclerView;
     private View progressView;
     private LinearLayout contentLayout;
+    private PopupWindow infoPopup;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +53,8 @@ public class Cookbook extends AppCompatActivity {
         // Intent intentReceived = getIntent();
         // userEmail = intentReceived.getStringExtra("user_email");
         userEmail = "haleyiron@gmail.com";
+
+        coordinatorLayout = findViewById(R.id.cookbook_coordinator_layout);
 
         // show progress bar until recipe names have been retrieved
         progressView = findViewById(R.id.cookbook_progress);
@@ -216,6 +217,27 @@ public class Cookbook extends AppCompatActivity {
             case R.id.action_view_all:
 
                 populateCategoryRecyclerView(allHeaderRecipeModelsArray);
+                return true;
+
+            case R.id.action_info:
+
+                LayoutInflater inflater = (LayoutInflater) Cookbook.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                infoText.setText("");
+
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
+                    }
+                });
+
                 return true;
 
             default:

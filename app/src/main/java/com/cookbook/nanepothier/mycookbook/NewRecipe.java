@@ -87,6 +87,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private PopupWindow ingredientPopup;
     private PopupWindow categoryPopup;
     private PopupWindow deleteCatPopup;
+    private PopupWindow infoPopup;
     private Context context;
     private View progressView;
     private View scrollView;
@@ -879,6 +880,27 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     @Override
                     public void onClick(View v) {
                         deleteCatPopup.dismiss();
+                    }
+                });
+
+                return true;
+
+            case R.id.action_info:
+
+                LayoutInflater inflater4 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View infoPopupView = inflater4.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                infoText.setText("");
+
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
                     }
                 });
 

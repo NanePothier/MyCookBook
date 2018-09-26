@@ -29,6 +29,11 @@
     />
 
     <item
+            android:id="@+id/action_info"
+            android:title="@string/app_info"
+            app:showAsAction="never" />
+
+    <item
             android:id="@+id/cancel_action"
             android:title="@string/cancel"
             app:showAsAction="never"

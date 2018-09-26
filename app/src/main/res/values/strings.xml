@@ -61,4 +61,7 @@
     <string name="delete_category">Delete Category</string>
     <string name="cancel">Cancel</string>
 
+    <!-- Info Menu -->
+    <string name="app_info">Help</string>
+
 </resources>

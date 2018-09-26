@@ -52,6 +52,7 @@ public class ViewRecipe extends AppCompatActivity {
 
     private CoordinatorLayout coordinatorLayout;
     private PopupWindow sharePopup;
+    private PopupWindow infoPopup;
     private View progressView;
     private View scrollView;
 
@@ -310,6 +311,27 @@ public class ViewRecipe extends AppCompatActivity {
 
                 MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId());
                 deleteTask.execute((String) null);
+
+                return true;
+
+            case R.id.action_info:
+
+                LayoutInflater inflater4 = (LayoutInflater) ViewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View infoPopupView = inflater4.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                infoText.setText("");
+
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
+                    }
+                });
 
                 return true;
 
