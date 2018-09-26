@@ -282,8 +282,8 @@ public class ViewRecipe extends AppCompatActivity {
 
                         shareEmail = enterEmailView.getText().toString();
 
-                        MenuTask saveRecipeTask = new MenuTask(Indicator.SAVE_SHARED, shareEmail, recipe.getRecipeName(), recipe.getIngredientArray(), recipe.getPrimaryCategory().getName(),
-                                recipe.getCategoriesArray(), Integer.toString(recipe.getPreparationTime()), Integer.toString(recipe.getOvenTime()),
+                        MenuTask saveRecipeTask = new MenuTask(Indicator.SAVE_SHARED, shareEmail, userEmail, recipe.getRecipeName(), recipe.getIngredientArray(),
+                                Integer.toString(recipe.getPreparationTime()), Integer.toString(recipe.getOvenTime()),
                                 Integer.toString(recipe.getOvenTemperature()), Integer.toString(recipe.getServings()), Integer.toString(recipe.getCalories()),
                                 recipe.getInstructions(), "US", "NewRecipe");
 
@@ -610,16 +610,17 @@ public class ViewRecipe extends AppCompatActivity {
         String uniqueID;
 
         // constructor for saving a copy of a shared recipe with new recipe Id
-        public MenuTask(Indicator in, String email, String recipeName, ArrayList<Ingredient> ingredients, String primCat,
-                        ArrayList<Category> categories, String pTime, String oTime, String oTemp,
+        public MenuTask(Indicator in, String shareEmail, String sharedByEmail, String recipeName, ArrayList<Ingredient> ingredients,
+                        String pTime, String oTime, String oTemp,
                         String servings, String calories, String instruct, String sysInd, String actInd){
 
             indicator = in;
-            shareEmail = email;
+            this.shareEmail = shareEmail;
+            this.sharedByEmail = sharedByEmail;
             this.recipeName = recipeName;
             this.ingredients = ingredients;
-            this.categories = categories;
-            primCategory = primCat;
+            this.categories = new ArrayList<>();
+            primCategory = "Under Review";
             prepTime = pTime;
             ovenTime = oTime;
             ovenTemp = oTemp;
@@ -709,75 +710,78 @@ public class ViewRecipe extends AppCompatActivity {
             }else if(indicator.equals(Indicator.SAVE_SHARED)){
 
                 try {
-                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
+                    if(!shareEmail.equals(sharedByEmail)){
 
-                    JSONObject jsonObject = new JSONObject();
-                    JSONArray jsonArray = new JSONArray();
-                    JSONArray jsonArrayCat = new JSONArray();
+                        url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
 
-                    uniqueID = UUID.randomUUID().toString();
+                        JSONObject jsonObject = new JSONObject();
+                        JSONArray jsonArray = new JSONArray();
+                        JSONArray jsonArrayCat = new JSONArray();
 
-                    for(int x = 0; x < ingredients.size(); x++){
+                        uniqueID = UUID.randomUUID().toString();
 
-                        JSONObject jObject = new JSONObject();
-                        jObject.put("ing_name", ingredients.get(x).getName());
-                        jObject.put("quantity", ingredients.get(x).getQuantity());
-                        jObject.put("quantity_unit", ingredients.get(x).getQuantityUnit());
+                        for(int x = 0; x < ingredients.size(); x++){
 
-                        jsonArray.put(jObject);
-                    }
+                            JSONObject jObject = new JSONObject();
+                            jObject.put("ing_name", ingredients.get(x).getName());
+                            jObject.put("quantity", ingredients.get(x).getQuantity());
+                            jObject.put("quantity_unit", ingredients.get(x).getQuantityUnit());
 
-                    for(int y = 0; y < categories.size(); y++){
+                            jsonArray.put(jObject);
+                        }
 
-                        JSONObject catObject = new JSONObject();
-                        catObject.put("cat_name", categories.get(y).getName());
-                        catObject.put("cat_prime", categories.get(y).getCategory());
+                        for(int y = 0; y < categories.size(); y++){
 
-                        jsonArrayCat.put(catObject);
-                    }
+                            JSONObject catObject = new JSONObject();
+                            catObject.put("cat_name", categories.get(y).getName());
+                            catObject.put("cat_prime", categories.get(y).getCategory());
 
-                    jsonObject.put("userEmail", shareEmail);
-                    jsonObject.put("unique", uniqueID);
-                    jsonObject.put("name", recipeName);
-                    jsonObject.put("ingredientObjectArray", jsonArray);
-                    jsonObject.put("primCategory", primCategory);
-                    jsonObject.put("other_categories", jsonArrayCat);
-                    jsonObject.put("prepTime", prepTime);
-                    jsonObject.put("ovenTime", ovenTime);
-                    jsonObject.put("ovenTemp", ovenTemp);
-                    jsonObject.put("servings", servings);
-                    jsonObject.put("calories", calories);
-                    jsonObject.put("instructions", instructions);
-                    jsonObject.put("systemInd", systemIndicator);
-                    jsonObject.put("actionInd", actionIndicator);
+                            jsonArrayCat.put(catObject);
+                        }
 
-                    recipeInfo = jsonObject.toString();
+                        jsonObject.put("userEmail", shareEmail);
+                        jsonObject.put("unique", uniqueID);
+                        jsonObject.put("name", recipeName);
+                        jsonObject.put("ingredientObjectArray", jsonArray);
+                        jsonObject.put("primCategory", primCategory);
+                        jsonObject.put("other_categories", jsonArrayCat);
+                        jsonObject.put("prepTime", prepTime);
+                        jsonObject.put("ovenTime", ovenTime);
+                        jsonObject.put("ovenTemp", ovenTemp);
+                        jsonObject.put("servings", servings);
+                        jsonObject.put("calories", calories);
+                        jsonObject.put("instructions", instructions);
+                        jsonObject.put("systemInd", systemIndicator);
+                        jsonObject.put("actionInd", actionIndicator);
 
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setReadTimeout(10000);
-                    connection.setConnectTimeout(15000);
-                    connection.setRequestMethod("POST");
-                    connection.setDoInput(true);
-                    connection.setDoOutput(true);
-                    connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
-                    connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-                    connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-                    connection.connect();
+                        recipeInfo = jsonObject.toString();
 
-                    outputStream = new BufferedOutputStream(connection.getOutputStream());
-                    outputStream.write(recipeInfo.getBytes());
-                    outputStream.flush();
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.setReadTimeout(10000);
+                        connection.setConnectTimeout(15000);
+                        connection.setRequestMethod("POST");
+                        connection.setDoInput(true);
+                        connection.setDoOutput(true);
+                        connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
+                        connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                        connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+                        connection.connect();
 
-                    int responseCode = connection.getResponseCode();
+                        outputStream = new BufferedOutputStream(connection.getOutputStream());
+                        outputStream.write(recipeInfo.getBytes());
+                        outputStream.flush();
 
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        int responseCode = connection.getResponseCode();
 
-                        inputStream = connection.getInputStream();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                        String line;
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                        while ((line = reader.readLine()) != null) {
-                            result += line;
+                            inputStream = connection.getInputStream();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                            String line;
+
+                            while ((line = reader.readLine()) != null) {
+                                result += line;
+                            }
                         }
                     }
                 } catch (Exception ioe) {
@@ -798,39 +802,42 @@ public class ViewRecipe extends AppCompatActivity {
             } else if(indicator.equals(Indicator.SHARE)){
 
                 try {
-                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
+                    if(!shareEmail.equals(sharedByEmail)){
 
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("recipe_id", recipeId);
-                    jsonObject.put("user_email", shareEmail);
-                    jsonObject.put("shared_by_email", sharedByEmail);
-                    recipeInfo = jsonObject.toString();
+                        url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
 
-                    connection = (HttpURLConnection) url.openConnection();
-                    connection.setReadTimeout(10000);
-                    connection.setConnectTimeout(15000);
-                    connection.setRequestMethod("POST");
-                    connection.setDoInput(true);
-                    connection.setDoOutput(true);
-                    connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
-                    connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
-                    connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-                    connection.connect();
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("recipe_id", recipeId);
+                        jsonObject.put("user_email", shareEmail);
+                        jsonObject.put("shared_by_email", sharedByEmail);
+                        recipeInfo = jsonObject.toString();
 
-                    outputStream = new BufferedOutputStream(connection.getOutputStream());
-                    outputStream.write(recipeInfo.getBytes());
-                    outputStream.flush();
+                        connection = (HttpURLConnection) url.openConnection();
+                        connection.setReadTimeout(10000);
+                        connection.setConnectTimeout(15000);
+                        connection.setRequestMethod("POST");
+                        connection.setDoInput(true);
+                        connection.setDoOutput(true);
+                        connection.setFixedLengthStreamingMode(recipeInfo.getBytes().length);
+                        connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
+                        connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
+                        connection.connect();
 
-                    int responseCode = connection.getResponseCode();
+                        outputStream = new BufferedOutputStream(connection.getOutputStream());
+                        outputStream.write(recipeInfo.getBytes());
+                        outputStream.flush();
 
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        int responseCode = connection.getResponseCode();
 
-                        inputStream = connection.getInputStream();
-                        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-                        String line;
+                        if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                        while ((line = reader.readLine()) != null) {
-                            result += line;
+                            inputStream = connection.getInputStream();
+                            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+                            String line;
+
+                            while ((line = reader.readLine()) != null) {
+                                result += line;
+                            }
                         }
                     }
                 } catch (Exception ioe) {
@@ -865,12 +872,14 @@ public class ViewRecipe extends AppCompatActivity {
                         Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.delete_user_msg, Snackbar.LENGTH_SHORT)
                                 .show();
 
+                        // return to cookbook activity once recipe has been deleted
                         Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
                         intent.putExtra("user_email", userEmail);
                         startActivity(intent);
                     }
                 }else if (indicator.equals(Indicator.SAVE_SHARED)){
 
+                    // send new recipe Id back to main UI thread so shared recipe connection can be stored next with new Id
                     ViewRecipe.this.onBackgroundTaskObtainedRecipeId(uniqueID);
 
                 }else if(indicator.equals(Indicator.SHARE)){
@@ -884,6 +893,11 @@ public class ViewRecipe extends AppCompatActivity {
                                 .show();
                     }
                 }
+            }
+
+            // inform user that he cannot share a recipe with himself
+            if(shareEmail.equals(sharedByEmail)){
+                Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), "Cannot share recipe with yourself", Snackbar.LENGTH_LONG).show();
             }
         }
     }

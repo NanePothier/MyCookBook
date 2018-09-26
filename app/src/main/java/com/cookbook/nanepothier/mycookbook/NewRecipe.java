@@ -88,6 +88,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private PopupWindow categoryPopup;
     private PopupWindow deleteCatPopup;
     private Context context;
+    private View progressView;
+    private View scrollView;
 
     // new ingredient popup window
     CoordinatorLayout coordinatorLayout;
@@ -104,11 +106,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         setContentView(R.layout.activity_new_recipe);
 
         context = getApplicationContext();
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.new_recipe_activity_layout);
+        coordinatorLayout = findViewById(R.id.new_recipe_activity_layout);
+        progressView = findViewById(R.id.new_recipe_progress);
+        scrollView = findViewById(R.id.new_recipe_scroll_view);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.newrecipe_toolbar);
+        Toolbar toolbar = findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
-        backButton = (ImageButton) toolbar.findViewById(R.id.back_button);
+        backButton = toolbar.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,6 +239,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         //statusIndicator = intentReceived.getExtras().getString("status_indicator");
 
         // get ingredients and categories from database
+        showProgress(true);
         getIngredients();
         getCategories();
 
@@ -403,6 +408,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         }
     }
 
+    public void showProgress(boolean show){
+
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
     public void displayRecipe(){
 
         recipe = (Recipe) intentReceived.getExtras().get("recipe_to_edit");
@@ -436,50 +447,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             amountView3.setText(Integer.toString(ingredientArray.get(2).getQuantity()));
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
 
-            TableRow tableRow;
-            TextView countCol;
-            AutoCompleteTextView autoView;
-            EditText editText;
-            Spinner mSpinner;
-            int count = 4;
-
             for(int x = 3; x < ingredientArray.size(); x++){
 
                 addIngredientRowToIngredientTable(x);
-
-                /*
-                tableRow = new TableRow(this);
-                tableRow.setId(count);
-                tableRow.setPadding(5, 5, 5, 5);
-                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
-                countCol = new TextView(this);
-                countCol.setText(count + ".");
-                countCol.setTextSize(15);
-                countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                tableRow.addView(countCol);
-
-                autoView = new AutoCompleteTextView(this);
-                autoView.setAdapter(ingredientAdapter);
-                autoView.setText(ingredientArray.get(x).getName());
-                autoView.setTextSize(15);
-                autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
-                tableRow.addView(autoView);
-
-                editText = new EditText(this);
-                editText.setText(Integer.toString(ingredientArray.get(x).getQuantity()));
-                editText.setTextSize(15);
-                editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                tableRow.addView(editText);
-
-                mSpinner = new Spinner(this);
-                mSpinner.setSelection(getUnitIndex(ingredientArray.get(x).getQuantityUnit(), "us"));
-                mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                tableRow.addView(mSpinner);
-
-                tableLayoutIngredients.addView(tableRow);
-                count++;
-                */
             }
             firstTime = false;
         }
@@ -652,6 +622,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         if(statusIndicator.equals("EditRecipe")){
             setIngredientViews();
         }
+
+        showProgress(false);
     }
 
     private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
@@ -676,7 +648,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
 
-        System.out.println("Item was selected in spinner " + parent.getItemIdAtPosition(pos));
     }
 
     @Override
@@ -775,6 +746,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                                 , statusIndicator);
                     }
 
+                    showProgress(true);
                     saveTask.execute((String) null);
 
                     return true;
@@ -1122,8 +1094,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                     recipe = jsonObject.toString();
 
-                    System.out.println("Recipe in string format: " + recipe);
-
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setReadTimeout(10000);
                     connection.setConnectTimeout(15000);
@@ -1133,10 +1103,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     connection.setFixedLengthStreamingMode(recipe.getBytes().length);
                     connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                     connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                     connection.connect();
-
-                    System.out.println("connection established");
 
                     outputStream = new BufferedOutputStream(connection.getOutputStream());
                     outputStream.write(recipe.getBytes());
@@ -1145,8 +1112,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     int responseCode = connection.getResponseCode();
 
                     if(responseCode == HttpURLConnection.HTTP_OK){
-
-                        System.out.println("retrieving input ");
 
                         inputStream = connection.getInputStream();
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -1160,18 +1125,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 }catch(Exception ioe){
                     ioe.printStackTrace();
                 }finally{
-
-                    /*
                     try{
-                         outputStream.close();
-                         inputStream.close();
-
+                        if(outputStream != null){
+                            outputStream.close();
+                        }
+                        if(inputStream != null){
+                            inputStream.close();
+                        }
                     }catch(IOException ie){
                         ie.printStackTrace();
                     }
-                    */
                 }
-
             return result;
         }
 
@@ -1181,11 +1145,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             String finalResult = ParseJSON.parseJSON(result);
 
-            System.out.println("final result: " + finalResult);
+            showProgress(false);
 
             if(finalResult.equals("success")){
-
-                System.out.println("Everything was stored successfully. ");
 
                 Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);

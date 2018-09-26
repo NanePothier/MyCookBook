@@ -42,11 +42,11 @@ public class AccountCreation extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_creation);
 
-        firstNameView = (EditText) findViewById(R.id.first_name);
-        lastNameView = (EditText) findViewById(R.id.last_name);
-        emailView = (EditText) findViewById(R.id.email);
-        passwordView = (EditText) findViewById(R.id.password);
-        passwordViewConfirm = (EditText) findViewById(R.id.password_confirm);
+        firstNameView = findViewById(R.id.first_name);
+        lastNameView = findViewById(R.id.last_name);
+        emailView = findViewById(R.id.email);
+        passwordView = findViewById(R.id.password);
+        passwordViewConfirm = findViewById(R.id.password_confirm);
 
         progressView = findViewById(R.id.account_creation_progress);
 
@@ -56,7 +56,7 @@ public class AccountCreation extends AppCompatActivity {
         passwordFirstTime = true;
         passwordConfirmFirstTime = true;
 
-        Button createBtn = (Button) findViewById(R.id.create_btn);
+        Button createBtn = findViewById(R.id.create_btn);
         createBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -192,74 +192,24 @@ public class AccountCreation extends AppCompatActivity {
         return isValid;
     }
 
-    public void stopProgressbar(){
-        showProgress(false);
-    }
-
     // display progress bar
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     private void showProgress(final boolean show) {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
 
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-
-            if(show){
-                emailView.setEnabled(false);
-                firstNameView.setEnabled(false);
-                lastNameView.setEnabled(false);
-                passwordView.setEnabled(false);
-                passwordViewConfirm.setEnabled(false);
-            }else{
-                emailView.setEnabled(true);
-                firstNameView.setEnabled(true);
-                lastNameView.setEnabled(true);
-                passwordView.setEnabled(true);
-                passwordViewConfirm.setEnabled(true);
-            }
-
-            /*
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-            */
-        } else {
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-
-            if(show){
-                emailView.setEnabled(false);
-                firstNameView.setEnabled(false);
-                lastNameView.setEnabled(false);
-                passwordView.setEnabled(false);
-                passwordViewConfirm.setEnabled(false);
-            }else{
-                emailView.setEnabled(true);
-                firstNameView.setEnabled(true);
-                lastNameView.setEnabled(true);
-                passwordView.setEnabled(true);
-                passwordViewConfirm.setEnabled(true);
-            }
-
-            /*
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            */
+        if(show){
+            emailView.setEnabled(false);
+            firstNameView.setEnabled(false);
+            lastNameView.setEnabled(false);
+            passwordView.setEnabled(false);
+            passwordViewConfirm.setEnabled(false);
+        }else {
+            emailView.setEnabled(true);
+            firstNameView.setEnabled(true);
+            lastNameView.setEnabled(true);
+            passwordView.setEnabled(true);
+            passwordViewConfirm.setEnabled(true);
         }
     }
 
@@ -355,7 +305,7 @@ public class AccountCreation extends AppCompatActivity {
 
             String finalResult = ParseJSON.parseJSON(data);
 
-            stopProgressbar();
+            showProgress(false);
 
             // if data was stored successfully, go to login activity
             if(finalResult.equals("success")){

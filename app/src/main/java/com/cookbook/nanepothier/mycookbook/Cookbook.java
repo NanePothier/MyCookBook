@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.SearchView;
 import org.json.JSONObject;
 import java.io.*;
@@ -41,6 +42,8 @@ public class Cookbook extends AppCompatActivity {
 
     private String userEmail;
     private RecyclerView recyclerView;
+    private View progressView;
+    private LinearLayout contentLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +54,11 @@ public class Cookbook extends AppCompatActivity {
         // Intent intentReceived = getIntent();
         // userEmail = intentReceived.getStringExtra("user_email");
         userEmail = "haleyiron@gmail.com";
+
+        // show progress bar until recipe names have been retrieved
+        progressView = findViewById(R.id.cookbook_progress);
+        contentLayout = findViewById(R.id.cookbook_content_layout);
+        showProgress(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.cookbook_toolbar);
         setSupportActionBar(toolbar);
@@ -98,6 +106,13 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
+    }
+
+    // show progress bar
+    public void showProgress(boolean show){
+
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        contentLayout.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     /**
@@ -163,6 +178,8 @@ public class Cookbook extends AppCompatActivity {
 
         // populate the initial view with all categories and all recipes
         populateCategoryRecyclerView(allHeaderRecipeModelsArray);
+
+        showProgress(false);
     }
 
     public void onBackgroundTaskObtainedSearchResult(ArrayList<RecipeNameId> nameIdArray){
