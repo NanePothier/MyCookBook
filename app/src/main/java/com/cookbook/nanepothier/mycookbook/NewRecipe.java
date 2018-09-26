@@ -147,13 +147,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         catCountArray = new ArrayList<>();
 
         // EditTexts
-        recipeNameView = (EditText) findViewById(R.id.recipe_name);
-        servingsView = (EditText) findViewById(R.id.servings);
-        prepTimeView = (EditText) findViewById(R.id.prep_time);
-        ovenTimeView = (EditText) findViewById(R.id.oven_time);
-        ovenTempView = (EditText) findViewById(R.id.oven_temp);
-        caloriesView = (EditText) findViewById(R.id.calories);
-        instructionView = (EditText) findViewById(R.id.editText);
+        recipeNameView = findViewById(R.id.recipe_name);
+        servingsView = findViewById(R.id.servings);
+        prepTimeView = findViewById(R.id.prep_time);
+        ovenTimeView = findViewById(R.id.oven_time);
+        ovenTempView = findViewById(R.id.oven_temp);
+        caloriesView = findViewById(R.id.calories);
+        instructionView = findViewById(R.id.editText);
 
         // ingredient views
         autoCompIngredient1 = findViewById(R.id.auto_complete_view1);
@@ -768,12 +768,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 LayoutInflater inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View ingredientPopupView = inflater.inflate(R.layout.new_item_popup, null);
 
-                ImageButton saveButton =(ImageButton) ingredientPopupView.findViewById(R.id.save_image_button);
-                ImageButton cancelButton = (ImageButton) ingredientPopupView.findViewById(R.id.cancel_image_button);
-                final EditText newIngredientView = (EditText) ingredientPopupView.findViewById(R.id.enter_item_view);
-                final Spinner defaultSpinner = (Spinner) ingredientPopupView.findViewById(R.id.default_spinner);
-                TextView defaultLab = (TextView) ingredientPopupView.findViewById(R.id.default_label);
-                TextView ingHeading = (TextView) ingredientPopupView.findViewById(R.id.new_item_heading);
+                ImageButton saveButton = ingredientPopupView.findViewById(R.id.save_image_button);
+                ImageButton cancelButton = ingredientPopupView.findViewById(R.id.cancel_image_button);
+                final EditText newIngredientView = ingredientPopupView.findViewById(R.id.enter_item_view);
+                final Spinner defaultSpinner = ingredientPopupView.findViewById(R.id.default_spinner);
+                TextView defaultLab = ingredientPopupView.findViewById(R.id.default_label);
+                TextView ingHeading = ingredientPopupView.findViewById(R.id.new_item_heading);
                 ingHeading.setText("New Ingredient");
 
                 ArrayList<String> values = new ArrayList<>();
@@ -967,19 +967,24 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         .show();
     }
 
+    // user tried to add a new ingredient or category
+    // if new item was stored successfully, reload that list of items
     public void onBackgroundTaskSavedItem(String indicator, String finalResult){
 
         if(indicator.equals("ingredient") && finalResult.equals("success")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient stored successfully", Snackbar.LENGTH_SHORT).show();
+            getIngredients();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category stored successfully", Snackbar.LENGTH_SHORT).show();
+            getCategories();
         }else if(indicator.equals("category") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category already exists", Snackbar.LENGTH_LONG).show();
         }
     }
 
+    // save/update recipe
     public class SaveTask extends AsyncTask<String, Void, String> {
 
         String recipeName;
