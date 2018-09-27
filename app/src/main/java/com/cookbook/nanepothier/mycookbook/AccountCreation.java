@@ -246,11 +246,13 @@ public class AccountCreation extends AppCompatActivity {
                 TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
                 TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
                 TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+                TextView infoText4 = infoPopupView.findViewById(R.id.info_text_view4);
 
                 infoTitle.setText(R.string.account_info_title);
                 infoText.setText(R.string.account_string_general);
                 infoText2.setText(R.string.account_string_pw);
                 infoText3.setText(R.string.account_press_btn);
+                infoText4.setVisibility(View.GONE);
 
                 infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);

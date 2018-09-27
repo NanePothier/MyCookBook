@@ -517,6 +517,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     return 5;
                 case "tsp":
                     return 6;
+                case "ct":
+                    return 7;
                 default:
                     return 0;
             }
@@ -539,6 +541,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     return 5;
                 case "tsp":
                     return 6;
+                case "ct":
+                    return 7;
                 default:
                     return 0;
             }
@@ -566,6 +570,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         USMeasurements.add("qt");
         USMeasurements.add("tbsp");
         USMeasurements.add("tsp");
+        USMeasurements.add("ct");
     }
 
     public void createMetricMeasurementList(){
@@ -576,6 +581,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         MetricMeasurements.add("L");
         MetricMeasurements.add("tbsp");
         MetricMeasurements.add("tsp");
+        MetricMeasurements.add("ct");
     }
 
     @Override
@@ -891,8 +897,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 View infoPopupView = inflater4.inflate(R.layout.app_info_popup, null);
 
                 ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
                 TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
-                infoText.setText("");
+                TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
+                TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+                TextView infoText4 = infoPopupView.findViewById(R.id.info_text_view4);
+
+                infoTitle.setText(R.string.new_info_title);
+                infoText.setText(R.string.new_info);
+                infoText2.setText(R.string.new_info_constraints);
+                infoText3.setText(R.string.new_info_floating);
+                infoText4.setText(R.string.happy_cooking);
 
                 infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);

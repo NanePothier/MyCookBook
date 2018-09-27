@@ -68,7 +68,7 @@
     <string name="account_info_title">Account Creation Help</string>
     <string name="account_string_general">Enter your first name, last name, email address and a password of your choice. Email address and password are required to create an account.</string>
     <string name="account_string_pw">Your password must be between 8 and 16 characters. Your email address needs to contain an @ sign and a dot such as ".com"</string>
-    <string name="account_press_btn">When you have filled in your information, press 'Create Account' to create an account.</string>
+    <string name="account_press_btn">When you have filled in your information, press \'Create Account\' to create an account.</string>
 
     <string name="menu_info_title">Welcome to MyCookBook!</string>
     <string name="menu_info">Here you can collect all of your favorite recipes, refer to them for cooking, and share them with your friends!</string>
@@ -85,6 +85,15 @@
     <string name="view_info_toolbar">The Edit option under the Options Menu allows you to edit your recipe.</string>
 
     <string name="new_info_title">Create a New Recipe</string>
-    <string name="new_info"></string>
+    <string name="new_info">Create a new recipe by filling in the fields below and clicking Save under the Options Menu.</string>
+    <string name="new_info_constraints">The recipe name field and the first three ingredient fields are required fields. Only ingredients that are suggested by the ingredient input fields are allowed.
+        Ingredients are not required to have a quantity and quantity unit associated with them.
+        However, if a quantity is entered for an ingredient, then that ingredient also needs a quantity unit assigned to it. The quantity unit \'ct\' stands for count and can be used for ingredients that cannot be broken up,
+        such as eggs. The primary category field is a required field. Any additional categories are optional. Any fields located after
+        the category section are also optional.</string>
+    <string name="new_info_floating">Click on the round button on the bottom left to edit the recipe. Click on New Ingredient to add
+    an ingredient to choose from and click on New Category to expand the categories you can choose from.</string>
+    <string name="happy_cooking">Happy Cooking!</string>
+
 
 </resources>

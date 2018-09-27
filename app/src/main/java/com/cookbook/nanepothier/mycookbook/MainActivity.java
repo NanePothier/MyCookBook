@@ -115,11 +115,13 @@ public class MainActivity extends AppCompatActivity {
                 TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
                 TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
                 TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+                TextView infoText4 = infoPopupView.findViewById(R.id.info_text_view4);
 
                 infoTitle.setText(R.string.menu_info_title);
                 infoText.setText(R.string.menu_info);
                 infoText2.setText(R.string.enjoy);
                 infoText3.setVisibility(View.GONE);
+                infoText4.setVisibility(View.GONE);
 
                 infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
