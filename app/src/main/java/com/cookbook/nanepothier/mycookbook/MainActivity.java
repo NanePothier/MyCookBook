@@ -66,11 +66,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // exit activity
-        ImageView exitBtn = (ImageView) findViewById(R.id.exit_btn);
-        exitBtn.setOnClickListener(new View.OnClickListener(){
+        ImageView logoutBtn = (ImageView) findViewById(R.id.exit_btn);
+        logoutBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                System.exit(0);
+
+                Intent logoutIntent = new Intent(MainActivity.this, Login.class);
+                startActivity(logoutIntent);
             }
         });
 
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 infoText3.setVisibility(View.GONE);
                 infoText4.setVisibility(View.GONE);
 
-                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup = new PopupWindow(infoPopupView, 1100, 1000, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 doneButton.setOnClickListener(new View.OnClickListener() {

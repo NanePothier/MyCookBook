@@ -248,9 +248,11 @@ public class ParseJSON {
                     }
                 }
             }
+
             mapsArray.add(allMap);
             mapsArray.add(sharedMap);
             mapsArray.add(ownMap);
+
         }catch(JSONException jsonException) {
             jsonException.printStackTrace();
         }

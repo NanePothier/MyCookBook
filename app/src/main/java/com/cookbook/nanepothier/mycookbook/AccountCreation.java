@@ -254,7 +254,7 @@ public class AccountCreation extends AppCompatActivity {
                 infoText3.setText(R.string.account_press_btn);
                 infoText4.setVisibility(View.GONE);
 
-                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup = new PopupWindow(infoPopupView, 1100, 1000, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 doneButton.setOnClickListener(new View.OnClickListener() {

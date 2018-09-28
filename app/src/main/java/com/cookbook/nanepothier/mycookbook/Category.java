@@ -32,7 +32,7 @@ public class Category implements Serializable{
         isPrimaryCategory(c);
     }
 
-    public boolean getCategory(){
+    public boolean isPrimaryCategory(){
         return isPrimary;
     }
 

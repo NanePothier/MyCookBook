@@ -92,6 +92,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private View progressView;
     private View scrollView;
 
+    private LayoutInflater inflater;
+
     // new ingredient popup window
     CoordinatorLayout coordinatorLayout;
 
@@ -99,6 +101,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private ImageButton backButton;
 
     private boolean firstTime;
+    private boolean firstTimeCategory;
 
 
     @Override
@@ -110,6 +113,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         coordinatorLayout = findViewById(R.id.new_recipe_activity_layout);
         progressView = findViewById(R.id.new_recipe_progress);
         scrollView = findViewById(R.id.new_recipe_scroll_view);
+
+        inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Toolbar toolbar = findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
@@ -192,6 +197,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         measurementSpinners.add(spinnerMeasurements3);
 
         firstTime = true;
+        firstTimeCategory = true;
 
         createUSMeasurementList();
         createMetricMeasurementList();
@@ -229,7 +235,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         addCategoryImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addCategoryRowToCategoryTable();
+                addCategoryRowToCategoryTable(0);
             }
         });
 
@@ -264,6 +270,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     public void addIngredientRowToIngredientTable(int index){
 
+        View ingredientRowView;
         final TableRow tableRow;
         final TextView countCol;
         final AutoCompleteTextView autoView;
@@ -273,60 +280,37 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         ViewCountService.incrementIngredientViewCount();
 
-        tableRow = new TableRow(this);
-        tableRow.setPadding(5, 5, 5, 5);
-        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        ingredientRowView = inflater.inflate(R.layout.new_ingredient_row, null);
+        tableRow = ingredientRowView.findViewById(R.id.new_row);
 
-        countCol = new TextView(this);
+        countCol = ingredientRowView.findViewById(R.id.count_text_view);
         countCol.setText(Integer.toString(ViewCountService.getIngredientViewCount()) + ".");
-        countCol.setTextSize(15);
-        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
         ingCountArray.add(countCol);
-        tableRow.addView(countCol);
 
-        autoView = new AutoCompleteTextView(this);
+        autoView = ingredientRowView.findViewById(R.id.new_auto_complete_view);
         autoView.setAdapter(ingredientAdapter);
-        autoView.setTextSize(15);
-        autoView.setPadding(5,0,0,0);
-        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.8f));
-        autoView.setBackgroundResource(R.drawable.thin_black_border_background);
-        autoView.setShadowLayer(5.0f, 1.0f, 1.0f, Color.GRAY);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
             autoView.setText(ingredientArray.get(index).getName());
         }
         ingredientViews.add(autoView);
-        tableRow.addView(autoView);
 
-        editText = new EditText(this);
-        editText.setLayoutParams(new TableRow.LayoutParams(20, 95, 0.001f));
-        editText.setMaxLines(1);
-        editText.setTextSize(15);
-        editText.setPadding(20,0,0,0);
-        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editText.setBackgroundResource(R.drawable.thin_black_border_background);
+        editText = ingredientRowView.findViewById(R.id.new_quantity);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
             editText.setText(Integer.toString(ingredientArray.get(index).getQuantity()));
         }
         quantityViews.add(editText);
-        tableRow.addView(editText);
 
-        mSpinner = new Spinner(this);
-        mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        mSpinner = ingredientRowView.findViewById(R.id.new_measurement_spinner);
         mSpinner.setAdapter(measurementAdapter);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
             mSpinner.setSelection(getUnitIndex(ingredientArray.get(index).getQuantityUnit(), "us"));
         }
         measurementSpinners.add(mSpinner);
-        tableRow.addView(mSpinner);
 
-        deleteIngredientRowView = new ImageView(this);
-        deleteIngredientRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-        deleteIngredientRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
-        deleteIngredientRowView.setPadding(0,60,0,0);
-        tableRow.addView(deleteIngredientRowView);
+        deleteIngredientRowView = ingredientRowView.findViewById(R.id.delete_image_view);
         deleteIngredientRowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -340,11 +324,16 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             }
         });
 
+        if(tableRow.getParent() != null){
+            ((ViewGroup)tableRow.getParent()).removeView(tableRow);
+        }
+
         tableLayoutIngredients.addView(tableRow);
     }
 
-    public void addCategoryRowToCategoryTable(){
+    public void addCategoryRowToCategoryTable(int index){
 
+        View categoryRowView;
         final TableRow tableRow;
         final TextView countCol;
         final AutoCompleteTextView autoCompCat;
@@ -352,32 +341,22 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         ViewCountService.incrementCategoryViewCount();
 
-        tableRow = new TableRow(this);
-        tableRow.setPadding(5, 36, 5, 5);
-        tableRow.setId(ViewCountService.getCategoryViewCount());
-        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        categoryRowView = inflater.inflate(R.layout.new_category_row, null);
+        tableRow = categoryRowView.findViewById(R.id.new_row);
 
-        countCol = new TextView(this);
+        countCol = categoryRowView.findViewById(R.id.count_text_view);
         countCol.setText(Integer.toString(ViewCountService.getCategoryViewCount()) + ".");
-        countCol.setTextSize(15);
-        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
         catCountArray.add(countCol);
-        tableRow.addView(countCol);
 
-        autoCompCat = new AutoCompleteTextView(this);
+        autoCompCat = categoryRowView.findViewById(R.id.new_auto_complete_view);
         autoCompCat.setAdapter(categoryAdapter);
-        autoCompCat.setTextSize(15);
-        autoCompCat.setPadding(0, 0, 0, 0);
-        autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
-        autoCompCat.setBackgroundResource(R.drawable.thin_black_border_background);
         additionalCategories.add(autoCompCat);
-        tableRow.addView(autoCompCat);
 
-        deleteCategoryRowView = new ImageView(this);
-        deleteCategoryRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-        deleteCategoryRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
-        deleteCategoryRowView.setPadding(0, 5, 0, 0);
-        tableRow.addView(deleteCategoryRowView);
+        if(statusIndicator.equals("EditRecipe") && firstTimeCategory){
+            autoCompCat.setText(categoryArray.get(index).getName());
+        }
+
+        deleteCategoryRowView = categoryRowView.findViewById(R.id.delete_image_view);
         deleteCategoryRowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -392,6 +371,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 }
             }
         });
+
+        if(tableRow.getParent() != null){
+            ((ViewGroup)tableRow.getParent()).removeView(tableRow);
+        }
 
         tableLayoutCategories.addView(tableRow);
         tableLayoutCategories.setVisibility(View.VISIBLE);
@@ -471,29 +454,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             for(int x = 0; x < categoryArray.size(); x++){
 
-                if(!(categoryArray.get(x).getCategory())){
+                if(!(categoryArray.get(x).isPrimaryCategory())){
 
-                    tableRow = new TableRow(this);
-                    tableRow.setPadding(5, 5, 5, 5);
-                    tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
-                    countCol = new TextView(this);
-                    countCol.setText(count + ".");
-                    countCol.setTextSize(15);
-                    countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                    tableRow.addView(countCol);
-
-                    autoCompCat = new AutoCompleteTextView(this);
-                    autoCompCat.setAdapter(categoryAdapter);
-                    autoCompCat.setText(categoryArray.get(x).getName());
-                    autoCompCat.setTextSize(15);
-                    autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    tableRow.addView(autoCompCat);
-
-                    tableLayoutCategories.addView(tableRow);
-                    count++;
+                    addCategoryRowToCategoryTable(x);
                 }
             }
+            firstTimeCategory = false;
         }
     }
 
@@ -772,7 +738,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_ingredient_action:
 
-                LayoutInflater inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View ingredientPopupView = inflater.inflate(R.layout.new_item_popup, null);
 
                 ImageButton saveButton = ingredientPopupView.findViewById(R.id.save_image_button);
@@ -790,7 +755,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 defaultSpinner.setAdapter(defaultAdapter);
 
-                ingredientPopup = new PopupWindow(ingredientPopupView, 1200, 900, true);
+                ingredientPopup = new PopupWindow(ingredientPopupView, 1100, 1000, true);
                 ingredientPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButton.setOnClickListener(new View.OnClickListener() {
@@ -816,8 +781,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_category_action:
 
-                LayoutInflater inflater2 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View categoryPopupView = inflater2.inflate(R.layout.new_item_popup, null);
+                View categoryPopupView = inflater.inflate(R.layout.new_item_popup, null);
 
                 ImageButton saveButtonCat =(ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
                 ImageButton cancelButtonCat = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
@@ -830,7 +794,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 defaultLab2.setVisibility(View.GONE);
                 defaultSpinner2.setVisibility(View.GONE);
 
-                categoryPopup = new PopupWindow(categoryPopupView, 1000, 600, true);
+                categoryPopup = new PopupWindow(categoryPopupView, 1100, 700, true);
                 categoryPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButtonCat.setOnClickListener(new View.OnClickListener() {
@@ -856,8 +820,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.delete_category_action:
 
-                LayoutInflater inflater3 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View deleteCatPopupView = inflater3.inflate(R.layout.delete_item_popup, null);
+                View deleteCatPopupView = inflater.inflate(R.layout.delete_item_popup, null);
 
                 ImageButton saveButtonDelete =(ImageButton) deleteCatPopupView.findViewById(R.id.delete_category_button);
                 ImageButton cancelButtonDelete = (ImageButton) deleteCatPopupView.findViewById(R.id.cancel_image_button);
@@ -869,7 +832,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 deleteCatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deleteCatSpinner.setAdapter(deleteCatAdapter);
 
-                deleteCatPopup = new PopupWindow(deleteCatPopupView, 1200, 900, true);
+                deleteCatPopup = new PopupWindow(deleteCatPopupView, 1100, 700, true);
                 deleteCatPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButtonDelete.setOnClickListener(new View.OnClickListener() {
@@ -893,8 +856,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.action_info:
 
-                LayoutInflater inflater4 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View infoPopupView = inflater4.inflate(R.layout.app_info_popup, null);
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
 
                 ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
                 TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
@@ -1114,7 +1076,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                         JSONObject catObject = new JSONObject();
                         catObject.put("cat_name", categories.get(y).getName());
-                        catObject.put("cat_prime", categories.get(y).getCategory());
+                        catObject.put("cat_prime", categories.get(y).isPrimaryCategory());
 
                         jsonArrayCat.put(catObject);
                     }

@@ -27,12 +27,24 @@ public class RecipeNameId {
         this.ownsRecipe = ownsRecipe;
     }
 
+    public void setRecipeName(String name){
+        recipeName = name;
+    }
+
     public String getRecipeName(){
         return recipeName;
     }
 
+    public void setRecipeId(String id){
+        recipeId = id;
+    }
+
     public String getRecipeId(){
         return recipeId;
+    }
+
+    public void setOwnsRecipe(boolean own){
+        ownsRecipe = own;
     }
 
     public boolean getOwnsRecipe(){

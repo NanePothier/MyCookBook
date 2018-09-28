@@ -37,6 +37,8 @@ public class SectionRecyclerViewAdapter extends RecyclerView.Adapter<SectionRecy
         this.context = context;
         this.headerRecipeModelsArray = array;
         this.userEmail = userEmail;
+
+        SortService.sortCategories(headerRecipeModelsArray);
     }
 
     @Override

@@ -19,13 +19,20 @@ public class HeaderRecipeModel {
         this.recipes = recipes;
     }
 
+    public void setCategory(String category){
+        this.category = category;
+    }
+
     public String getCategory(){
         return this.category;
+    }
+
+    public void setRecipesArray(ArrayList<RecipeNameId> recipes){
+        this.recipes = recipes;
     }
 
     public ArrayList<RecipeNameId> getRecipesArray() {
         return recipes;
     }
 
-    // TODO: sort recipes?
 }

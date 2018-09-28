@@ -481,7 +481,7 @@ public class ViewRecipe extends AppCompatActivity {
         for(int y = 0; y < arrayCategories.size(); y++) {
 
             // if current category object is not the primary category create new row and add to table
-            if (!(arrayCategories.get(y).getCategory())) {
+            if (!(arrayCategories.get(y).isPrimaryCategory())) {
 
                 tableRowCat = new TableRow(this);
                 tableRowCat.setId(count);
@@ -765,7 +765,7 @@ public class ViewRecipe extends AppCompatActivity {
 
                             JSONObject catObject = new JSONObject();
                             catObject.put("cat_name", categories.get(y).getName());
-                            catObject.put("cat_prime", categories.get(y).getCategory());
+                            catObject.put("cat_prime", categories.get(y).isPrimaryCategory());
 
                             jsonArrayCat.put(catObject);
                         }

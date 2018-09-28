@@ -36,6 +36,8 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         this.context = context;
         this.arrayRecipeNames = arrayList;
         this.userEmail = userEmail;
+
+        SortService.sortRecipeNames(arrayRecipeNames);
     }
 
     @Override
