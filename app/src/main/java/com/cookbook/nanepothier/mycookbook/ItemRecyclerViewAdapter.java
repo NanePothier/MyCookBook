@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * class ItemRecyclerViewAdapter stores an array of recipes names and their Id's
@@ -37,7 +38,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
         this.arrayRecipeNames = arrayList;
         this.userEmail = userEmail;
 
-        SortService.sortRecipeNames(arrayRecipeNames);
+        Collections.sort(arrayRecipeNames, new SortByName());
     }
 
     @Override

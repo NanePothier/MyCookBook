@@ -109,6 +109,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_recipe);
 
+        // get data passed to this activity
+        intentReceived = getIntent();
+        //statusIndicator = "NewRecipe";
+        userEmail = intentReceived.getExtras().getString("user_email");
+        statusIndicator = intentReceived.getExtras().getString("status_indicator");
+
         context = getApplicationContext();
         coordinatorLayout = findViewById(R.id.new_recipe_activity_layout);
         progressView = findViewById(R.id.new_recipe_progress);
@@ -238,12 +244,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 addCategoryRowToCategoryTable(0);
             }
         });
-
-        // get data passed to this activity
-        //intentReceived = getIntent();
-        statusIndicator = "NewRecipe";
-        //userEmail = intentReceived.getExtras().getString("user_email");
-        //statusIndicator = intentReceived.getExtras().getString("status_indicator");
 
         // get ingredients and categories from database
         showProgress(true);

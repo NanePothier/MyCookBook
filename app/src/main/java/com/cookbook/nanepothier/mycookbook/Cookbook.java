@@ -50,9 +50,9 @@ public class Cookbook extends AppCompatActivity {
         setContentView(R.layout.activity_cookbook);
 
         // retrieve user email through intent
-        // Intent intentReceived = getIntent();
-        // userEmail = intentReceived.getStringExtra("user_email");
-        userEmail = "haleyiron@gmail.com";
+        Intent intentReceived = getIntent();
+        userEmail = intentReceived.getStringExtra("user_email");
+        //userEmail = "haleyiron@gmail.com";
 
         coordinatorLayout = findViewById(R.id.cookbook_coordinator_layout);
 
@@ -90,6 +90,9 @@ public class Cookbook extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+
+                populateCategoryRecyclerView(allHeaderRecipeModelsArray);
+
                 return false;
             }
         });
@@ -133,8 +136,6 @@ public class Cookbook extends AppCompatActivity {
 
     // create views using retrieved categories and recipe names
     public void populateCategoryRecyclerView(ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels){
-
-        // TODO: sort categories
 
         SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels, userEmail);
         recyclerView.setAdapter(recyclerViewAdapter);

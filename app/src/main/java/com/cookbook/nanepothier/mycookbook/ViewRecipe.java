@@ -61,6 +61,18 @@ public class ViewRecipe extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_recipe);
 
+        // get recipe name, email and recipe Id through intent
+        Intent intentReceived = getIntent();
+        recipeName = intentReceived.getStringExtra("recipe_name");
+        userEmail = intentReceived.getStringExtra("user_email");
+        recipeId = intentReceived.getStringExtra("recipe_id");
+
+        /*
+        recipeName = "Strawberry Cake";
+        userEmail="haleyiron@gmail.com";
+        recipeId = "fb5f13f0-8ea3-48ba-ad34-8c5bd48bf4ec";
+        */
+
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.view_recipe_coordinator_layout);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.view_recipe_toolbar);
@@ -119,21 +131,6 @@ public class ViewRecipe extends AppCompatActivity {
             }
         });
 
-        // get recipe name, email and recipe Id through intent
-        /*
-        Intent intentReceived = getIntent();
-        recipeName = intentReceived.getStringExtra("recipe_name");
-        userEmail = intentReceived.getStringExtra("user_email");
-        recipeId = intentReceived.getStringExtra("recipe_id");
-
-        System.out.println("Recipe id in view activity: " + recipeId);
-        */
-
-
-        recipeName = "Strawberry Cake";
-        userEmail="haleyiron@gmail.com";
-        recipeId = "fb5f13f0-8ea3-48ba-ad34-8c5bd48bf4ec";
-
         retrieveRecipe();
     }
 
@@ -167,73 +164,80 @@ public class ViewRecipe extends AppCompatActivity {
             unit = ingArray.get(x).getQuantityUnit();
             defaultMeas = ingArray.get(x).getDefaultMeasurement();
 
-            // find match by looping through conversion array
-            for(int y = 0; y < conversionArray.size(); y++){
+            if(ingArray.get(x).getQuantity() != -1 && !unit.equals("ct")){
 
-                fromUnit = conversionArray.get(y).getMeasureFrom();
+                // find match by looping through conversion array
+                for(int y = 0; y < conversionArray.size(); y++){
 
-                // match 'from' unit
-                if(unit.equals(fromUnit) && !(unit.equals("tablespoon")) && !(unit.equals("teaspoon"))){
+                    fromUnit = conversionArray.get(y).getMeasureFrom();
 
-                    measCategory = conversionArray.get(y).getMeasureCategory();
-                    double convertedNumber;
+                    // match 'from' unit
+                    if(unit.equals(fromUnit) && !(unit.equals("tablespoon")) && !(unit.equals("teaspoon"))){
 
-                    // match default measurement category (solid or liquid)
-                    if(defaultMeas.equals(measCategory)){
+                        measCategory = conversionArray.get(y).getMeasureCategory();
+                        double convertedNumber;
 
-                        toUnit = conversionArray.get(y).getMeasureTo();
+                        // match default measurement category (solid or liquid)
+                        if(defaultMeas.equals(measCategory)){
 
-                        // determine which metric measurement to convert to since there may be more than one option
-                        // example: could convert to gramm or kilogramm (both are metric and weight measurements)
-                        if(toUnit.equals("milliliter")){
+                            toUnit = conversionArray.get(y).getMeasureTo();
+
+                            // determine which metric measurement to convert to since there may be more than one option
+                            // example: could convert to gramm or kilogramm (both are metric and weight measurements)
+                            if(toUnit.equals("milliliter")){
+
+                                metricIngredient = new Ingredient();
+
+                                convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
+
+                                metricIngredient.setQuantity((int)convertedNumber);
+                                metricIngredient.setQuantityUnit("ml");
+                                metricIngredient.setName(ingArray.get(x).getName());
+                                metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
+
+                                metricArray.add(metricIngredient);
+
+                            }else if(toUnit.equals("gramm")){
+
+                                metricIngredient = new Ingredient();
+
+                                convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
+
+                                metricIngredient.setQuantity((int) convertedNumber);
+                                metricIngredient.setName(ingArray.get(x).getName());
+                                metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
+                                metricIngredient.setQuantityUnit("g");
+
+                                metricArray.add(metricIngredient);
+                            }
+                        }
+
+                        if(unit.equals("cup") && ingArray.get(x).getDefaultMeasurement().equals("w")){
 
                             metricIngredient = new Ingredient();
 
+                            // convert from cup to ml
                             convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
 
                             metricIngredient.setQuantity((int)convertedNumber);
-                            metricIngredient.setQuantityUnit("ml");
-                            metricIngredient.setName(ingArray.get(x).getName());
-                            metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
-
-                            metricArray.add(metricIngredient);
-
-                        }else if(toUnit.equals("gramm")){
-
-                            metricIngredient = new Ingredient();
-
-                            convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
-
-                            metricIngredient.setQuantity((int) convertedNumber);
-                            metricIngredient.setName(ingArray.get(x).getName());
-                            metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
                             metricIngredient.setQuantityUnit("g");
+                            metricIngredient.setName(ingArray.get(x).getName());
+                            metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
 
                             metricArray.add(metricIngredient);
                         }
                     }
 
-                    if(unit.equals("cup") && ingArray.get(x).getDefaultMeasurement().equals("w")){
+                    if(unit.equals("tablespoon") || unit.equals("teaspoon")){
 
-                        metricIngredient = new Ingredient();
-
-                        // convert from cup to ml
-                        convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
-
-                        metricIngredient.setQuantity((int)convertedNumber);
-                        metricIngredient.setQuantityUnit("g");
-                        metricIngredient.setName(ingArray.get(x).getName());
-                        metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
-
+                        metricIngredient = ingArray.get(x);
                         metricArray.add(metricIngredient);
                     }
                 }
 
-                if(unit.equals("tablespoon") || unit.equals("teaspoon")){
-
-                    metricIngredient = ingArray.get(x);
-                    metricArray.add(metricIngredient);
-                }
+            }else{
+                metricIngredient = ingArray.get(x);
+                metricArray.add(metricIngredient);
             }
         }
 

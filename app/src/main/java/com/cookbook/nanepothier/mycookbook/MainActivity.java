@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(MainActivity.this, NewRecipe.class);
                 intent.putExtra("user_email", userEmail);
-                intent.putExtra("StatusIndicator", "NewRecipe");
+                intent.putExtra("status_indicator", "NewRecipe");
                 startActivity(intent);
             }
         });

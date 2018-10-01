@@ -186,6 +186,8 @@ public class ParseJSON {
                 JSONObject jObject = jsonArray.getJSONObject(x);
                 String categoryName = jObject.getString("category");
 
+                System.out.println("This category is: " + categoryName);
+
                 if(jObject.getString("recipe_id").equals("noid") && jObject.getString("recipe_name").equals("noname")){
 
                     if(!allMap.containsKey(categoryName)){

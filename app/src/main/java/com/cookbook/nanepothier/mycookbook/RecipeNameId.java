@@ -1,5 +1,7 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import java.util.Comparator;
+
 /**
  * class RecipeNameId is used to store a recipe name
  * and its corresping Id
@@ -49,5 +51,24 @@ public class RecipeNameId {
 
     public boolean getOwnsRecipe(){
         return ownsRecipe;
+    }
+
+
+}
+
+class SortByName implements Comparator<RecipeNameId>{
+
+    public int compare(RecipeNameId firstObject, RecipeNameId secondObject){
+
+        int firstCharAscii = (int) firstObject.getRecipeName().charAt(0);
+        int secCharAscii = (int) secondObject.getRecipeName().charAt(0);
+
+        if(firstCharAscii < secCharAscii){
+            return -1;
+        }else if(firstCharAscii < secCharAscii){
+            return 1;
+        }else{
+            return 0;
+        }
     }
 }
