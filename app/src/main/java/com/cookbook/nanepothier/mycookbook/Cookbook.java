@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -43,6 +44,7 @@ public class Cookbook extends AppCompatActivity {
     private LinearLayout contentLayout;
     private PopupWindow infoPopup;
     private CoordinatorLayout coordinatorLayout;
+    private String activityAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,12 @@ public class Cookbook extends AppCompatActivity {
         // retrieve user email through intent
         Intent intentReceived = getIntent();
         userEmail = intentReceived.getStringExtra("user_email");
+        activityAction = intentReceived.getStringExtra("action");
         //userEmail = "haleyiron@gmail.com";
+
+        if(activityAction.equals("deleted_recipe")){
+            Snackbar.make(findViewById(R.id.cookbook_coordinator_layout), "Recipe was deleted successfully", Snackbar.LENGTH_LONG).show();
+        }
 
         coordinatorLayout = findViewById(R.id.cookbook_coordinator_layout);
 

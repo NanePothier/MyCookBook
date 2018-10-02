@@ -67,6 +67,7 @@ public class ViewRecipe extends AppCompatActivity {
         recipeName = intentReceived.getStringExtra("recipe_name");
         userEmail = intentReceived.getStringExtra("user_email");
         recipeId = intentReceived.getStringExtra("recipe_id");
+        shareEmail = "";
 
         /*
         recipeName = "Strawberry Cake";
@@ -85,6 +86,7 @@ public class ViewRecipe extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
                 intent.putExtra("user_email", userEmail);
+                intent.putExtra("action", "back_button");
                 startActivity(intent);
             }
         });
@@ -686,6 +688,9 @@ public class ViewRecipe extends AppCompatActivity {
         public MenuTask(Indicator in, String id){
             indicator = in;
             recipeId = id;
+
+            shareEmail = "";
+            sharedByEmail = "no_sharing";
         }
 
         @Override
@@ -911,12 +916,10 @@ public class ViewRecipe extends AppCompatActivity {
 
                     if(finalResult.equals("deletedDDDD")){
 
-                        Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), R.string.delete_user_msg, Snackbar.LENGTH_SHORT)
-                                .show();
-
                         // return to cookbook activity once recipe has been deleted
                         Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
                         intent.putExtra("user_email", userEmail);
+                        intent.putExtra("action", "deleted_recipe");
                         startActivity(intent);
                     }
                 }else if (indicator.equals(Indicator.SAVE_SHARED)){
@@ -941,6 +944,7 @@ public class ViewRecipe extends AppCompatActivity {
             if(shareEmail.equals(sharedByEmail)){
                 Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), "Cannot share recipe with yourself", Snackbar.LENGTH_LONG).show();
             }
+
         }
     }
 
