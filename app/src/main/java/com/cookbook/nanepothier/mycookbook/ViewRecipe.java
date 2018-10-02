@@ -55,6 +55,7 @@ public class ViewRecipe extends AppCompatActivity {
     private PopupWindow infoPopup;
     private View progressView;
     private View scrollView;
+    private LayoutInflater inflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class ViewRecipe extends AppCompatActivity {
         */
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.view_recipe_coordinator_layout);
+        inflater = (LayoutInflater) ViewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.view_recipe_toolbar);
         setSupportActionBar(toolbar);
@@ -194,7 +196,7 @@ public class ViewRecipe extends AppCompatActivity {
 
                                 convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
 
-                                metricIngredient.setQuantity((int)convertedNumber);
+                                metricIngredient.setQuantity(convertedNumber);
                                 metricIngredient.setQuantityUnit("ml");
                                 metricIngredient.setName(ingArray.get(x).getName());
                                 metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
@@ -207,7 +209,7 @@ public class ViewRecipe extends AppCompatActivity {
 
                                 convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
 
-                                metricIngredient.setQuantity((int) convertedNumber);
+                                metricIngredient.setQuantity(convertedNumber);
                                 metricIngredient.setName(ingArray.get(x).getName());
                                 metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
                                 metricIngredient.setQuantityUnit("g");
@@ -223,7 +225,7 @@ public class ViewRecipe extends AppCompatActivity {
                             // convert from cup to ml
                             convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
 
-                            metricIngredient.setQuantity((int)convertedNumber);
+                            metricIngredient.setQuantity(convertedNumber);
                             metricIngredient.setQuantityUnit("g");
                             metricIngredient.setName(ingArray.get(x).getName());
                             metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
@@ -437,6 +439,7 @@ public class ViewRecipe extends AppCompatActivity {
 
         tableLayoutIngredients.removeAllViews();
 
+        View ingredientRowView;
         int count = 1;
         TextView ingredientNameCol, quantityCol, quantityUnitCol, countCol;
         TableRow tableRow;
@@ -444,47 +447,39 @@ public class ViewRecipe extends AppCompatActivity {
         // for each ingredient object create new row with three columns and add row to table
         for(int x = 0; x < arrayIngredients.size(); x++){
 
-            tableRow = new TableRow(this);
-            tableRow.setPadding(15, 10, 10, 10);
-            tableRow.setBackgroundResource(R.drawable.thin_black_border_background);
-            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 150));
+            ingredientRowView = inflater.inflate(R.layout.view_ingredient_row, null);
+            tableRow = ingredientRowView.findViewById(R.id.new_row);
 
-            countCol = new TextView(this);
+            countCol = ingredientRowView.findViewById(R.id.count_text_view);
             countCol.setText(Integer.toString(count) + ".");
-            countCol.setTextSize(15);
-            countCol.setLayoutParams(new TableRow.LayoutParams(85, TableRow.LayoutParams.WRAP_CONTENT));
-            tableRow.addView(countCol);
 
-            ingredientNameCol = new TextView(this);
-            ingredientNameCol.setText(arrayIngredients.get(x).getName());
-            ingredientNameCol.setTextSize(15);
-            ingredientNameCol.setLayoutParams(new TableRow.LayoutParams(870, TableRow.LayoutParams.WRAP_CONTENT));
-            tableRow.addView(ingredientNameCol);
+            ingredientNameCol = ingredientRowView.findViewById(R.id.ingredient_text_view);
+            ingredientNameCol.setText(" " + arrayIngredients.get(x).getName());
 
-            quantityCol = new TextView(this);
-            quantityCol.setTextSize(15);
-            quantityCol.setLayoutParams(new TableRow.LayoutParams(130, TableRow.LayoutParams.WRAP_CONTENT));
+            quantityCol = ingredientRowView.findViewById(R.id.quantity_text_view);
+            double qu = Math.round(arrayIngredients.get(x).getQuantity() * 10)/10.0;
+            arrayIngredients.get(x).setQuantity(qu);
 
-            if(arrayIngredients.get(x).getQuantity() == -1){
-                quantityCol.setText(" ");
+            if(arrayIngredients.get(x).getQuantity() == -1.0){
+                quantityCol.setText("");
             }else{
-                quantityCol.setText(Integer.toString(arrayIngredients.get(x).getQuantity()));
+                quantityCol.setText(Double.toString(arrayIngredients.get(x).getQuantity()));
             }
-            tableRow.addView(quantityCol);
 
-            quantityUnitCol = new TextView(this);
-            quantityUnitCol.setTextSize(15);
-            quantityUnitCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.4f));
+            quantityUnitCol = ingredientRowView.findViewById(R.id.quantity_unit_view);
 
             if(arrayIngredients.get(x).getQuantityUnit().equals(" ") || arrayIngredients.get(x).getQuantity() == -1){
                 quantityUnitCol.setText(" ");
             }else{
                 quantityUnitCol.setText(arrayIngredients.get(x).getQuantityUnit());
             }
-            tableRow.addView(quantityUnitCol);
+
+            if(tableRow.getParent() != null){
+                ((ViewGroup)tableRow.getParent()).removeView(tableRow);
+            }
 
             tableLayoutIngredients.addView(tableRow);
-            tableLayoutIngredients.setPadding(10, 10, 10, 10);
+
             count++;
         }
     }
@@ -594,10 +589,7 @@ public class ViewRecipe extends AppCompatActivity {
                 connection.setFixedLengthStreamingMode(data.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
-
-                System.out.println("Connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(data.getBytes());
@@ -607,7 +599,6 @@ public class ViewRecipe extends AppCompatActivity {
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
-                    System.out.println("Connection is ok");
                     inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;

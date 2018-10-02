@@ -301,7 +301,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         editText = ingredientRowView.findViewById(R.id.new_quantity);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
-            editText.setText(Integer.toString(ingredientArray.get(index).getQuantity()));
+            editText.setText(Double.toString(ingredientArray.get(index).getQuantity()));
         }
         quantityViews.add(editText);
 
@@ -423,15 +423,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             ViewCountService.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
-            amountView.setText(Integer.toString(ingredientArray.get(0).getQuantity()));
+            amountView.setText(Double.toString(ingredientArray.get(0).getQuantity()));
             spinnerMeasurements.setSelection(getUnitIndex(ingredientArray.get(0).getQuantityUnit(), "us"));
 
             autoCompIngredient2.setText(ingredientArray.get(1).getName());
-            amountView2.setText(Integer.toString(ingredientArray.get(1).getQuantity()));
+            amountView2.setText(Double.toString(ingredientArray.get(1).getQuantity()));
             spinnerMeasurements2.setSelection(getUnitIndex(ingredientArray.get(1).getQuantityUnit(), "us"));
 
             autoCompIngredient3.setText(ingredientArray.get(2).getName());
-            amountView3.setText(Integer.toString(ingredientArray.get(2).getQuantity()));
+            amountView3.setText(Double.toString(ingredientArray.get(2).getQuantity()));
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
 
             for(int x = 3; x < ingredientArray.size(); x++){
@@ -644,18 +644,18 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         switch(item.getItemId()){
 
-            // when user clicks save
+            // when user clicks
             case R.id.save_action:
 
                 // check that required fields are filled
-                // hasRecipeName = checkRequiredFields();
-                // haveQuantityAndUnit = checkQuantityUnitRequirement();
-                // ingredientsHaveNames = checkIngredientsHaveNames();
-                // categoriesHaveNames = checkCategoriesHaveNames();
-                hasRecipeName = true;
-                haveQuantityAndUnit = true;
-                ingredientsHaveNames = true;
-                categoriesHaveNames = true;
+                hasRecipeName = checkRequiredFields();
+                haveQuantityAndUnit = checkQuantityUnitRequirement();
+                ingredientsHaveNames = checkIngredientsHaveNames();
+                categoriesHaveNames = checkCategoriesHaveNames();
+                //hasRecipeName = true;
+                //haveQuantityAndUnit = true;
+                //ingredientsHaveNames = true;
+                //categoriesHaveNames = true;
 
                 // get text entered into textfields
                 String recipeName = recipeNameView.getText().toString();
@@ -677,7 +677,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         Ingredient ing = new Ingredient();
 
                         ing.setName(ingredientViews.get(i).getText().toString());
-                        ing.setQuantity(Integer.parseInt(quantityViews.get(i).getText().toString()));
+                        ing.setQuantity(Double.parseDouble(quantityViews.get(i).getText().toString()));
                         ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
 
                         ingredients.add(ing);
@@ -1204,9 +1204,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             connection.setFixedLengthStreamingMode(send.getBytes().length);
             connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
             connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
             connection.connect();
-            System.out.println("connection established");
 
             outputStream = new BufferedOutputStream(connection.getOutputStream());
             outputStream.write(send.getBytes());
@@ -1216,7 +1214,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             if(responseCode == HttpURLConnection.HTTP_OK){
 
-                System.out.println("Connection is ok");
                 inputStream = connection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
@@ -1322,9 +1319,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 connection.setFixedLengthStreamingMode(send.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
-                System.out.println("Connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(send.getBytes());
@@ -1334,7 +1329,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
-                    System.out.println("Connection is ok");
                     inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;
@@ -1414,9 +1408,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 connection.setFixedLengthStreamingMode(send.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
-                System.out.println("connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(send.getBytes());
@@ -1426,7 +1418,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
-                    System.out.println("Connection is ok");
                     inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;

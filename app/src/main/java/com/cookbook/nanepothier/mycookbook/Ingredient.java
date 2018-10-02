@@ -9,12 +9,12 @@ import java.io.Serializable;
 public class Ingredient implements Serializable{
 
     private String ingredientName, quantityUnit;
-    private int quantity;
+    private double quantity;
     private String defaultMeasurement;
 
     public Ingredient(){}
 
-    public Ingredient(String name, int qu, String unit, String defaultM){
+    public Ingredient(String name, double qu, String unit, String defaultM){
 
         ingredientName = name;
         quantity = qu;
@@ -26,7 +26,7 @@ public class Ingredient implements Serializable{
         ingredientName = name;
     }
 
-    public void setQuantity(int q){
+    public void setQuantity(double q){
         quantity = q;
     }
 
@@ -42,7 +42,7 @@ public class Ingredient implements Serializable{
         return ingredientName;
     }
 
-    public int getQuantity(){
+    public double getQuantity(){
         return quantity;
     }
 

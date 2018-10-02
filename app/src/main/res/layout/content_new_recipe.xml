@@ -329,7 +329,7 @@
             <EditText
                     android:layout_width="40dp"
                     android:layout_height="24dp"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:ems="10"
                     android:textSize="15dp"
                     android:id="@+id/servings"
@@ -355,7 +355,7 @@
             <EditText
                     android:layout_width="40dp"
                     android:layout_height="24dp"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:ems="10"
                     android:textSize="15dp"
                     android:background="@drawable/thin_black_border_background"
@@ -391,7 +391,7 @@
             <EditText
                     android:layout_width="40dp"
                     android:layout_height="24dp"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:ems="10"
                     android:id="@+id/oven_time"
                     android:textSize="15dp"
@@ -427,7 +427,7 @@
             <EditText
                     android:layout_width="40dp"
                     android:layout_height="24dp"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:ems="10"
                     android:id="@+id/oven_temp"
                     android:textSize="15dp"
@@ -464,7 +464,7 @@
             <EditText
                     android:layout_width="39dp"
                     android:layout_height="24dp"
-                    android:inputType="textPersonName"
+                    android:inputType="number"
                     android:ems="10"
                     android:id="@+id/calories"
                     android:textSize="15dp"
