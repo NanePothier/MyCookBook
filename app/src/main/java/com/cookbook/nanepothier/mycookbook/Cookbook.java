@@ -18,6 +18,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,6 +140,8 @@ public class Cookbook extends AppCompatActivity {
             categoryName = arrayUserCategories.get(x);
             arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, map.get(categoryName)));
         }
+
+        Collections.sort(arrayHeaderRecipeModels, new SortByCategory());
     }
 
     // create views using retrieved categories and recipe names

@@ -1,6 +1,7 @@
 package com.cookbook.nanepothier.mycookbook;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * class HeaderRecipeModel is used to store a category and an
@@ -35,4 +36,21 @@ public class HeaderRecipeModel {
         return recipes;
     }
 
+}
+
+class SortByCategory implements Comparator<HeaderRecipeModel>{
+
+    public int compare(HeaderRecipeModel firstModel, HeaderRecipeModel secondModel){
+
+        int firstCharAscii = (int) firstModel.getCategory().charAt(0);
+        int secCharAscii = (int) secondModel.getCategory().charAt(0);
+
+        if(firstCharAscii < secCharAscii){
+            return -1;
+        }else if(firstCharAscii < secCharAscii){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
 }

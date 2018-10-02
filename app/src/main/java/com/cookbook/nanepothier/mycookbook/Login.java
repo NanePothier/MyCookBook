@@ -277,9 +277,12 @@ public class Login extends AppCompatActivity {
                 ioe.printStackTrace();
             }finally{
                 try{
-                    outputStream.close();
-                    inputStream.close();
-
+                    if(outputStream != null){
+                        outputStream.close();
+                    }
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
                 }catch(IOException ie){
                     ie.printStackTrace();
                 }
