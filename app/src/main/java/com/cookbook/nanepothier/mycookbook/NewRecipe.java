@@ -115,6 +115,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         userEmail = intentReceived.getExtras().getString("user_email");
         statusIndicator = intentReceived.getExtras().getString("status_indicator");
 
+        ViewCountService.setIngredientViewCount(3);
+        ViewCountService.setCategoryViewCount(0);
+
         context = getApplicationContext();
         coordinatorLayout = findViewById(R.id.new_recipe_activity_layout);
         progressView = findViewById(R.id.new_recipe_progress);
@@ -765,8 +768,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
                         ingredientTask.execute();
                         ingredientPopup.dismiss();
-                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT)
-                        .show();
                     }
                 });
 
@@ -804,8 +805,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
                         categoryTask.execute();
                         categoryPopup.dismiss();
-                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT)
-                        .show();
                     }
                 });
 
@@ -971,12 +970,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     public void onBackgroundTaskSavedItem(String indicator, String finalResult){
 
         if(indicator.equals("ingredient") && finalResult.equals("success")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient stored successfully", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New ingredient was saved", Snackbar.LENGTH_SHORT).show();
             getIngredients();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category stored successfully", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New category was saved", Snackbar.LENGTH_SHORT).show();
             getCategories();
         }else if(indicator.equals("category") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category already exists", Snackbar.LENGTH_LONG).show();

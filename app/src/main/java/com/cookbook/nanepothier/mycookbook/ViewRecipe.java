@@ -155,7 +155,11 @@ public class ViewRecipe extends AppCompatActivity {
         double metricTemperature;
 
         // convert temperature
-        metricTemperature = (recipe.getOvenTemperature() - 32) * (5.0/9.0);
+        if(recipe.getOvenTemperature() > 50){
+            metricTemperature = (recipe.getOvenTemperature() - 32) * (5.0/9.0);
+        }else{
+            metricTemperature = 0;
+        }
         recipe.setMetricTemperature((int) metricTemperature);
 
         // for each ingredient
@@ -336,7 +340,7 @@ public class ViewRecipe extends AppCompatActivity {
                 infoText3.setText(R.string.view_info_toolbar);
                 infoText4.setVisibility(View.GONE);
 
-                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1200, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 doneButton.setOnClickListener(new View.OnClickListener() {
@@ -382,14 +386,20 @@ public class ViewRecipe extends AppCompatActivity {
 
         if(recipe.getServings() != -1){
             servingsView.setText(Integer.toString(recipe.getServings()));
+        }else{
+            servingsView.setText("-");
         }
 
         if(recipe.getPreparationTime() != -1){
             preparationTimeView.setText(Integer.toString(recipe.getPreparationTime()));
+        }else{
+            preparationTimeView.setText("-");
         }
 
         if(recipe.getOvenTime() != -1){
             ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
+        }else{
+            ovenTimeView.setText("-");
         }
 
         if(recipe.getOvenTemperature() != -1){
@@ -398,14 +408,20 @@ public class ViewRecipe extends AppCompatActivity {
             }else{
                 ovenTempView.setText(Integer.toString(recipe.getMetricTemperature()));
             }
+        }else{
+            ovenTempView.setText("-");
         }
 
         if(recipe.getCalories() != -1){
             caloriesView.setText(Integer.toString(recipe.getCalories()));
+        }else{
+            caloriesView.setText("-");
         }
 
         if(!(recipe.getInstructions().equals("none"))){
             instructionsView.setText(recipe.getInstructions());
+        }else{
+            instructionsView.setText("No instructions available");
         }
     }
 

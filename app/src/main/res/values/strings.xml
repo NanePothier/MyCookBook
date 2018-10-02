@@ -45,8 +45,8 @@
     <string name="instructions">Instructions:</string>
 
     <string name="delete_user_msg">Recipe was successfully deleted.</string>
-    <string name="share_user_msg">Recipe shared</string>
-    <string name="not_shared_msg">Recipe was already shared</string>
+    <string name="share_user_msg">Recipe was shared successfully</string>
+    <string name="not_shared_msg">Recipe has already been shared with this user</string>
 
 
     <!--Cookbook menu strings-->
