@@ -585,51 +585,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         }
     }
 
-    private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
-
-        listIngredients = ingredients;
-
-        ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
-
-        autoCompIngredient1.setAdapter(ingredientAdapter);
-        autoCompIngredient2.setAdapter(ingredientAdapter);
-        autoCompIngredient3.setAdapter(ingredientAdapter);
-
-        if(statusIndicator.equals("EditRecipe")){
-            setIngredientViews();
-        }
-
-        showProgress(false);
-    }
-
-    private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
-
-        listCategories = categories;
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-
-        categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categories);
-
-        categorySpinner.setSelection(0);
-
-        if(statusIndicator.equals("EditRecipe")){
-            setCategoryViews();
-        }
-    }
-
-
     // called when item in spinner is selected
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
-
-    }
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){ }
 
     @Override
-    public void onNothingSelected(AdapterView <?> parent){
-
-    }
+    public void onNothingSelected(AdapterView <?> parent){ }
 
     // method invoked by appbar
     @Override
@@ -950,6 +911,48 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         return haveNames;
     }
 
+    // when user has stored a new ingredient, update the autocomplete views so that user can choose new ingredient
+    public void updateAutoCompleteViews(){
+
+        for(int x = 0; x < ingredientViews.size(); x++){
+            ingredientViews.get(x).setAdapter(ingredientAdapter);
+        }
+    }
+
+    private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
+
+        listIngredients = ingredients;
+
+        ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
+
+        autoCompIngredient1.setAdapter(ingredientAdapter);
+        autoCompIngredient2.setAdapter(ingredientAdapter);
+        autoCompIngredient3.setAdapter(ingredientAdapter);
+
+        if(statusIndicator.equals("EditRecipe")){
+            setIngredientViews();
+        }
+
+        showProgress(false);
+    }
+
+    private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
+
+        listCategories = categories;
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categories);
+
+        categorySpinner.setSelection(0);
+
+        if(statusIndicator.equals("EditRecipe")){
+            setCategoryViews();
+        }
+    }
+
     public void onBackgroundDeleteTaskSuccess(){
         Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category successfully deleted", Snackbar.LENGTH_SHORT)
         .show();
@@ -972,6 +975,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         if(indicator.equals("ingredient") && finalResult.equals("success")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New ingredient was saved", Snackbar.LENGTH_SHORT).show();
             getIngredients();
+            updateAutoCompleteViews();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){

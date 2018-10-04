@@ -15,6 +15,12 @@
     />
 
     <item
+            android:id="@+id/scale_action"
+            android:title="Scale Ingredients"
+            app:showAsAction="never"
+    />
+
+    <item
             android:id="@+id/delete_action"
             android:title="Delete"
             app:showAsAction="never"

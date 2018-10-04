@@ -48,6 +48,9 @@
     <string name="share_user_msg">Recipe was shared successfully</string>
     <string name="not_shared_msg">Recipe has already been shared with this user</string>
 
+    <!-- scale recipe popup window strings-->
+    <string name="scale_recipe_heading">Scale Ingredients</string>
+    <string name="scale_info">Scale the quantities of your ingredients by choosing a scaling factor below.</string>
 
     <!--Cookbook menu strings-->
     <string name="view_all">Show All Recipes</string>

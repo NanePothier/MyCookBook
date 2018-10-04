@@ -46,6 +46,7 @@ public class ViewRecipe extends AppCompatActivity {
     private TableLayout tableLayoutCategories;
 
     private ArrayList<ConversionObject> conversionArray;
+    private ArrayList<Ingredient> scaleArray;
 
     private ToggleButton systemToggle;
     private ImageButton backButton;
@@ -53,6 +54,7 @@ public class ViewRecipe extends AppCompatActivity {
     private CoordinatorLayout coordinatorLayout;
     private PopupWindow sharePopup;
     private PopupWindow infoPopup;
+    private PopupWindow scalePopup;
     private View progressView;
     private View scrollView;
     private LayoutInflater inflater;
@@ -122,6 +124,7 @@ public class ViewRecipe extends AppCompatActivity {
         tableLayoutCategories = (TableLayout) findViewById(R.id.table_layout_view_categories);
 
         conversionArray = null;
+        //scaleArray = new ArrayList<>();
 
         systemToggle = (ToggleButton) findViewById(R.id.toggle_sys_button);
         systemToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -279,7 +282,6 @@ public class ViewRecipe extends AppCompatActivity {
 
             case R.id.share_action:
 
-                LayoutInflater inflater = (LayoutInflater) ViewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View sharePopupView = inflater.inflate(R.layout.share_recipe_popup, null);
 
                 ImageButton shareButton = (ImageButton) sharePopupView.findViewById(R.id.share_recipe_button);
@@ -319,6 +321,54 @@ public class ViewRecipe extends AppCompatActivity {
 
                 return true;
 
+            case R.id.scale_action:
+
+                View scalePopupView = inflater.inflate(R.layout.scale_recipe_popup, null);
+
+                final Spinner scaleSpinner = scalePopupView.findViewById(R.id.scale_spinner);
+                ImageButton scaleButton = scalePopupView.findViewById(R.id.save_image_button);
+                ImageButton exitButton = scalePopupView.findViewById(R.id.cancel_image_button);
+
+                ArrayList<String> values = new ArrayList<>();
+                values.add("1/2");
+                values.add("1");
+                values.add("2");
+                values.add("3");
+                values.add("4");
+                values.add("5");
+                ArrayAdapter<String> scaleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, values);
+                scaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                scaleSpinner.setAdapter(scaleAdapter);
+
+                scalePopup = new PopupWindow(scalePopupView, 1100, 1000, true);
+                scalePopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                scaleButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        double scaleFactor;
+
+                        if(scaleSpinner.getSelectedItem().equals("1/2")){
+                            scaleFactor = 0.5;
+                        }else{
+                            scaleFactor = (double) scaleSpinner.getSelectedItem();
+                        }
+
+                        scaleIngredients(scaleFactor);
+                        setViews("scale");
+                    }
+                });
+
+                exitButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        scalePopup.dismiss();
+                    }
+                });
+
+                return true;
+
             case R.id.delete_action:
 
                 MenuTask deleteTask = new MenuTask(Indicator.DELETE, recipe.getRecipeId());
@@ -328,8 +378,7 @@ public class ViewRecipe extends AppCompatActivity {
 
             case R.id.action_info:
 
-                LayoutInflater inflater4 = (LayoutInflater) ViewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View infoPopupView = inflater4.inflate(R.layout.app_info_popup, null);
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
 
                 ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
                 TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
@@ -360,7 +409,36 @@ public class ViewRecipe extends AppCompatActivity {
 
                 return super.onOptionsItemSelected(item);
         }
+    }
 
+    // scale ingredient quantities by the factor chosen by the user
+    public void scaleIngredients(double scaleFactor){
+
+        ArrayList<Ingredient> ingredientArray = recipe.getIngredientArray();
+        scaleArray = new ArrayList<>();
+        Ingredient ingredient;
+        double quantity, newQuantity;
+        String quantityUnit;
+
+        for(int x = 0; x < ingredientArray.size(); x++){
+
+            quantity = ingredientArray.get(x).getQuantity();
+
+            if(quantity != -1.0){
+                newQuantity = quantity * scaleFactor;
+            }else{
+                newQuantity = -1.0;
+            }
+
+            quantityUnit = ingredientArray.get(x).getQuantityUnit();
+
+            if(quantityUnit.equals("ct")){
+                newQuantity = Math.round(newQuantity);
+            }
+
+            ingredient = new Ingredient(ingredientArray.get(x).getName(), newQuantity, ingredientArray.get(x).getQuantityUnit(), ingredientArray.get(x).getDefaultMeasurement());
+            scaleArray.add(ingredient);
+        }
     }
 
     public void retrieveRecipe(){
@@ -435,6 +513,8 @@ public class ViewRecipe extends AppCompatActivity {
 
         if(measurementSystem.equals("metric")){
             arrayIngredients = recipe.getMetricIngredientArray();
+        }else if(measurementSystem.equals("scale")){
+            arrayIngredients = scaleArray;
         }else{
             arrayIngredients = recipe.getIngredientArray();
         }
