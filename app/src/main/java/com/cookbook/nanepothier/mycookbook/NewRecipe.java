@@ -87,7 +87,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private PopupWindow ingredientPopup;
     private PopupWindow categoryPopup;
     private PopupWindow deleteCatPopup;
+    private PopupWindow infoPopup;
     private Context context;
+    private View progressView;
+    private View scrollView;
+
+    private LayoutInflater inflater;
 
     // new ingredient popup window
     CoordinatorLayout coordinatorLayout;
@@ -96,6 +101,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     private ImageButton backButton;
 
     private boolean firstTime;
+    private boolean firstTimeCategory;
 
 
     @Override
@@ -103,12 +109,25 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_recipe);
 
-        context = getApplicationContext();
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.new_recipe_activity_layout);
+        // get data passed to this activity
+        intentReceived = getIntent();
+        //statusIndicator = "NewRecipe";
+        userEmail = intentReceived.getExtras().getString("user_email");
+        statusIndicator = intentReceived.getExtras().getString("status_indicator");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.newrecipe_toolbar);
+        ViewCountService.setIngredientViewCount(3);
+        ViewCountService.setCategoryViewCount(0);
+
+        context = getApplicationContext();
+        coordinatorLayout = findViewById(R.id.new_recipe_activity_layout);
+        progressView = findViewById(R.id.new_recipe_progress);
+        scrollView = findViewById(R.id.new_recipe_scroll_view);
+
+        inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        Toolbar toolbar = findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
-        backButton = (ImageButton) toolbar.findViewById(R.id.back_button);
+        backButton = toolbar.findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,13 +162,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         catCountArray = new ArrayList<>();
 
         // EditTexts
-        recipeNameView = (EditText) findViewById(R.id.recipe_name);
-        servingsView = (EditText) findViewById(R.id.servings);
-        prepTimeView = (EditText) findViewById(R.id.prep_time);
-        ovenTimeView = (EditText) findViewById(R.id.oven_time);
-        ovenTempView = (EditText) findViewById(R.id.oven_temp);
-        caloriesView = (EditText) findViewById(R.id.calories);
-        instructionView = (EditText) findViewById(R.id.editText);
+        recipeNameView = findViewById(R.id.recipe_name);
+        servingsView = findViewById(R.id.servings);
+        prepTimeView = findViewById(R.id.prep_time);
+        ovenTimeView = findViewById(R.id.oven_time);
+        ovenTempView = findViewById(R.id.oven_temp);
+        caloriesView = findViewById(R.id.calories);
+        instructionView = findViewById(R.id.editText);
 
         // ingredient views
         autoCompIngredient1 = findViewById(R.id.auto_complete_view1);
@@ -187,6 +206,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         measurementSpinners.add(spinnerMeasurements3);
 
         firstTime = true;
+        firstTimeCategory = true;
 
         createUSMeasurementList();
         createMetricMeasurementList();
@@ -224,17 +244,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         addCategoryImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addCategoryRowToCategoryTable();
+                addCategoryRowToCategoryTable(0);
             }
         });
 
-        // get data passed to this activity
-        //intentReceived = getIntent();
-        statusIndicator = "NewRecipe";
-        //userEmail = intentReceived.getExtras().getString("user_email");
-        //statusIndicator = intentReceived.getExtras().getString("status_indicator");
-
         // get ingredients and categories from database
+        showProgress(true);
         getIngredients();
         getCategories();
 
@@ -258,6 +273,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
     public void addIngredientRowToIngredientTable(int index){
 
+        View ingredientRowView;
         final TableRow tableRow;
         final TextView countCol;
         final AutoCompleteTextView autoView;
@@ -267,60 +283,37 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         ViewCountService.incrementIngredientViewCount();
 
-        tableRow = new TableRow(this);
-        tableRow.setPadding(5, 5, 5, 5);
-        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        ingredientRowView = inflater.inflate(R.layout.new_ingredient_row, null);
+        tableRow = ingredientRowView.findViewById(R.id.new_row);
 
-        countCol = new TextView(this);
+        countCol = ingredientRowView.findViewById(R.id.count_text_view);
         countCol.setText(Integer.toString(ViewCountService.getIngredientViewCount()) + ".");
-        countCol.setTextSize(15);
-        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
         ingCountArray.add(countCol);
-        tableRow.addView(countCol);
 
-        autoView = new AutoCompleteTextView(this);
+        autoView = ingredientRowView.findViewById(R.id.new_auto_complete_view);
         autoView.setAdapter(ingredientAdapter);
-        autoView.setTextSize(15);
-        autoView.setPadding(5,0,0,0);
-        autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.8f));
-        autoView.setBackgroundResource(R.drawable.thin_black_border_background);
-        autoView.setShadowLayer(5.0f, 1.0f, 1.0f, Color.GRAY);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
             autoView.setText(ingredientArray.get(index).getName());
         }
         ingredientViews.add(autoView);
-        tableRow.addView(autoView);
 
-        editText = new EditText(this);
-        editText.setLayoutParams(new TableRow.LayoutParams(20, 95, 0.001f));
-        editText.setMaxLines(1);
-        editText.setTextSize(15);
-        editText.setPadding(20,0,0,0);
-        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editText.setBackgroundResource(R.drawable.thin_black_border_background);
+        editText = ingredientRowView.findViewById(R.id.new_quantity);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
-            editText.setText(Integer.toString(ingredientArray.get(index).getQuantity()));
+            editText.setText(Double.toString(ingredientArray.get(index).getQuantity()));
         }
         quantityViews.add(editText);
-        tableRow.addView(editText);
 
-        mSpinner = new Spinner(this);
-        mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+        mSpinner = ingredientRowView.findViewById(R.id.new_measurement_spinner);
         mSpinner.setAdapter(measurementAdapter);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
             mSpinner.setSelection(getUnitIndex(ingredientArray.get(index).getQuantityUnit(), "us"));
         }
         measurementSpinners.add(mSpinner);
-        tableRow.addView(mSpinner);
 
-        deleteIngredientRowView = new ImageView(this);
-        deleteIngredientRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-        deleteIngredientRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
-        deleteIngredientRowView.setPadding(0,60,0,0);
-        tableRow.addView(deleteIngredientRowView);
+        deleteIngredientRowView = ingredientRowView.findViewById(R.id.delete_image_view);
         deleteIngredientRowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -334,11 +327,16 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             }
         });
 
+        if(tableRow.getParent() != null){
+            ((ViewGroup)tableRow.getParent()).removeView(tableRow);
+        }
+
         tableLayoutIngredients.addView(tableRow);
     }
 
-    public void addCategoryRowToCategoryTable(){
+    public void addCategoryRowToCategoryTable(int index){
 
+        View categoryRowView;
         final TableRow tableRow;
         final TextView countCol;
         final AutoCompleteTextView autoCompCat;
@@ -346,32 +344,22 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         ViewCountService.incrementCategoryViewCount();
 
-        tableRow = new TableRow(this);
-        tableRow.setPadding(5, 36, 5, 5);
-        tableRow.setId(ViewCountService.getCategoryViewCount());
-        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+        categoryRowView = inflater.inflate(R.layout.new_category_row, null);
+        tableRow = categoryRowView.findViewById(R.id.new_row);
 
-        countCol = new TextView(this);
+        countCol = categoryRowView.findViewById(R.id.count_text_view);
         countCol.setText(Integer.toString(ViewCountService.getCategoryViewCount()) + ".");
-        countCol.setTextSize(15);
-        countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.05f));
         catCountArray.add(countCol);
-        tableRow.addView(countCol);
 
-        autoCompCat = new AutoCompleteTextView(this);
+        autoCompCat = categoryRowView.findViewById(R.id.new_auto_complete_view);
         autoCompCat.setAdapter(categoryAdapter);
-        autoCompCat.setTextSize(15);
-        autoCompCat.setPadding(0, 0, 0, 0);
-        autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, 95, 1.0f));
-        autoCompCat.setBackgroundResource(R.drawable.thin_black_border_background);
         additionalCategories.add(autoCompCat);
-        tableRow.addView(autoCompCat);
 
-        deleteCategoryRowView = new ImageView(this);
-        deleteCategoryRowView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-        deleteCategoryRowView.setImageResource(R.mipmap.ic_remove_circle_outline_black_18dp);
-        deleteCategoryRowView.setPadding(0, 5, 0, 0);
-        tableRow.addView(deleteCategoryRowView);
+        if(statusIndicator.equals("EditRecipe") && firstTimeCategory){
+            autoCompCat.setText(categoryArray.get(index).getName());
+        }
+
+        deleteCategoryRowView = categoryRowView.findViewById(R.id.delete_image_view);
         deleteCategoryRowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -387,6 +375,10 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             }
         });
 
+        if(tableRow.getParent() != null){
+            ((ViewGroup)tableRow.getParent()).removeView(tableRow);
+        }
+
         tableLayoutCategories.addView(tableRow);
         tableLayoutCategories.setVisibility(View.VISIBLE);
     }
@@ -401,6 +393,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         for(int x = 0; x < catCountArray.size(); x++){
             catCountArray.get(x).setText(Integer.toString(x + 1) + ".");
         }
+    }
+
+    public void showProgress(boolean show){
+
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     public void displayRecipe(){
@@ -425,61 +423,20 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             ViewCountService.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
-            amountView.setText(Integer.toString(ingredientArray.get(0).getQuantity()));
+            amountView.setText(Double.toString(ingredientArray.get(0).getQuantity()));
             spinnerMeasurements.setSelection(getUnitIndex(ingredientArray.get(0).getQuantityUnit(), "us"));
 
             autoCompIngredient2.setText(ingredientArray.get(1).getName());
-            amountView2.setText(Integer.toString(ingredientArray.get(1).getQuantity()));
+            amountView2.setText(Double.toString(ingredientArray.get(1).getQuantity()));
             spinnerMeasurements2.setSelection(getUnitIndex(ingredientArray.get(1).getQuantityUnit(), "us"));
 
             autoCompIngredient3.setText(ingredientArray.get(2).getName());
-            amountView3.setText(Integer.toString(ingredientArray.get(2).getQuantity()));
+            amountView3.setText(Double.toString(ingredientArray.get(2).getQuantity()));
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
-
-            TableRow tableRow;
-            TextView countCol;
-            AutoCompleteTextView autoView;
-            EditText editText;
-            Spinner mSpinner;
-            int count = 4;
 
             for(int x = 3; x < ingredientArray.size(); x++){
 
                 addIngredientRowToIngredientTable(x);
-
-                /*
-                tableRow = new TableRow(this);
-                tableRow.setId(count);
-                tableRow.setPadding(5, 5, 5, 5);
-                tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
-                countCol = new TextView(this);
-                countCol.setText(count + ".");
-                countCol.setTextSize(15);
-                countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                tableRow.addView(countCol);
-
-                autoView = new AutoCompleteTextView(this);
-                autoView.setAdapter(ingredientAdapter);
-                autoView.setText(ingredientArray.get(x).getName());
-                autoView.setTextSize(15);
-                autoView.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 1.0f));
-                tableRow.addView(autoView);
-
-                editText = new EditText(this);
-                editText.setText(Integer.toString(ingredientArray.get(x).getQuantity()));
-                editText.setTextSize(15);
-                editText.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                tableRow.addView(editText);
-
-                mSpinner = new Spinner(this);
-                mSpinner.setSelection(getUnitIndex(ingredientArray.get(x).getQuantityUnit(), "us"));
-                mSpinner.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                tableRow.addView(mSpinner);
-
-                tableLayoutIngredients.addView(tableRow);
-                count++;
-                */
             }
             firstTime = false;
         }
@@ -500,29 +457,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             for(int x = 0; x < categoryArray.size(); x++){
 
-                if(!(categoryArray.get(x).getCategory())){
+                if(!(categoryArray.get(x).isPrimaryCategory())){
 
-                    tableRow = new TableRow(this);
-                    tableRow.setPadding(5, 5, 5, 5);
-                    tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
-                    countCol = new TextView(this);
-                    countCol.setText(count + ".");
-                    countCol.setTextSize(15);
-                    countCol.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, 0.1f));
-                    tableRow.addView(countCol);
-
-                    autoCompCat = new AutoCompleteTextView(this);
-                    autoCompCat.setAdapter(categoryAdapter);
-                    autoCompCat.setText(categoryArray.get(x).getName());
-                    autoCompCat.setTextSize(15);
-                    autoCompCat.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-                    tableRow.addView(autoCompCat);
-
-                    tableLayoutCategories.addView(tableRow);
-                    count++;
+                    addCategoryRowToCategoryTable(x);
                 }
             }
+            firstTimeCategory = false;
         }
     }
 
@@ -546,6 +486,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     return 5;
                 case "tsp":
                     return 6;
+                case "ct":
+                    return 7;
                 default:
                     return 0;
             }
@@ -568,6 +510,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     return 5;
                 case "tsp":
                     return 6;
+                case "ct":
+                    return 7;
                 default:
                     return 0;
             }
@@ -595,6 +539,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         USMeasurements.add("qt");
         USMeasurements.add("tbsp");
         USMeasurements.add("tsp");
+        USMeasurements.add("ct");
     }
 
     public void createMetricMeasurementList(){
@@ -605,6 +550,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         MetricMeasurements.add("L");
         MetricMeasurements.add("tbsp");
         MetricMeasurements.add("tsp");
+        MetricMeasurements.add("ct");
     }
 
     @Override
@@ -639,50 +585,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         }
     }
 
-    private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
-
-        listIngredients = ingredients;
-
-        ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
-
-        autoCompIngredient1.setAdapter(ingredientAdapter);
-        autoCompIngredient2.setAdapter(ingredientAdapter);
-        autoCompIngredient3.setAdapter(ingredientAdapter);
-
-        if(statusIndicator.equals("EditRecipe")){
-            setIngredientViews();
-        }
-    }
-
-    private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
-
-        listCategories = categories;
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-
-        categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categories);
-
-        categorySpinner.setSelection(0);
-
-        if(statusIndicator.equals("EditRecipe")){
-            setCategoryViews();
-        }
-    }
-
-
     // called when item in spinner is selected
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){
-
-        System.out.println("Item was selected in spinner " + parent.getItemIdAtPosition(pos));
-    }
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id){ }
 
     @Override
-    public void onNothingSelected(AdapterView <?> parent){
-
-    }
+    public void onNothingSelected(AdapterView <?> parent){ }
 
     // method invoked by appbar
     @Override
@@ -697,18 +605,18 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         switch(item.getItemId()){
 
-            // when user clicks save
+            // when user clicks
             case R.id.save_action:
 
                 // check that required fields are filled
-                // hasRecipeName = checkRequiredFields();
-                // haveQuantityAndUnit = checkQuantityUnitRequirement();
-                // ingredientsHaveNames = checkIngredientsHaveNames();
-                // categoriesHaveNames = checkCategoriesHaveNames();
-                hasRecipeName = true;
-                haveQuantityAndUnit = true;
-                ingredientsHaveNames = true;
-                categoriesHaveNames = true;
+                hasRecipeName = checkRequiredFields();
+                haveQuantityAndUnit = checkQuantityUnitRequirement();
+                ingredientsHaveNames = checkIngredientsHaveNames();
+                categoriesHaveNames = checkCategoriesHaveNames();
+                //hasRecipeName = true;
+                //haveQuantityAndUnit = true;
+                //ingredientsHaveNames = true;
+                //categoriesHaveNames = true;
 
                 // get text entered into textfields
                 String recipeName = recipeNameView.getText().toString();
@@ -730,7 +638,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         Ingredient ing = new Ingredient();
 
                         ing.setName(ingredientViews.get(i).getText().toString());
-                        ing.setQuantity(Integer.parseInt(quantityViews.get(i).getText().toString()));
+                        ing.setQuantity(Double.parseDouble(quantityViews.get(i).getText().toString()));
                         ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
 
                         ingredients.add(ing);
@@ -775,6 +683,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                                 , statusIndicator);
                     }
 
+                    showProgress(true);
                     saveTask.execute((String) null);
 
                     return true;
@@ -793,15 +702,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_ingredient_action:
 
-                LayoutInflater inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View ingredientPopupView = inflater.inflate(R.layout.new_item_popup, null);
 
-                ImageButton saveButton =(ImageButton) ingredientPopupView.findViewById(R.id.save_image_button);
-                ImageButton cancelButton = (ImageButton) ingredientPopupView.findViewById(R.id.cancel_image_button);
-                final EditText newIngredientView = (EditText) ingredientPopupView.findViewById(R.id.enter_item_view);
-                final Spinner defaultSpinner = (Spinner) ingredientPopupView.findViewById(R.id.default_spinner);
-                TextView defaultLab = (TextView) ingredientPopupView.findViewById(R.id.default_label);
-                TextView ingHeading = (TextView) ingredientPopupView.findViewById(R.id.new_item_heading);
+                ImageButton saveButton = ingredientPopupView.findViewById(R.id.save_image_button);
+                ImageButton cancelButton = ingredientPopupView.findViewById(R.id.cancel_image_button);
+                final EditText newIngredientView = ingredientPopupView.findViewById(R.id.enter_item_view);
+                final Spinner defaultSpinner = ingredientPopupView.findViewById(R.id.default_spinner);
+                TextView defaultLab = ingredientPopupView.findViewById(R.id.default_label);
+                TextView ingHeading = ingredientPopupView.findViewById(R.id.new_item_heading);
                 ingHeading.setText("New Ingredient");
 
                 ArrayList<String> values = new ArrayList<>();
@@ -811,7 +719,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 defaultSpinner.setAdapter(defaultAdapter);
 
-                ingredientPopup = new PopupWindow(ingredientPopupView, 1200, 900, true);
+                ingredientPopup = new PopupWindow(ingredientPopupView, 1100, 1000, true);
                 ingredientPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButton.setOnClickListener(new View.OnClickListener() {
@@ -821,8 +729,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
                         ingredientTask.execute();
                         ingredientPopup.dismiss();
-                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT)
-                        .show();
                     }
                 });
 
@@ -837,8 +743,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.new_category_action:
 
-                LayoutInflater inflater2 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View categoryPopupView = inflater2.inflate(R.layout.new_item_popup, null);
+                View categoryPopupView = inflater.inflate(R.layout.new_item_popup, null);
 
                 ImageButton saveButtonCat =(ImageButton) categoryPopupView.findViewById(R.id.save_image_button);
                 ImageButton cancelButtonCat = (ImageButton) categoryPopupView.findViewById(R.id.cancel_image_button);
@@ -851,7 +756,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 defaultLab2.setVisibility(View.GONE);
                 defaultSpinner2.setVisibility(View.GONE);
 
-                categoryPopup = new PopupWindow(categoryPopupView, 1000, 600, true);
+                categoryPopup = new PopupWindow(categoryPopupView, 1100, 700, true);
                 categoryPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButtonCat.setOnClickListener(new View.OnClickListener() {
@@ -861,8 +766,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
                         categoryTask.execute();
                         categoryPopup.dismiss();
-                        Snackbar.make(findViewById(R.id.new_recipe_content_layout), "Ingredient saved", Snackbar.LENGTH_SHORT)
-                        .show();
                     }
                 });
 
@@ -877,8 +780,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.delete_category_action:
 
-                LayoutInflater inflater3 = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View deleteCatPopupView = inflater3.inflate(R.layout.delete_item_popup, null);
+                View deleteCatPopupView = inflater.inflate(R.layout.delete_item_popup, null);
 
                 ImageButton saveButtonDelete =(ImageButton) deleteCatPopupView.findViewById(R.id.delete_category_button);
                 ImageButton cancelButtonDelete = (ImageButton) deleteCatPopupView.findViewById(R.id.cancel_image_button);
@@ -890,7 +792,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 deleteCatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 deleteCatSpinner.setAdapter(deleteCatAdapter);
 
-                deleteCatPopup = new PopupWindow(deleteCatPopupView, 1200, 900, true);
+                deleteCatPopup = new PopupWindow(deleteCatPopupView, 1100, 700, true);
                 deleteCatPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 saveButtonDelete.setOnClickListener(new View.OnClickListener() {
@@ -907,6 +809,35 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     @Override
                     public void onClick(View v) {
                         deleteCatPopup.dismiss();
+                    }
+                });
+
+                return true;
+
+            case R.id.action_info:
+
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
+                TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+                TextView infoText4 = infoPopupView.findViewById(R.id.info_text_view4);
+
+                infoTitle.setText(R.string.new_info_title);
+                infoText.setText(R.string.new_info);
+                infoText2.setText(R.string.new_info_constraints);
+                infoText3.setText(R.string.new_info_floating);
+                infoText4.setText(R.string.happy_cooking);
+
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
                     }
                 });
 
@@ -980,6 +911,48 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         return haveNames;
     }
 
+    // when user has stored a new ingredient, update the autocomplete views so that user can choose new ingredient
+    public void updateAutoCompleteViews(){
+
+        for(int x = 0; x < ingredientViews.size(); x++){
+            ingredientViews.get(x).setAdapter(ingredientAdapter);
+        }
+    }
+
+    private void onBackgroundTaskObtainedIngredients(ArrayList<String> ingredients){
+
+        listIngredients = ingredients;
+
+        ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
+
+        autoCompIngredient1.setAdapter(ingredientAdapter);
+        autoCompIngredient2.setAdapter(ingredientAdapter);
+        autoCompIngredient3.setAdapter(ingredientAdapter);
+
+        if(statusIndicator.equals("EditRecipe")){
+            setIngredientViews();
+        }
+
+        showProgress(false);
+    }
+
+    private void onBackgroundTaskObtainedCategories(ArrayList<String> categories){
+
+        listCategories = categories;
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, categories);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        categorySpinner.setAdapter(adapter);
+
+        categoryAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, categories);
+
+        categorySpinner.setSelection(0);
+
+        if(statusIndicator.equals("EditRecipe")){
+            setCategoryViews();
+        }
+    }
+
     public void onBackgroundDeleteTaskSuccess(){
         Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category successfully deleted", Snackbar.LENGTH_SHORT)
         .show();
@@ -995,19 +968,25 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         .show();
     }
 
+    // user tried to add a new ingredient or category
+    // if new item was stored successfully, reload that list of items
     public void onBackgroundTaskSavedItem(String indicator, String finalResult){
 
         if(indicator.equals("ingredient") && finalResult.equals("success")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient stored successfully", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New ingredient was saved", Snackbar.LENGTH_SHORT).show();
+            getIngredients();
+            updateAutoCompleteViews();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){
-            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category stored successfully", Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New category was saved", Snackbar.LENGTH_SHORT).show();
+            getCategories();
         }else if(indicator.equals("category") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category already exists", Snackbar.LENGTH_LONG).show();
         }
     }
 
+    // save/update recipe
     public class SaveTask extends AsyncTask<String, Void, String> {
 
         String recipeName;
@@ -1100,7 +1079,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                         JSONObject catObject = new JSONObject();
                         catObject.put("cat_name", categories.get(y).getName());
-                        catObject.put("cat_prime", categories.get(y).getCategory());
+                        catObject.put("cat_prime", categories.get(y).isPrimaryCategory());
 
                         jsonArrayCat.put(catObject);
                     }
@@ -1122,8 +1101,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                     recipe = jsonObject.toString();
 
-                    System.out.println("Recipe in string format: " + recipe);
-
                     connection = (HttpURLConnection) url.openConnection();
                     connection.setReadTimeout(10000);
                     connection.setConnectTimeout(15000);
@@ -1133,10 +1110,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     connection.setFixedLengthStreamingMode(recipe.getBytes().length);
                     connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                     connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                     connection.connect();
-
-                    System.out.println("connection established");
 
                     outputStream = new BufferedOutputStream(connection.getOutputStream());
                     outputStream.write(recipe.getBytes());
@@ -1145,8 +1119,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     int responseCode = connection.getResponseCode();
 
                     if(responseCode == HttpURLConnection.HTTP_OK){
-
-                        System.out.println("retrieving input ");
 
                         inputStream = connection.getInputStream();
                         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -1160,18 +1132,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 }catch(Exception ioe){
                     ioe.printStackTrace();
                 }finally{
-
-                    /*
                     try{
-                         outputStream.close();
-                         inputStream.close();
-
+                        if(outputStream != null){
+                            outputStream.close();
+                        }
+                        if(inputStream != null){
+                            inputStream.close();
+                        }
                     }catch(IOException ie){
                         ie.printStackTrace();
                     }
-                    */
                 }
-
             return result;
         }
 
@@ -1181,11 +1152,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             String finalResult = ParseJSON.parseJSON(result);
 
-            System.out.println("final result: " + finalResult);
+            showProgress(false);
 
             if(finalResult.equals("success")){
-
-                System.out.println("Everything was stored successfully. ");
 
                 Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);
@@ -1239,9 +1208,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             connection.setFixedLengthStreamingMode(send.getBytes().length);
             connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
             connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
             connection.connect();
-            System.out.println("connection established");
 
             outputStream = new BufferedOutputStream(connection.getOutputStream());
             outputStream.write(send.getBytes());
@@ -1251,7 +1218,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             if(responseCode == HttpURLConnection.HTTP_OK){
 
-                System.out.println("Connection is ok");
                 inputStream = connection.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
@@ -1357,9 +1323,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 connection.setFixedLengthStreamingMode(send.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
-                System.out.println("Connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(send.getBytes());
@@ -1369,7 +1333,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
-                    System.out.println("Connection is ok");
                     inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;
@@ -1449,9 +1412,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 connection.setFixedLengthStreamingMode(send.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
-
                 connection.connect();
-                System.out.println("connection established");
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(send.getBytes());
@@ -1461,7 +1422,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                 if(responseCode == HttpURLConnection.HTTP_OK){
 
-                    System.out.println("Connection is ok");
                     inputStream = connection.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                     String line;

@@ -1,16 +1,17 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.*;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 /**
  * activity MainActivity displays the menu
@@ -20,6 +21,8 @@ import android.widget.ImageView;
 public class MainActivity extends AppCompatActivity {
 
     private String userEmail;
+    private PopupWindow infoPopup;
+    private CoordinatorLayout coordinatorLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         userEmail = receivedIntent.getExtras().getString("user_email");
         String action = receivedIntent.getExtras().getString("action");
 
-
+        coordinatorLayout = findViewById(R.id.main_activity_coordinator_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(MainActivity.this, Cookbook.class);
                 intent.putExtra("user_email", userEmail);
+                intent.putExtra("action", "from_menu");
                 startActivity(intent);
             }
         });
@@ -56,17 +60,19 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(MainActivity.this, NewRecipe.class);
                 intent.putExtra("user_email", userEmail);
-                intent.putExtra("StatusIndicator", "NewRecipe");
+                intent.putExtra("status_indicator", "NewRecipe");
                 startActivity(intent);
             }
         });
 
         // exit activity
-        ImageView exitBtn = (ImageView) findViewById(R.id.exit_btn);
-        exitBtn.setOnClickListener(new View.OnClickListener(){
+        ImageView logoutBtn = (ImageView) findViewById(R.id.exit_btn);
+        logoutBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                System.exit(0);
+
+                Intent logoutIntent = new Intent(MainActivity.this, Login.class);
+                startActivity(logoutIntent);
             }
         });
 
@@ -103,6 +109,33 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.action_info:
 
+                LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
+                TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+                TextView infoText4 = infoPopupView.findViewById(R.id.info_text_view4);
+
+                infoTitle.setText(R.string.menu_info_title);
+                infoText.setText(R.string.menu_info);
+                infoText2.setText(R.string.enjoy);
+                infoText3.setVisibility(View.GONE);
+                infoText4.setVisibility(View.GONE);
+
+                infoPopup = new PopupWindow(infoPopupView, 1100, 1000, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
+                    }
+                });
+
+                return true;
 
             default:
                 return super.onOptionsItemSelected(item);

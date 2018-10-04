@@ -158,7 +158,7 @@ public class Recipe implements Serializable{
         Category prim = null;
 
         for(int x = 0; x < categories.size(); x++){
-            if(categories.get(x).getCategory()){
+            if(categories.get(x).isPrimaryCategory()){
                 prim = categories.get(x);
             }
         }

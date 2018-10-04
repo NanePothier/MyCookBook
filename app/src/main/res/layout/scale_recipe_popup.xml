@@ -6,32 +6,47 @@
         android:layout_height="wrap_content"
         android:background="@drawable/green_border_background"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="15dp">
 
     <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16dp"
+                android:textSize="15dp"
                 android:textStyle="bold"
                 android:layout_marginTop="12dp"
-                android:id="@+id/delete_item_heading"
+                android:text="@string/scale_recipe_heading"
+                android:id="@+id/scale_recipe_heading"
+                android:textAlignment="center"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+        />
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15dp"
+                android:text="@string/scale_info"
+                android:layout_marginTop="12dp"
+                android:id="@+id/scale_info"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/scale_recipe_heading"
                 app:layout_constraintEnd_toEndOf="parent"
         />
 
         <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/delete_item_spinner"
+                android:id="@+id/scale_spinner"
+                android:layout_marginTop="7dp"
                 android:spinnerMode="dialog"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/delete_item_heading"
+                app:layout_constraintTop_toBottomOf="@id/scale_info"
         >
         </Spinner>
 
@@ -41,15 +56,15 @@
                 android:orientation="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/delete_item_spinner"
+                app:layout_constraintTop_toBottomOf="@id/scale_spinner"
         >
 
             <ImageButton
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@mipmap/ic_check_circle_black_24dp"
-                    android:id="@+id/delete_category_button"
-                    android:layout_marginTop="7dp"
+                    android:id="@+id/save_image_button"
+                    android:layout_marginTop="4dp"
             />
 
             <ImageButton
@@ -57,10 +72,9 @@
                     android:layout_height="wrap_content"
                     android:src="@mipmap/ic_highlight_off_black_24dp"
                     android:id="@+id/cancel_image_button"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="4dp"
             />
         </LinearLayout>
 
     </android.support.constraint.ConstraintLayout>
-
 </LinearLayout>

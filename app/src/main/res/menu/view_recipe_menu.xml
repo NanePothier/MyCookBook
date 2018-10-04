@@ -15,10 +15,21 @@
     />
 
     <item
+            android:id="@+id/scale_action"
+            android:title="Scale"
+            app:showAsAction="never"
+    />
+
+    <item
             android:id="@+id/delete_action"
             android:title="Delete"
             app:showAsAction="never"
     />
+
+    <item
+            android:id="@+id/action_info"
+            android:title="@string/app_info"
+            app:showAsAction="never" />
 
 
 </menu>

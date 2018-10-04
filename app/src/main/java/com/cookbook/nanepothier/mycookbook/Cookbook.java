@@ -1,24 +1,24 @@
 package com.cookbook.nanepothier.mycookbook;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.SearchView;
+import android.view.*;
+import android.widget.*;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,6 +41,11 @@ public class Cookbook extends AppCompatActivity {
 
     private String userEmail;
     private RecyclerView recyclerView;
+    private View progressView;
+    private LinearLayout contentLayout;
+    private PopupWindow infoPopup;
+    private CoordinatorLayout coordinatorLayout;
+    private String activityAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +53,21 @@ public class Cookbook extends AppCompatActivity {
         setContentView(R.layout.activity_cookbook);
 
         // retrieve user email through intent
-        // Intent intentReceived = getIntent();
-        // userEmail = intentReceived.getStringExtra("user_email");
-        userEmail = "haleyiron@gmail.com";
+        Intent intentReceived = getIntent();
+        userEmail = intentReceived.getStringExtra("user_email");
+        activityAction = intentReceived.getStringExtra("action");
+        //userEmail = "haleyiron@gmail.com";
+
+        if(activityAction.equals("deleted_recipe")){
+            Snackbar.make(findViewById(R.id.cookbook_coordinator_layout), "Recipe was deleted successfully", Snackbar.LENGTH_LONG).show();
+        }
+
+        coordinatorLayout = findViewById(R.id.cookbook_coordinator_layout);
+
+        // show progress bar until recipe names have been retrieved
+        progressView = findViewById(R.id.cookbook_progress);
+        contentLayout = findViewById(R.id.cookbook_content_layout);
+        showProgress(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.cookbook_toolbar);
         setSupportActionBar(toolbar);
@@ -81,6 +98,9 @@ public class Cookbook extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+
+                populateCategoryRecyclerView(allHeaderRecipeModelsArray);
+
                 return false;
             }
         });
@@ -100,6 +120,13 @@ public class Cookbook extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
+    // show progress bar
+    public void showProgress(boolean show){
+
+        progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        contentLayout.setVisibility(show ? View.GONE : View.VISIBLE);
+    }
+
     /**
      * create a different array for all, shared and personal recipes to easily switch between displaying a certain
      * group of recipes in the recycler view
@@ -113,12 +140,12 @@ public class Cookbook extends AppCompatActivity {
             categoryName = arrayUserCategories.get(x);
             arrayHeaderRecipeModels.add(new HeaderRecipeModel(categoryName, map.get(categoryName)));
         }
+
+        Collections.sort(arrayHeaderRecipeModels, new SortByCategory());
     }
 
     // create views using retrieved categories and recipe names
     public void populateCategoryRecyclerView(ArrayList<HeaderRecipeModel> arrayHeaderRecipeModels){
-
-        // TODO: sort categories
 
         SectionRecyclerViewAdapter recyclerViewAdapter = new SectionRecyclerViewAdapter(this, arrayHeaderRecipeModels, userEmail);
         recyclerView.setAdapter(recyclerViewAdapter);
@@ -163,6 +190,8 @@ public class Cookbook extends AppCompatActivity {
 
         // populate the initial view with all categories and all recipes
         populateCategoryRecyclerView(allHeaderRecipeModelsArray);
+
+        showProgress(false);
     }
 
     public void onBackgroundTaskObtainedSearchResult(ArrayList<RecipeNameId> nameIdArray){
@@ -199,6 +228,36 @@ public class Cookbook extends AppCompatActivity {
             case R.id.action_view_all:
 
                 populateCategoryRecyclerView(allHeaderRecipeModelsArray);
+                return true;
+
+            case R.id.action_info:
+
+                LayoutInflater inflater = (LayoutInflater) Cookbook.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
+
+                ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
+                TextView infoTitle = infoPopupView.findViewById(R.id.info_title);
+                TextView infoText = infoPopupView.findViewById(R.id.info_text_view);
+                TextView infoText2 = infoPopupView.findViewById(R.id.info_text_view2);
+                TextView infoText3 = infoPopupView.findViewById(R.id.info_text_view3);
+                TextView infoText4 = infoPopupView.findViewById(R.id.info_text_view4);
+
+                infoTitle.setText(R.string.cookbook_info_title);
+                infoText.setText(R.string.cookbook_info);
+                infoText2.setText(R.string.cookbook_info_search);
+                infoText3.setText(R.string.cookbook_info_click);
+                infoText4.setVisibility(View.GONE);
+
+                infoPopup = new PopupWindow(infoPopupView, 1200, 1300, true);
+                infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
+
+                doneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        infoPopup.dismiss();
+                    }
+                });
+
                 return true;
 
             default:

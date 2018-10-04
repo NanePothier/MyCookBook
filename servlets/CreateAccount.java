@@ -57,6 +57,14 @@ public class CreateAccount extends HttpServlet {
 			userEmail = jsonObject.getString("user");
 			userPassword = jsonObject.getString("password");
 			
+			if(!firstName.equals("")) {
+				firstName = firstName.substring(0,1).toUpperCase() + firstName.substring(1);
+			}
+			
+			if(!lastName.equals("")) {
+				lastName = lastName.substring(0, 1).toUpperCase() + lastName.substring(1);
+			}
+			
 			// Establish connection with database
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
