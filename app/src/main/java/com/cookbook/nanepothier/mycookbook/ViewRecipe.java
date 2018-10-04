@@ -58,6 +58,7 @@ public class ViewRecipe extends AppCompatActivity {
     private View progressView;
     private View scrollView;
     private LayoutInflater inflater;
+    private int scaledServings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -340,7 +341,7 @@ public class ViewRecipe extends AppCompatActivity {
                 scaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 scaleSpinner.setAdapter(scaleAdapter);
 
-                scalePopup = new PopupWindow(scalePopupView, 1100, 1000, true);
+                scalePopup = new PopupWindow(scalePopupView, 1100, 970, true);
                 scalePopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 scaleButton.setOnClickListener(new View.OnClickListener() {
@@ -348,15 +349,36 @@ public class ViewRecipe extends AppCompatActivity {
                     public void onClick(View v) {
 
                         double scaleFactor;
+                        String selectedFactor = scaleSpinner.getSelectedItem().toString();
 
-                        if(scaleSpinner.getSelectedItem().equals("1/2")){
-                            scaleFactor = 0.5;
-                        }else{
-                            scaleFactor = (double) scaleSpinner.getSelectedItem();
+                        switch(selectedFactor){
+
+                            case "1/2":
+                                scaleFactor = 0.5;
+                                break;
+                            case "1":
+                                scaleFactor = 1.0;
+                                break;
+                            case "2":
+                                scaleFactor = 2.0;
+                                break;
+                            case "3":
+                                scaleFactor = 3.0;
+                                break;
+                            case "4":
+                                scaleFactor = 4.0;
+                                break;
+                            case "5":
+                                scaleFactor = 5.0;
+                                break;
+                            default:
+                                scaleFactor = 1.0;
                         }
 
                         scaleIngredients(scaleFactor);
                         setViews("scale");
+                        servingsView.setText(Integer.toString(scaledServings));
+                        scalePopup.dismiss();
                     }
                 });
 
@@ -419,6 +441,7 @@ public class ViewRecipe extends AppCompatActivity {
         Ingredient ingredient;
         double quantity, newQuantity;
         String quantityUnit;
+        double servings;
 
         for(int x = 0; x < ingredientArray.size(); x++){
 
@@ -439,6 +462,9 @@ public class ViewRecipe extends AppCompatActivity {
             ingredient = new Ingredient(ingredientArray.get(x).getName(), newQuantity, ingredientArray.get(x).getQuantityUnit(), ingredientArray.get(x).getDefaultMeasurement());
             scaleArray.add(ingredient);
         }
+
+        servings = recipe.getServings() * scaleFactor;
+        scaledServings = (int) Math.round(servings);
     }
 
     public void retrieveRecipe(){

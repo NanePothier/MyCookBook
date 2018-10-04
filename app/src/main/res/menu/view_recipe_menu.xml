@@ -16,7 +16,7 @@
 
     <item
             android:id="@+id/scale_action"
-            android:title="Scale Ingredients"
+            android:title="Scale"
             app:showAsAction="never"
     />
 
