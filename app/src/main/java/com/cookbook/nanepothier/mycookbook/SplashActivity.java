@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.*;
@@ -19,12 +20,17 @@ import java.net.URL;
  */
 
 public class SplashActivity extends AppCompatActivity {
-    
+
     private String deviceId;
+    private View progressView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
+
+        progressView = findViewById(R.id.splash_progress);
+        progressView.setVisibility(View.VISIBLE);
 
         checkIfDeviceKnown();
     }
@@ -45,6 +51,9 @@ public class SplashActivity extends AppCompatActivity {
         intent.putExtra("device_is_known", deviceIsKnown);
         intent.putExtra("user_email", userEmail);
         intent.putExtra("user_password", userPassword);
+
+        progressView.setVisibility(View.GONE);
+
         startActivity(intent);
     }
 
