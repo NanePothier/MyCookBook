@@ -2,7 +2,6 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +63,7 @@ public class ItemRecyclerViewAdapter extends RecyclerView.Adapter<ItemRecyclerVi
             public void onClick(View v) {
 
                 // send data necessary to display a recipe
-                Intent intent = new Intent(context, ViewRecipe.class);
+                Intent intent = new Intent(context, ViewRecipeActivity.class);
                 intent.putExtra("recipe_name", name);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("recipe_id", id);

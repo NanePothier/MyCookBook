@@ -47,7 +47,7 @@ public class SplashActivity extends AppCompatActivity {
      */
     public void onBackgroundCheckedDevice(boolean deviceIsKnown, String userEmail, String userPassword){
 
-        Intent intent = new Intent(SplashActivity.this, Login.class);
+        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
         intent.putExtra("device_is_known", deviceIsKnown);
         intent.putExtra("user_email", userEmail);
         intent.putExtra("user_password", userPassword);

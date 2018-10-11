@@ -2,7 +2,6 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
@@ -10,7 +9,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.*;
 import android.widget.*;
 import org.json.JSONArray;
@@ -21,7 +19,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class NewRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private String userEmail = "haleyiron@gmail.com";
     private String statusIndicator = "NewRecipe";
@@ -123,7 +121,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         progressView = findViewById(R.id.new_recipe_progress);
         scrollView = findViewById(R.id.new_recipe_scroll_view);
 
-        inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) NewRecipeActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Toolbar toolbar = findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
@@ -132,12 +130,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             @Override
             public void onClick(View v) {
                 if(statusIndicator.equals("NewRecipe")){
-                    Intent intent = new Intent(NewRecipe.this, MainActivity.class);
+                    Intent intent = new Intent(NewRecipeActivity.this, MainActivity.class);
                     intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_new_recipe");
                     startActivity(intent);
                 }else if(statusIndicator.equals("EditRecipe")) {
-                    Intent intent = new Intent(NewRecipe.this, ViewRecipe.class);
+                    Intent intent = new Intent(NewRecipeActivity.this, ViewRecipeActivity.class);
                     intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_edit_recipe");
                     intent.putExtra("recipe_id", recipe.getRecipeId());
@@ -693,7 +691,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             case R.id.cancel_action:
 
-                Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
+                Intent sendIntent = new Intent(NewRecipeActivity.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "cancel_action");
                 startActivity(sendIntent);
@@ -1156,7 +1154,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             if(finalResult.equals("success")){
 
-                Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
+                Intent sendIntent = new Intent(NewRecipeActivity.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "save_action");
                 startActivity(sendIntent);
@@ -1265,9 +1263,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 }
 
                 if(itemIndicator.equals("ing")){
-                    NewRecipe.this.onBackgroundTaskObtainedIngredients(listItems);
+                    NewRecipeActivity.this.onBackgroundTaskObtainedIngredients(listItems);
                 }else if(itemIndicator.equals("cat")){
-                    NewRecipe.this.onBackgroundTaskObtainedCategories(listItems);
+                    NewRecipeActivity.this.onBackgroundTaskObtainedCategories(listItems);
                 }
 
             }catch(Exception e) {
@@ -1368,7 +1366,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         protected void onPostExecute(String result){
 
             String finalResult = ParseJSON.parseJSON(result);
-            NewRecipe.this.onBackgroundTaskSavedItem(indicator, finalResult);
+            NewRecipeActivity.this.onBackgroundTaskSavedItem(indicator, finalResult);
         }
     }
 

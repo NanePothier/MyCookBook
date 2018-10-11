@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
 
-                Intent intent = new Intent(MainActivity.this, Cookbook.class);
+                Intent intent = new Intent(MainActivity.this, CookbookActivity.class);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("action", "from_menu");
                 startActivity(intent);
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
 
-                Intent intent = new Intent(MainActivity.this, NewRecipe.class);
+                Intent intent = new Intent(MainActivity.this, NewRecipeActivity.class);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("status_indicator", "NewRecipe");
                 startActivity(intent);
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
 
-                Intent logoutIntent = new Intent(MainActivity.this, Login.class);
+                Intent logoutIntent = new Intent(MainActivity.this, LoginActivity.class);
                 logoutIntent.putExtra("device_is_known", true);
                 logoutIntent.putExtra("user_email", userEmail);
                 logoutIntent.putExtra("user_password", "");

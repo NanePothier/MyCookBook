@@ -1,7 +1,5 @@
 package com.cookbook.nanepothier.mycookbook;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +24,7 @@ import java.net.URL;
  * The login page allows the user to log into their account using
  * their email address and password
  */
-public class Login extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -82,7 +80,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 //direct to account creation page if create account button is clicked
-                startActivity(new Intent(Login.this, AccountCreation.class));
+                startActivity(new Intent(LoginActivity.this, AccountActivity.class));
             }
         });
 
@@ -225,7 +223,7 @@ public class Login extends AppCompatActivity {
 
     public void onBackgroundTaskStartMainActivity(String userEmail){
 
-        Intent intent = new Intent(Login.this, MainActivity.class);
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         intent.putExtra("user_email", userEmail);
         intent.putExtra("action", "login");
         intent.putExtra("device_is_known", deviceIsKnown);

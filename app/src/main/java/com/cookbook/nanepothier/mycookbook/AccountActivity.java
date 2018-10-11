@@ -1,7 +1,5 @@
 package com.cookbook.nanepothier.mycookbook;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
@@ -26,7 +24,7 @@ import java.net.URL;
  * create an account using their email address and a chosen password
  */
 
-public class AccountCreation extends AppCompatActivity {
+public class AccountActivity extends AppCompatActivity {
 
     private EditText firstNameView;
     private EditText lastNameView;
@@ -240,7 +238,7 @@ public class AccountCreation extends AppCompatActivity {
 
             case R.id.action_info:
 
-                LayoutInflater inflater = (LayoutInflater) AccountCreation.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = (LayoutInflater) AccountActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
 
                 ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);
@@ -374,7 +372,7 @@ public class AccountCreation extends AppCompatActivity {
             // if data was stored successfully, go to login activity
             if(finalResult.equals("success")){
 
-                startActivity(new Intent(AccountCreation.this, Login.class));
+                startActivity(new Intent(AccountActivity.this, LoginActivity.class));
             }else if(finalResult.equals("exists")){
 
                 emailView.setError("Email already exists.");

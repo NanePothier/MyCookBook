@@ -20,7 +20,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class ViewRecipe extends AppCompatActivity {
+public class ViewRecipeActivity extends AppCompatActivity {
 
     enum Indicator{
         SHARE, DELETE, SAVE_SHARED
@@ -79,7 +79,7 @@ public class ViewRecipe extends AppCompatActivity {
         */
 
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.view_recipe_coordinator_layout);
-        inflater = (LayoutInflater) ViewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) ViewRecipeActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.view_recipe_toolbar);
         setSupportActionBar(toolbar);
@@ -87,7 +87,7 @@ public class ViewRecipe extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
+                Intent intent = new Intent(ViewRecipeActivity.this, CookbookActivity.class);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("action", "back_button");
                 startActivity(intent);
@@ -104,7 +104,7 @@ public class ViewRecipe extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
+                Intent intent = new Intent(ViewRecipeActivity.this, NewRecipeActivity.class);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("status_indicator", "EditRecipe");
                 intent.putExtra("recipe_to_edit", recipe);
@@ -273,7 +273,7 @@ public class ViewRecipe extends AppCompatActivity {
 
             case R.id.edit_action:
 
-                Intent intent = new Intent(ViewRecipe.this, NewRecipe.class);
+                Intent intent = new Intent(ViewRecipeActivity.this, NewRecipeActivity.class);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("status_indicator", "EditRecipe");
                 intent.putExtra("recipe_to_edit", recipe);
@@ -735,7 +735,7 @@ public class ViewRecipe extends AppCompatActivity {
 
             try{
                 Recipe recipe = ParseJSON.parseJSONRecipe(data, recipeName, recipeId);
-                ViewRecipe.this.onBackgroundTaskObtainedRecipe(recipe);
+                ViewRecipeActivity.this.onBackgroundTaskObtainedRecipe(recipe);
 
             }catch(Exception e) {
                 e.printStackTrace();
@@ -1023,7 +1023,7 @@ public class ViewRecipe extends AppCompatActivity {
                     if(finalResult.equals("deletedDDDD")){
 
                         // return to cookbook activity once recipe has been deleted
-                        Intent intent = new Intent(ViewRecipe.this, Cookbook.class);
+                        Intent intent = new Intent(ViewRecipeActivity.this, CookbookActivity.class);
                         intent.putExtra("user_email", userEmail);
                         intent.putExtra("action", "deleted_recipe");
                         startActivity(intent);
@@ -1031,7 +1031,7 @@ public class ViewRecipe extends AppCompatActivity {
                 }else if (indicator.equals(Indicator.SAVE_SHARED)){
 
                     // send new recipe Id back to main UI thread so shared recipe connection can be stored next with new Id
-                    ViewRecipe.this.onBackgroundTaskObtainedRecipeId(uniqueID);
+                    ViewRecipeActivity.this.onBackgroundTaskObtainedRecipeId(uniqueID);
 
                 }else if(indicator.equals(Indicator.SHARE)){
 
