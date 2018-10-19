@@ -5,12 +5,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Calendar;
-import java.util.logging.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -27,15 +24,10 @@ import java.sql.Timestamp;
 public class SaveRecipe extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
        
-    public SaveRecipe() {
-        
-    }
+    public SaveRecipe() {}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -84,8 +76,6 @@ public class SaveRecipe extends HttpServlet {
 			numIngredients = ingredientJsonArray.length();
 			measSystemIndicator = jsonObject.getString("systemInd");
 			actionIndicator = jsonObject.getString("actionInd");
-			
-			LOGGER.info("ingredients: " + ingredientJsonArray);
 			
 			// -------------------------------------------------------------------------------------------------------------------------------------
 			// 
@@ -346,8 +336,6 @@ public class SaveRecipe extends HttpServlet {
 				duplicateQuery.close();
 				duplicateSet.close();	
 			}
-			
-			LOGGER.info("sending back response to app now");
 			
 			// ------------------------------------------------------------------------------------------------------------
 			//

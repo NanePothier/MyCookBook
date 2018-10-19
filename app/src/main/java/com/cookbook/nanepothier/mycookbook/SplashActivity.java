@@ -42,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
         GetUserCredentials credentialsTask = new GetUserCredentials(deviceId);
         credentialsTask.execute();
 
+        //onBackgroundCheckedDevice(true, "haleyiron@gmail.com", "cGx1c21pbnVzMg==");
     }
 
     /**

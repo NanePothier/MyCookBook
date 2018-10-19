@@ -2,11 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -24,15 +22,12 @@ import org.json.JSONObject;
 public class SearchRecipes extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
    
     public SearchRecipes() {}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		LOGGER.info("in post method");
 		
 		String line = "";
 		String result = "";
@@ -58,8 +53,6 @@ public class SearchRecipes extends HttpServlet {
 			userEmail = jsonObject.getString("user_email");
 			item = jsonObject.getString("search_item");
 			
-			LOGGER.info("item is: " + item);
-			
 			item = item.substring(0,1).toUpperCase() + item.substring(1);
 			
 			Class.forName("com.mysql.jdbc.Driver");
@@ -68,8 +61,6 @@ public class SearchRecipes extends HttpServlet {
 			matchRecipeIngredients(connection, responseArray, item, userEmail);
 			matchRecipeCategory(connection, responseArray, item, userEmail);	
 			matchRecipeName(connection, responseArray, item, userEmail);
-			
-			LOGGER.info("size of array is " + responseArray.length());
 			
 			String json = responseArray.toString();
 			response.setContentType("application/json");
@@ -110,8 +101,6 @@ public class SearchRecipes extends HttpServlet {
 		ResultSet set = null;
 		
 		try {
-			
-			LOGGER.info("search item: " + searchItem);
 			
 			// get all recipe Ids that include the ingredient
 			String query = "SELECT recipe_id FROM recipeingredients WHERE ingredient_name = '" + searchItem + "'";
@@ -179,8 +168,6 @@ public class SearchRecipes extends HttpServlet {
 				
 				id = set.getString("recipe_id");
 				
-				LOGGER.info("id is following: " + id);
-				
 				// get all recipe Ids that include the search item AND belong to this user
 				String emailQuery = "SELECT recipe_id FROM userrecipes WHERE email_address = '" + userEmail + "' AND recipe_id = '" + id + "'";
 				idStatement = conn.createStatement();
@@ -194,8 +181,6 @@ public class SearchRecipes extends HttpServlet {
 					nameSet = nameStatement.executeQuery(recipeNameQuery);
 					
 					if(nameSet.next()) {
-						
-						LOGGER.info("recipe name is: "+ nameSet.getString("recipe_name"));
 						
 						jObject = new JSONObject();
 						jObject.put("recipe_id", id);

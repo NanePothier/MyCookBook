@@ -345,7 +345,8 @@ public class LoginActivity extends AppCompatActivity {
                 mEmailView.requestFocus();
                 mEmailView.setError("Account with this email address does not exist");
             }else{
-                Snackbar.make(findViewById(R.id.login_coordinator_layout), "No network connection. Try again later", Snackbar.LENGTH_LONG);
+                Snackbar.make(findViewById(R.id.login_coordinator_layout), "No network connection. Please try again later.", Snackbar.LENGTH_LONG)
+                .show();
             }
         }
 
