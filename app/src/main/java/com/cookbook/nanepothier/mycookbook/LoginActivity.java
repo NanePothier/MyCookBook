@@ -2,6 +2,7 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -88,7 +89,8 @@ public class LoginActivity extends AppCompatActivity {
         mProgressView = findViewById(R.id.login_progress);
 
         // if device is known, pre-populate email and password fields
-        if(deviceIsKnown){
+        // if device is not known, but user just created a new account, pre-populate fields with new account info
+        if(deviceIsKnown || (!deviceIsKnown && !(receivedIntent.getExtras().getString("user_email").isEmpty()))){
 
             String userEmail = receivedIntent.getExtras().getString("user_email");
             String password = receivedIntent.getExtras().getString("user_password");
@@ -97,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
             mEmailView.setText(userEmail);
             mPasswordView.setText(encodedPassword);
         }
+
     }
 
     private String decodePassword(String password){
@@ -341,6 +344,8 @@ public class LoginActivity extends AppCompatActivity {
             }else if(finalResult.equals("user_does_not_exist")){
                 mEmailView.requestFocus();
                 mEmailView.setError("Account with this email address does not exist");
+            }else{
+                Snackbar.make(findViewById(R.id.login_coordinator_layout), "No network connection. Try again later", Snackbar.LENGTH_LONG);
             }
         }
 

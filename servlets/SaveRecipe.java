@@ -146,7 +146,11 @@ public class SaveRecipe extends HttpServlet {
 			if(measSystemIndicator.equals("Metric")) {
 							
 				ingredientJsonArray = convertUnits(connection, ingredientJsonArray);	
-				ovenTemp = (int) convertTemperature(ovenTemp);
+				
+				if(ovenTemp != -1) {
+					
+					ovenTemp = (int) convertTemperature(ovenTemp);
+				}
 			}
 			
 			// --------------------------------------------------------------------------------------------------------------------
@@ -488,13 +492,17 @@ public class SaveRecipe extends HttpServlet {
 						
 						convObject.put("ing_name", ingName);
 						convObject.put("quantity", qnty);
-						convObject.put("quantity_unit", unit);		
+						convObject.put("quantity_unit", unit);
+						
+						convArray.put(convObject);
 					}		
 				}else {
 					
 					convObject.put("ing_name", ingName);
 					convObject.put("quantity", qnty);
 					convObject.put("quantity_unit", unit);
+					
+					convArray.put(convObject);
 				}
 			}
 				

@@ -109,6 +109,21 @@ public class DeleteRecipe extends HttpServlet {
 			existsStatement = connection.createStatement();
 			existsSet = existsStatement.executeQuery(existsQuery);
 			
+			/*
+			// if there is no recipe found, look for the recipe under shared recipes
+			if(!existsSet.next()) {
+				
+				existsQuery = "SELECT * FROM sharedrecipes WHERE recipe_id = '" + recipeId + "'";
+				existsStatement = connection.createStatement();
+				existsSet = existsStatement.executeQuery(existsQuery);
+			}
+			
+			// reset set after having called next() on it
+			if(!existsSet.isBeforeFirst()) {
+				existsSet.beforeFirst();
+			}
+			*/
+			
 			if(existsSet.next()) {
 				
 				// delete user recipe connection

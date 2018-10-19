@@ -448,11 +448,6 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
             ViewCountService.setCategoryViewCount(categoryArray.size());
 
-            TableRow tableRow;
-            int count = 2;
-            TextView countCol;
-            AutoCompleteTextView autoCompCat;
-
             for(int x = 0; x < categoryArray.size(); x++){
 
                 if(!(categoryArray.get(x).isPrimaryCategory())){
@@ -600,6 +595,7 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         boolean categoriesHaveNames = false;
         boolean ingredientExists = true;
         boolean categoryExists = true;
+        boolean validInstructions = false;
 
         switch(item.getItemId()){
 
@@ -611,20 +607,7 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
                 haveQuantityAndUnit = checkQuantityUnitRequirement();
                 ingredientsHaveNames = checkIngredientsHaveNames();
                 categoriesHaveNames = checkCategoriesHaveNames();
-                //hasRecipeName = true;
-                //haveQuantityAndUnit = true;
-                //ingredientsHaveNames = true;
-                //categoriesHaveNames = true;
-
-                // get text entered into textfields
-                String recipeName = recipeNameView.getText().toString();
-                String primCategory = categorySpinner.getSelectedItem().toString();
-                String prepTime = prepTimeView.getText().toString();
-                String ovenTime = ovenTimeView.getText().toString();
-                String ovenTemp = ovenTempView.getText().toString();
-                String servings = servingsView.getText().toString();
-                String calories = caloriesView.getText().toString();
-                String instructions = instructionView.getText().toString();
+                validInstructions = checkInstructionLength();
 
                 ArrayList<Ingredient> ingredients = new ArrayList<>();
 
@@ -636,11 +619,17 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
                         Ingredient ing = new Ingredient();
 
                         ing.setName(ingredientViews.get(i).getText().toString());
-                        ing.setQuantity(Double.parseDouble(quantityViews.get(i).getText().toString()));
                         ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
 
+                        if(!(quantityViews.get(i).getText().toString().isEmpty())){
+                            ing.setQuantity(Double.parseDouble(quantityViews.get(i).getText().toString()));
+                        }else{
+                            ing.setQuantity(-1.0);
+                        }
+
                         ingredients.add(ing);
-                    }else{
+
+                    }else if(!(ingredientViews.get(i).getText().toString().isEmpty())){
                         ingredientViews.get(i).setError("Ingredient does not exist. Please create it first.");
                         ingredientExists = false;
                         break;
@@ -662,13 +651,25 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
                         addCategories.add(cat);
 
                     }else{
-                        additionalCategories.get(j).setError("Category does not exist. Please create it first.");
+                        if(!(additionalCategories.get(j).getText().toString().isEmpty())){
+                            additionalCategories.get(j).setError("Category does not exist. Please create it first.");
+                        }
                         categoryExists = false;
                         break;
                     }
                 }
 
-                if(hasRecipeName && haveQuantityAndUnit && ingredientsHaveNames && categoriesHaveNames && ingredientExists && categoryExists) {
+                if(hasRecipeName && haveQuantityAndUnit && ingredientsHaveNames && categoriesHaveNames && ingredientExists && categoryExists && validInstructions) {
+
+                    // get text entered into textfields
+                    String recipeName = recipeNameView.getText().toString();
+                    String primCategory = categorySpinner.getSelectedItem().toString();
+                    String prepTime = prepTimeView.getText().toString();
+                    String ovenTime = ovenTimeView.getText().toString();
+                    String ovenTemp = ovenTempView.getText().toString();
+                    String servings = servingsView.getText().toString();
+                    String calories = caloriesView.getText().toString();
+                    String instructions = instructionView.getText().toString();
 
                     // execute new asynchronous save task
                     if(statusIndicator.equals("NewRecipe")){
@@ -685,6 +686,8 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
                     saveTask.execute((String) null);
 
                     return true;
+                }else if(!validInstructions){
+                    instructionView.setError("Instructions are too long. Only 500 characters are allowed.");
                 }
 
                 return true;
@@ -724,9 +727,13 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
                     @Override
                     public void onClick(View v) {
 
-                        SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
-                        ingredientTask.execute();
-                        ingredientPopup.dismiss();
+                        if(newIngredientView.getText().length() > 0 && newIngredientView.getText().length() <= 25){
+
+                            SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
+                            ingredientTask.execute();
+                            ingredientPopup.dismiss();
+
+                        }
                     }
                 });
 
@@ -761,9 +768,13 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
                     @Override
                     public void onClick(View v) {
 
-                        SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
-                        categoryTask.execute();
-                        categoryPopup.dismiss();
+                        if(newCategoryView.getText().length() > 0 && newCategoryView.getText().length() <= 25){
+
+                            SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
+                            categoryTask.execute();
+                            categoryPopup.dismiss();
+
+                        }
                     }
                 });
 
@@ -851,14 +862,14 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
         boolean valid = false;
 
-        if(recipeNameView.getText().length() > 0) {
+        if(recipeNameView.getText().length() > 0 && recipeNameView.getText().length() <= 35) {
             if(autoCompIngredient1.getText().length() > 0 && autoCompIngredient2.getText().length() > 0 && autoCompIngredient3.getText().length() > 0){
                 valid = true;
             }else{
-                autoCompIngredient3.setError("Recipe must have at least 3 ingredients");
+                autoCompIngredient3.setError("Each recipe must have at least 3 ingredients");
             }
         }else{
-            recipeNameView.setError("Recipe needs a name");
+            recipeNameView.setError("Recipe name needs to be between 1 and 35 characters");
         }
         return valid;
     }
@@ -881,11 +892,15 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         return haveQuantityAndUnit;
     }
 
+    protected boolean checkInstructionLength(){
+        return (instructionView.getText().toString().length() <= 500);
+    }
+
     protected boolean checkIngredientsHaveNames(){
 
         boolean haveNames = true;
 
-        for(int x = 0; x < ingredientViews.size(); x++){
+        for(int x = 3; x < ingredientViews.size(); x++){
 
             if(ingredientViews.get(x).getText().toString().isEmpty()){
                 haveNames = false;
@@ -912,6 +927,8 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
     // when user has stored a new ingredient, update the autocomplete views so that user can choose new ingredient
     public void updateAutoCompleteViews(){
 
+        System.out.println("Size of ingredient views array: " + ingredientViews.size());
+
         for(int x = 0; x < ingredientViews.size(); x++){
             ingredientViews.get(x).setAdapter(ingredientAdapter);
         }
@@ -923,9 +940,11 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
         ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
 
-        autoCompIngredient1.setAdapter(ingredientAdapter);
-        autoCompIngredient2.setAdapter(ingredientAdapter);
-        autoCompIngredient3.setAdapter(ingredientAdapter);
+        //autoCompIngredient1.setAdapter(ingredientAdapter);
+        //autoCompIngredient2.setAdapter(ingredientAdapter);
+        //autoCompIngredient3.setAdapter(ingredientAdapter);
+
+        updateAutoCompleteViews();
 
         if(statusIndicator.equals("EditRecipe")){
             setIngredientViews();
@@ -962,7 +981,7 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
     }
 
     public void onBackgroundDeleteTaskNeutral(){
-        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category to be deleted does not exist", Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "This category cannot be deleted", Snackbar.LENGTH_LONG)
         .show();
     }
 
@@ -973,7 +992,6 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         if(indicator.equals("ingredient") && finalResult.equals("success")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New ingredient was saved", Snackbar.LENGTH_SHORT).show();
             getIngredients();
-            updateAutoCompleteViews();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){
@@ -1067,8 +1085,14 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
                         JSONObject jObject = new JSONObject();
                         jObject.put("ing_name", ingredients.get(x).getName());
-                        jObject.put("quantity", ingredients.get(x).getQuantity());
                         jObject.put("quantity_unit", ingredients.get(x).getQuantityUnit());
+
+                        if(ingredients.get(x).getQuantity() != -1.0){
+
+                            jObject.put("quantity", ingredients.get(x).getQuantity());
+                        }else{
+                            jObject.put("quantity", "");
+                        }
 
                         jsonArray.put(jObject);
                     }
@@ -1154,9 +1178,12 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
             if(finalResult.equals("success")){
 
+                boolean deviceIsKnown = true;
+
                 Intent sendIntent = new Intent(NewRecipeActivity.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "save_action");
+                sendIntent.putExtra("device_is_known", deviceIsKnown);
                 startActivity(sendIntent);
             }else{
                 System.out.println("Storing of data was not successful");

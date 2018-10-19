@@ -38,8 +38,10 @@ public class SplashActivity extends AppCompatActivity {
     private void checkIfDeviceKnown(){
 
         deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
         GetUserCredentials credentialsTask = new GetUserCredentials(deviceId);
         credentialsTask.execute();
+
     }
 
     /**

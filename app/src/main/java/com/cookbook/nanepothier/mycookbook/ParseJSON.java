@@ -130,7 +130,7 @@ public class ParseJSON {
 
                 ingObject = ingredientsArray.getJSONObject(i);
                 ingredient.setName(ingObject.getString("ingredient_name"));
-                ingredient.setQuantity(ingObject.getInt("quantity"));
+                ingredient.setQuantity(ingObject.getDouble("quantity"));
                 ingredient.setQuantityUnit(ingObject.getString("quantity_unit"));
                 ingredient.setDefaultMeasurement(ingObject.getString("default_meas"));
 

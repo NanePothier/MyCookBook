@@ -49,6 +49,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
     private ArrayList<Ingredient> scaleArray;
 
     private ToggleButton systemToggle;
+    private String currentSystem = "us";
     private ImageButton backButton;
 
     private CoordinatorLayout coordinatorLayout;
@@ -146,12 +147,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
         // ensure it displays us
         setViews("us");
+        currentSystem = "us";
     }
 
     public void useMetricSystem(){
 
         // ensure it shows metric
         setViews("metric");
+        currentSystem = "metric";
     }
 
     public void generateMetricIngredientArray(){
@@ -166,7 +169,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
         if(recipe.getOvenTemperature() > 50){
             metricTemperature = (recipe.getOvenTemperature() - 32) * (5.0/9.0);
         }else{
-            metricTemperature = 0;
+            metricTemperature = -1.0;
         }
         recipe.setMetricTemperature((int) metricTemperature);
 
@@ -184,7 +187,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     fromUnit = conversionArray.get(y).getMeasureFrom();
 
                     // match 'from' unit
-                    if(unit.equals(fromUnit) && !(unit.equals("tablespoon")) && !(unit.equals("teaspoon"))){
+                    if(unit.equals(fromUnit) && !(unit.equals("tbsp")) && !(unit.equals("tsp"))){
 
                         measCategory = conversionArray.get(y).getMeasureCategory();
                         double convertedNumber;
@@ -239,12 +242,15 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             metricArray.add(metricIngredient);
                         }
                     }
+                }
 
-                    if(unit.equals("tablespoon") || unit.equals("teaspoon")){
+                if(unit.equals("tbsp")){
 
-                        metricIngredient = ingArray.get(x);
-                        metricArray.add(metricIngredient);
-                    }
+                    metricIngredient = ingArray.get(x);
+                    metricArray.add(metricIngredient);
+                }else if(unit.equals("tsp")){
+                    metricIngredient = ingArray.get(x);
+                    metricArray.add(metricIngredient);
                 }
 
             }else{
@@ -298,18 +304,24 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
                         shareEmail = enterEmailView.getText().toString();
 
-                        MenuTask saveRecipeTask = new MenuTask(Indicator.SAVE_SHARED, shareEmail, userEmail, recipe.getRecipeName(), recipe.getIngredientArray(),
-                                Integer.toString(recipe.getPreparationTime()), Integer.toString(recipe.getOvenTime()),
-                                Integer.toString(recipe.getOvenTemperature()), Integer.toString(recipe.getServings()), Integer.toString(recipe.getCalories()),
-                                recipe.getInstructions(), "US", "NewRecipe");
+                        if(shareEmail.equals(userEmail)){
+                            sharePopup.dismiss();
+                            Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), "Cannot share recipe with yourself", Snackbar.LENGTH_LONG).show();
+                        }else {
 
-                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
-                            saveRecipeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
-                        }else{
-                            saveRecipeTask.execute((String) null);
+                            MenuTask saveRecipeTask = new MenuTask(Indicator.SAVE_SHARED, shareEmail, userEmail, recipe.getRecipeName(), recipe.getIngredientArray(),
+                                    Integer.toString(recipe.getPreparationTime()), Integer.toString(recipe.getOvenTime()),
+                                    Integer.toString(recipe.getOvenTemperature()), Integer.toString(recipe.getServings()), Integer.toString(recipe.getCalories()),
+                                    recipe.getInstructions(), "US", "NewRecipe");
+
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+                                saveRecipeTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String) null);
+                            }else{
+                                saveRecipeTask.execute((String) null);
+                            }
+
+                            sharePopup.dismiss();
                         }
-
-                        sharePopup.dismiss();
                     }
                 });
 
@@ -377,7 +389,13 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
                         scaleIngredients(scaleFactor);
                         setViews("scale");
-                        servingsView.setText(Integer.toString(scaledServings));
+
+                        if(scaledServings > 0){
+                            servingsView.setText(Integer.toString(scaledServings));
+                        }else{
+                            servingsView.setText("-");
+                        }
+
                         scalePopup.dismiss();
                     }
                 });
@@ -436,7 +454,14 @@ public class ViewRecipeActivity extends AppCompatActivity {
     // scale ingredient quantities by the factor chosen by the user
     public void scaleIngredients(double scaleFactor){
 
-        ArrayList<Ingredient> ingredientArray = recipe.getIngredientArray();
+        ArrayList<Ingredient> ingredientArray = new ArrayList<>();
+
+        if(currentSystem.equals("us")){
+            ingredientArray = recipe.getIngredientArray();
+        }else if(currentSystem.equals("metric")){
+            ingredientArray = recipe.getMetricIngredientArray();
+        }
+
         scaleArray = new ArrayList<>();
         Ingredient ingredient;
         double quantity, newQuantity;
@@ -565,13 +590,13 @@ public class ViewRecipeActivity extends AppCompatActivity {
             ingredientNameCol.setText(" " + arrayIngredients.get(x).getName());
 
             quantityCol = ingredientRowView.findViewById(R.id.quantity_text_view);
-            double qu = Math.round(arrayIngredients.get(x).getQuantity() * 10)/10.0;
-            arrayIngredients.get(x).setQuantity(qu);
+            double num = arrayIngredients.get(x).getQuantity() * 10.0;
+            double quantityRounded = Math.round(num) / 10.0;
 
             if(arrayIngredients.get(x).getQuantity() == -1.0){
                 quantityCol.setText("");
             }else{
-                quantityCol.setText(Double.toString(arrayIngredients.get(x).getQuantity()));
+                quantityCol.setText(Double.toString(quantityRounded));
             }
 
             quantityUnitCol = ingredientRowView.findViewById(R.id.quantity_unit_view);
@@ -1045,12 +1070,6 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     }
                 }
             }
-
-            // inform user that he cannot share a recipe with himself
-            if(shareEmail.equals(sharedByEmail)){
-                Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), "Cannot share recipe with yourself", Snackbar.LENGTH_LONG).show();
-            }
-
         }
     }
 

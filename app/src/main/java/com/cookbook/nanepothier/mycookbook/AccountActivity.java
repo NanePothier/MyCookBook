@@ -38,6 +38,10 @@ public class AccountActivity extends AppCompatActivity {
     private PopupWindow infoPopup;
     private CoordinatorLayout coordinatorLayout;
 
+    boolean deviceIsKnown = false;
+    String userEmail = "";
+    String userPassword = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -68,6 +72,20 @@ public class AccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 storeInfo();
+            }
+        });
+
+        Button cancelBtn = findViewById(R.id.cancel_btn);
+        cancelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
+
+                intent.putExtra("device_is_known", deviceIsKnown);
+                intent.putExtra("user_email", userEmail);
+                intent.putExtra("user_password", userPassword);
+
+                startActivity(intent);
             }
         });
 
@@ -151,32 +169,52 @@ public class AccountActivity extends AppCompatActivity {
 
         boolean validEmail = isEmailValid(email);
         boolean validPass = isPasswordValid(password);
+        boolean validFirstName = isFirstNameValid(first);
+        boolean validLastName = isLastNameValid(last);
 
         if(validEmail){
+            if(validFirstName) {
+                if(validLastName) {
 
-            if(validPass && !TextUtils.isEmpty(password)){
+                    if (validPass && !TextUtils.isEmpty(password)) {
 
-                if(password.equals(confirmPassword)){
-                    showProgress(true);
-                    UserInfoTask userInfoTask = new UserInfoTask(first, last, email, password);
-                    userInfoTask.execute((String) null);
+                        if (password.equals(confirmPassword)) {
+                            showProgress(true);
+                            UserInfoTask userInfoTask = new UserInfoTask(first, last, email, password);
+                            userInfoTask.execute((String) null);
+                        } else {
+                            passwordView.setError("The two passwords entered do not match.");
+                            passwordView.requestFocus();
+                            passwordView.setText("");
+                            passwordViewConfirm.setText("");
+                        }
+                    } else {
+                        passwordView.setError("Incorrect password format. Password has to be between 8 and 16 characters.");
+                        passwordView.requestFocus();
+                        passwordView.setText("");
+                        passwordViewConfirm.setText("");
+                    }
                 }else{
-                    passwordView.setError("The two passwords entered do not match");
-                    passwordView.requestFocus();
-                    passwordView.setText("");
-                    passwordViewConfirm.setText("");
+                    lastNameView.setError("Last name is too long. Limit is 20 characters.");
+                    lastNameView.requestFocus();
                 }
             }else{
-                passwordView.setError("Incorrect password format. Password has to be between 8 and 16 characters.");
-                passwordView.requestFocus();
-                passwordView.setText("");
-                passwordViewConfirm.setText("");
+                firstNameView.setError("First name is too long. Limit is 15 characters.");
+                firstNameView.requestFocus();
             }
         }else{
-            emailView.setError("Incorrect Email Format");
+            emailView.setError("Incorrect Email Format. See Help for more information.");
             emailView.requestFocus();
             emailView.setText("");
         }
+    }
+
+    private boolean isFirstNameValid(String firstName){
+        return (firstName.length() <= 15);
+    }
+
+    private boolean isLastNameValid(String lastName){
+        return (lastName.length() <= 20);
     }
 
     // check if email entered is valid
@@ -275,6 +313,7 @@ public class AccountActivity extends AppCompatActivity {
     public class UserInfoTask extends AsyncTask<String, Void, String> {
 
         String firstName, lastName, userEmail, password;
+        boolean deviceIsKnown = false;
 
         UserInfoTask(String first, String last, String user, String pass){
             firstName = first;
@@ -372,7 +411,14 @@ public class AccountActivity extends AppCompatActivity {
             // if data was stored successfully, go to login activity
             if(finalResult.equals("success")){
 
-                startActivity(new Intent(AccountActivity.this, LoginActivity.class));
+                Intent intent = new Intent(AccountActivity.this, LoginActivity.class);
+
+                intent.putExtra("device_is_known", this.deviceIsKnown);
+                intent.putExtra("user_email", this.userEmail);
+                intent.putExtra("user_password", password);
+
+                startActivity(intent);
+
             }else if(finalResult.equals("exists")){
 
                 emailView.setError("Email already exists.");
