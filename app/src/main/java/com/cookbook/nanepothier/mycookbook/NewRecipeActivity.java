@@ -299,7 +299,12 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         editText = ingredientRowView.findViewById(R.id.new_quantity);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
-            editText.setText(Double.toString(ingredientArray.get(index).getQuantity()));
+
+            if(ingredientArray.get(index).getQuantity() != -1.0){
+                editText.setText(Double.toString(ingredientArray.get(index).getQuantity()));
+            }else{
+                editText.setText("");
+            }
         }
         quantityViews.add(editText);
 
@@ -404,11 +409,37 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         recipe = (Recipe) intentReceived.getExtras().get("recipe_to_edit");
 
         recipeNameView.setText(recipe.getRecipeName());
-        servingsView.setText(Integer.toString(recipe.getServings()));
-        prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
-        ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
-        ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
-        caloriesView.setText(Integer.toString(recipe.getCalories()));
+
+        if(recipe.getServings() != -1){
+            servingsView.setText(Integer.toString(recipe.getServings()));
+        }else{
+            servingsView.setText("");
+        }
+
+        if(recipe.getPreparationTime() != -1){
+            prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
+        }else{
+            prepTimeView.setText("");
+        }
+
+        if(recipe.getOvenTime() != -1){
+            ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
+        }else{
+            ovenTimeView.setText("");
+        }
+
+        if(recipe.getOvenTemperature() != -1){
+            ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+        }else{
+            ovenTempView.setText("");
+        }
+
+        if(recipe.getCalories() != -1){
+            caloriesView.setText(Integer.toString(recipe.getCalories()));
+        }else{
+            caloriesView.setText("");
+        }
+
         instructionView.setText(recipe.getInstructions());
     }
 
@@ -421,15 +452,33 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
             ViewCountService.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
-            amountView.setText(Double.toString(ingredientArray.get(0).getQuantity()));
+
+            if(ingredientArray.get(0).getQuantity() != -1.0){
+                amountView.setText(Double.toString(ingredientArray.get(0).getQuantity()));
+            }else{
+                amountView.setText("");
+            }
+
             spinnerMeasurements.setSelection(getUnitIndex(ingredientArray.get(0).getQuantityUnit(), "us"));
 
             autoCompIngredient2.setText(ingredientArray.get(1).getName());
-            amountView2.setText(Double.toString(ingredientArray.get(1).getQuantity()));
+
+            if(ingredientArray.get(1).getQuantity() != -1.0){
+                amountView2.setText(Double.toString(ingredientArray.get(1).getQuantity()));
+            }else{
+                amountView2.setText("");
+            }
+
             spinnerMeasurements2.setSelection(getUnitIndex(ingredientArray.get(1).getQuantityUnit(), "us"));
 
             autoCompIngredient3.setText(ingredientArray.get(2).getName());
-            amountView3.setText(Double.toString(ingredientArray.get(2).getQuantity()));
+
+            if(ingredientArray.get(2).getQuantity() != -1.0){
+                amountView3.setText(Double.toString(ingredientArray.get(2).getQuantity()));
+            }else{
+                amountView3.setText("");
+            }
+
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
 
             for(int x = 3; x < ingredientArray.size(); x++){

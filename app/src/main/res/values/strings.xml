@@ -86,7 +86,8 @@
     <string name="view_info_title">View a Recipe</string>
     <string name="view_info">This page shows you all the details of the recipe.</string>
     <string name="view_info_toggle">The toggle button on the top allows you to switch between viewing your recipe in the US and the Metric measurement system.</string>
-    <string name="view_info_toolbar">The Edit option under the Options Menu allows you to edit your recipe.</string>
+    <string name="view_info_toolbar">The Edit option under the Options Menu allows you to edit your recipe and the Scale option under the Options Menu allows you to resize the ingredient\'s quantities.
+                                    If you would like to share your recipe, click on the Share option, enter an email address of a registered user and click Ok.</string>
 
     <string name="new_info_title">Create a New Recipe</string>
     <string name="new_info">Create a new recipe by filling in the fields below and clicking Save under the Options Menu.</string>

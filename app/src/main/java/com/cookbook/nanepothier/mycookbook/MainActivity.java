@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 infoText3.setVisibility(View.GONE);
                 infoText4.setVisibility(View.GONE);
 
-                infoPopup = new PopupWindow(infoPopupView, 1100, 1000, true);
+                infoPopup = new PopupWindow(infoPopupView, 1000, 950, true);
                 infoPopup.showAtLocation(coordinatorLayout, Gravity.CENTER, 0, 0);
 
                 doneButton.setOnClickListener(new View.OnClickListener() {

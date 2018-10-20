@@ -1055,8 +1055,13 @@ public class ViewRecipeActivity extends AppCompatActivity {
                     }
                 }else if (indicator.equals(Indicator.SAVE_SHARED)){
 
-                    // send new recipe Id back to main UI thread so shared recipe connection can be stored next with new Id
-                    ViewRecipeActivity.this.onBackgroundTaskObtainedRecipeId(uniqueID);
+                    if(finalResult.equals("success")){
+                        // send new recipe Id back to main UI thread so shared recipe connection can be stored next with new Id
+                        ViewRecipeActivity.this.onBackgroundTaskObtainedRecipeId(uniqueID);
+                    }else{
+                        Snackbar.make(findViewById(R.id.view_recipe_coordinator_layout), "User with this email address does not exist", Snackbar.LENGTH_SHORT)
+                                .show();
+                    }
 
                 }else if(indicator.equals(Indicator.SHARE)){
 

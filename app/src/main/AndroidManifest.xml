@@ -20,6 +20,15 @@
         android:theme="@style/AppTheme">
 
         <activity
+                android:name=".SplashActivity"
+                android:label="MyCookBook">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".MainActivity"
             android:label="@string/menu_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -33,19 +42,6 @@
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-                android:name=".SplashActivity"
-                android:label="MyCookBook">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
 
         <activity

@@ -230,10 +230,14 @@ public class ParseJSON {
 
                         ownMap.get(categoryName).add(nameIdObject);
 
-                    }else if(!ownMap.containsKey(categoryName) && ownsRecipe){
+                    }else if(!ownMap.containsKey(categoryName)){
 
                         ArrayList<RecipeNameId> list = new ArrayList<>();
-                        list.add(nameIdObject);
+
+                        if(ownsRecipe){
+                            list.add(nameIdObject);
+                        }
+
                         ownMap.put(categoryName, list);
                     }
 
@@ -242,10 +246,14 @@ public class ParseJSON {
 
                         sharedMap.get(categoryName).add(nameIdObject);
 
-                    }else if(!sharedMap.containsKey(categoryName) && !ownsRecipe){
+                    }else if(!sharedMap.containsKey(categoryName)){
 
                         ArrayList<RecipeNameId> list = new ArrayList<>();
-                        list.add(nameIdObject);
+
+                        if(!ownsRecipe){
+                            list.add(nameIdObject);
+                        }
+
                         sharedMap.put(categoryName, list);
                     }
                 }
