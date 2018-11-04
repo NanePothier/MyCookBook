@@ -130,7 +130,7 @@ public class ParseJSON {
 
                 ingObject = ingredientsArray.getJSONObject(i);
                 ingredient.setName(ingObject.getString("ingredient_name"));
-                ingredient.setQuantity(ingObject.getInt("quantity"));
+                ingredient.setQuantity(ingObject.getDouble("quantity"));
                 ingredient.setQuantityUnit(ingObject.getString("quantity_unit"));
                 ingredient.setDefaultMeasurement(ingObject.getString("default_meas"));
 
@@ -230,10 +230,14 @@ public class ParseJSON {
 
                         ownMap.get(categoryName).add(nameIdObject);
 
-                    }else if(!ownMap.containsKey(categoryName) && ownsRecipe){
+                    }else if(!ownMap.containsKey(categoryName)){
 
                         ArrayList<RecipeNameId> list = new ArrayList<>();
-                        list.add(nameIdObject);
+
+                        if(ownsRecipe){
+                            list.add(nameIdObject);
+                        }
+
                         ownMap.put(categoryName, list);
                     }
 
@@ -242,10 +246,14 @@ public class ParseJSON {
 
                         sharedMap.get(categoryName).add(nameIdObject);
 
-                    }else if(!sharedMap.containsKey(categoryName) && !ownsRecipe){
+                    }else if(!sharedMap.containsKey(categoryName)){
 
                         ArrayList<RecipeNameId> list = new ArrayList<>();
-                        list.add(nameIdObject);
+
+                        if(!ownsRecipe){
+                            list.add(nameIdObject);
+                        }
+
                         sharedMap.put(categoryName, list);
                     }
                 }

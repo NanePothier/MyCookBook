@@ -10,6 +10,7 @@
     <!-- Internet permission -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
@@ -20,19 +21,8 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
-            android:label="@string/menu_name"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
-
-        <activity
-            android:name=".Cookbook"
-            android:label="">
-        </activity>
-
-        <activity
-            android:name=".Login"
-            android:label="@string/app_name">
+                android:name=".SplashActivity"
+                android:label="MyCookBook">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -40,17 +30,33 @@
         </activity>
 
         <activity
-                android:name=".AccountCreation"
+            android:name=".MainActivity"
+            android:label="@string/menu_name"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+
+        <activity
+            android:name=".CookbookActivity"
+            android:label="">
+        </activity>
+
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/app_name">
+        </activity>
+
+        <activity
+                android:name=".AccountActivity"
                 android:label="Create an Account">
         </activity>
 
         <activity
-                android:name=".NewRecipe"
+                android:name=".NewRecipeActivity"
                 android:label="">
         </activity>
 
         <activity
-            android:name=".ViewRecipe"
+            android:name=".ViewRecipeActivity"
             android:label=""
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

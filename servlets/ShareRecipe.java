@@ -7,15 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,15 +22,10 @@ import org.json.JSONObject;
 @WebServlet("/ShareRecipe")
 public class ShareRecipe extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
   
-    public ShareRecipe() {
-        
-    }
+    public ShareRecipe() {}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		

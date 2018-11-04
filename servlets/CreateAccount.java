@@ -5,7 +5,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.logging.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.sql.Connection;
@@ -24,8 +23,7 @@ import java.sql.Timestamp;
 public class CreateAccount extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
-       
+	
     public CreateAccount() {}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
@@ -106,13 +104,10 @@ public class CreateAccount extends HttpServlet {
 			response.getWriter().write(json);
 			
 		}catch(SQLException e) {
-			LOGGER.info("Error sqlexception");
 			e.printStackTrace();	
 		}catch(JSONException ex) {
-			LOGGER.info("Error jsonexception");
 			ex.printStackTrace();
 		}catch(ClassNotFoundException en) {
-			LOGGER.info("Error class not found exception");
 			en.printStackTrace();
 		}finally {
 			try {		

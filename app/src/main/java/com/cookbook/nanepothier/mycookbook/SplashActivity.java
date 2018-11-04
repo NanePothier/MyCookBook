@@ -3,7 +3,10 @@ package com.cookbook.nanepothier.mycookbook;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -18,41 +21,61 @@ import java.net.URL;
 
 public class SplashActivity extends AppCompatActivity {
 
-    private String userEmail;
+    private String deviceId;
+    private View progressView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_splash);
 
-        // TODO: start async task to retrieve user for this device or retrieve cookie that was created when user first logged in
+        progressView = findViewById(R.id.splash_progress);
+        progressView.setVisibility(View.VISIBLE);
+
+        checkIfDeviceKnown();
     }
 
-    /*
-    public void onBackgroundRetrievedUser(boolean isAvailable, String user){
+    private void checkIfDeviceKnown(){
 
-        if(isAvailable){
+        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
-            userEmail = user;
-            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-            intent.putExtra("user_email", userEmail);
-            intent.putExtra("action", "start");
-            startActivity(intent);
-        }else{
+        GetUserCredentials credentialsTask = new GetUserCredentials(deviceId);
+        credentialsTask.execute();
 
-            Intent intent = new Intent(SplashActivity.this, Login.class);
-            startActivity(intent);
-        }
+        //onBackgroundCheckedDevice(true, "haleyiron@gmail.com", "cGx1c21pbnVzMg==");
     }
-    */
 
-    /*
+    /**
+     * receive data obtained from background task and send data to login activity
+     */
+    public void onBackgroundCheckedDevice(boolean deviceIsKnown, String userEmail, String userPassword){
+
+        Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+        intent.putExtra("device_is_known", deviceIsKnown);
+        intent.putExtra("user_email", userEmail);
+        intent.putExtra("user_password", userPassword);
+
+        progressView.setVisibility(View.GONE);
+
+        startActivity(intent);
+    }
+
+    /**
+     * Background task to check whether this device is already known
+     * If it is known, return the user and password for this device
+     */
     public class GetUserCredentials extends AsyncTask<String, Void, String> {
+
+        private String deviceId;
+
+        public GetUserCredentials(String deviceId){
+            this.deviceId = deviceId;
+        }
 
         @Override
         protected String doInBackground(String... params){
 
-            String user;
+            String device;
             InputStream inputStream = null;
             OutputStream outputStream = null;
             HttpURLConnection connection;
@@ -61,26 +84,28 @@ public class SplashActivity extends AppCompatActivity {
 
             try{
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetUserCredentials");
+                        //"http://Mycookbook-env.pbfgcsak4r.us-east-2.elasticbeanstalk.com/getCredentials");
+                        //http://Mycookbook-env.pbfgcsak4r.us-east-2.elasticbeanstalk.com/GetUserCredentials");
+                //"http://10.0.0.18:9999/mycookbookservlets/GetUserCredentials"
 
                 JSONObject jsonObject = new JSONObject();
-                //jsonObject.put("user", email);
-                //jsonObject.put("password", password);
-
-                user = jsonObject.toString();
+                jsonObject.put("device_id", deviceId);
+                device = jsonObject.toString();
 
                 connection = (HttpURLConnection) url.openConnection();
+
                 connection.setReadTimeout(10000);
                 connection.setConnectTimeout(15000);
                 connection.setRequestMethod("POST");
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
-                connection.setFixedLengthStreamingMode(user.getBytes().length);
+                connection.setFixedLengthStreamingMode(device.getBytes().length);
                 connection.setRequestProperty("Content-Type", "application/json;charset=utf-8");
                 connection.setRequestProperty("X-Requested-With", "XMLHttpRequest");
                 connection.connect();
 
                 outputStream = new BufferedOutputStream(connection.getOutputStream());
-                outputStream.write(user.getBytes());
+                outputStream.write(device.getBytes());
                 outputStream.flush();
 
                 int responseCode = connection.getResponseCode();
@@ -99,9 +124,12 @@ public class SplashActivity extends AppCompatActivity {
                 ioe.printStackTrace();
             }finally{
                 try{
-                    outputStream.close();
-                    inputStream.close();
-
+                    if(inputStream != null){
+                        inputStream.close();
+                    }
+                    if(outputStream != null){
+                        outputStream.close();
+                    }
                 }catch(IOException ie){
                     ie.printStackTrace();
                 }
@@ -112,14 +140,28 @@ public class SplashActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String jsonData) {
 
-            // TODO: update
-            boolean isAvailable = true;
-            String userEmail = "t";
+            try{
+                String userEmail, userPassword;
+                boolean deviceIsKnown;
 
-            onBackgroundRetrievedUser(isAvailable, userEmail);
+                JSONObject jsonObject = new JSONObject(jsonData);
+                deviceIsKnown = jsonObject.getBoolean("device_is_known");
+
+                if(deviceIsKnown){
+
+                    userEmail = jsonObject.getString("user_email");
+                    userPassword = jsonObject.getString("user_password");
+                }else{
+                    userEmail = "";
+                    userPassword = "";
+                }
+
+                onBackgroundCheckedDevice(deviceIsKnown, userEmail, userPassword);
+
+            }catch(JSONException jException){
+                jException.printStackTrace();
+            }
         }
-
     }
-    */
 
 }

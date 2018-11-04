@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +22,6 @@ import org.json.JSONObject;
 public class DeleteRecipe extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
        
     public DeleteRecipe() {}
 
@@ -61,8 +59,6 @@ public class DeleteRecipe extends HttpServlet {
 			responseToApp = deleteRecipeIngredients(connection, recipeId, responseToApp);
 			responseToApp = deleteRecipe(connection, recipeId, responseToApp);
 			
-			LOGGER.info("response to app: " + responseToApp);
-			
 			// return value of responseToApp to client
 			JSONObject responseObject = new JSONObject();
 			responseObject.put("successIndicator", responseToApp);
@@ -73,13 +69,10 @@ public class DeleteRecipe extends HttpServlet {
 			response.getWriter().write(json);
 				
 		}catch(SQLException e) {
-			LOGGER.info("Error sqlexception");
 			e.printStackTrace();	
 		}catch(JSONException ex) {
-			LOGGER.info("Error jsonexception");
 			ex.printStackTrace();
 		}catch(ClassNotFoundException en) {
-			LOGGER.info("Error class not found exception");
 			en.printStackTrace();
 		}finally {
 			try {	
@@ -133,8 +126,36 @@ public class DeleteRecipe extends HttpServlet {
 				existsSet.close();
 			}
 			
+			// if the recipe to be deleted is a shared recipe, also delete shared recipe connection
+			existsQuery = "SELECT * FROM sharedrecipes WHERE recipe_id = '" + recipeId + "'";
+			existsStatement = connection.createStatement();
+			existsSet = existsStatement.executeQuery(existsQuery);
+			
+			if(existsSet.next()) {
+				
+				deleteQuery = "DELETE FROM sharedrecipes WHERE recipe_id = ?";
+				deleteStatement = connection.prepareStatement(deleteQuery);
+				deleteStatement.setString(1, recipeId);
+				deleteStatement.executeUpdate();
+			}
+			
 		}catch(SQLException sqlEx) {
 			sqlEx.printStackTrace();
+		}finally {
+			
+			try {
+				if(existsStatement != null) {
+					existsStatement.close();
+				}
+				if(existsSet != null) {
+					existsSet.close();
+				}
+				if(deleteStatement != null) {
+					deleteStatement.close();
+				}
+			}catch(SQLException sqlE) {
+				sqlE.printStackTrace();
+			}	
 		}
 		
 		return responseToApp;

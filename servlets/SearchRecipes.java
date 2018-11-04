@@ -2,11 +2,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -24,7 +22,6 @@ import org.json.JSONObject;
 public class SearchRecipes extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
    
     public SearchRecipes() {}
 
@@ -61,8 +58,9 @@ public class SearchRecipes extends HttpServlet {
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
 		
-			responseArray = matchRecipeIngredients(connection, responseArray, item, userEmail);
-			responseArray = matchRecipeCategory(connection, responseArray, item, userEmail);	
+			matchRecipeIngredients(connection, responseArray, item, userEmail);
+			matchRecipeCategory(connection, responseArray, item, userEmail);	
+			matchRecipeName(connection, responseArray, item, userEmail);
 			
 			String json = responseArray.toString();
 			response.setContentType("application/json");
@@ -77,35 +75,28 @@ public class SearchRecipes extends HttpServlet {
 		}catch(ClassNotFoundException en) {
 			en.printStackTrace();
 		}finally {
-			
 			try {
-				
 				if(queryStatement != null) {
 					queryStatement.close();
 				}
-				
 				if(set != null) {
 					set.close();
 				}
-				
 				if(catSet != null) {
 					catSet.close();
 				}
-				
 				if(connection != null) {
 					connection.close();
 				}
 			}catch(SQLException s) {
 				s.printStackTrace();
 			}	
-		}	
-			
+		}		
 	}
 	
 	
-	public JSONArray matchRecipeIngredients(Connection conn, JSONArray array, String searchItem, String userEmail) {
+	public void matchRecipeIngredients(Connection conn, JSONArray array, String searchItem, String userEmail) {
 		
-		JSONArray jArray = array;
 		Statement queryStatement = null;
 		ResultSet set = null;
 		
@@ -116,17 +107,15 @@ public class SearchRecipes extends HttpServlet {
 			queryStatement = conn.createStatement();
 			set = queryStatement.executeQuery(query);
 			
-			jArray = matchUserRecipeIdName(conn, set, jArray, userEmail);
+			matchUserRecipeIdName(conn, set, array, userEmail);
 			
 		}catch(SQLException sqlEx) {
 			sqlEx.printStackTrace();
 		}
-		return jArray;	
 	}
 	
-	public JSONArray matchRecipeCategory(Connection conn, JSONArray array, String searchItem, String userEmail) {
+	public void matchRecipeCategory(Connection conn, JSONArray array, String searchItem, String userEmail) {
 		
-		JSONArray jArray = array;
 		Statement queryStatement = null;
 		ResultSet set = null;
 		
@@ -137,22 +126,40 @@ public class SearchRecipes extends HttpServlet {
 			queryStatement = conn.createStatement();
 			set = queryStatement.executeQuery(catQuery);
 			
-			jArray = matchUserRecipeIdName(conn, set, jArray, userEmail);
+			matchUserRecipeIdName(conn, set, array, userEmail);
 			
 		}catch(SQLException sqlEx) {
 			sqlEx.printStackTrace();
 		}
-		return jArray;
 	}
 	
-	public JSONArray matchUserRecipeIdName(Connection conn, ResultSet set, JSONArray array, String userEmail) {
+	public void matchRecipeName(Connection conn, JSONArray array, String searchItem, String userEmail) {
+		
+		Statement queryStatement = null;
+		ResultSet set = null;
+		
+		try {
+			
+			// get all recipe Ids with the name being searched
+			String query = "SELECT recipe_id FROM recipes WHERE recipe_name = '" + searchItem + "'";
+			queryStatement = conn.createStatement();
+			set = queryStatement.executeQuery(query);
+			
+			matchUserRecipeIdName(conn, set, array, userEmail);
+			
+		}catch(SQLException sqlEx) {
+			sqlEx.printStackTrace();
+		}
+		
+	}
+	
+	public void matchUserRecipeIdName(Connection conn, ResultSet set, JSONArray array, String userEmail) {
 		
 		Statement idStatement = null;
 		Statement nameStatement = null;
 		ResultSet idSet = null;
 		ResultSet nameSet = null;
 		JSONObject jObject;
-		JSONArray jArray = array;
 		String id;
 		
 		try {
@@ -179,7 +186,7 @@ public class SearchRecipes extends HttpServlet {
 						jObject.put("recipe_id", id);
 						jObject.put("recipe_name", nameSet.getString("recipe_name"));
 						
-						jArray.put(jObject);		
+						array.put(jObject);		
 					}		
 				}	
 			}			
@@ -187,7 +194,6 @@ public class SearchRecipes extends HttpServlet {
 			sqlEx.printStackTrace();
 		}catch(JSONException jsonEx) {
 			jsonEx.printStackTrace();
-		}
-		return jArray;	
+		}	
 	}
 }

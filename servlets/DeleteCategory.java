@@ -6,14 +6,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,16 +22,10 @@ import org.json.JSONObject;
 public class DeleteCategory extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
        
-   
-    public DeleteCategory() {
-        
-    }
+    public DeleteCategory() {}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -108,6 +99,13 @@ public class DeleteCategory extends HttpServlet {
 					queryStatement = connection.prepareStatement(deleteString);
 					queryStatement.setString(1, userEmail);
 					queryStatement.setString(2, item);
+					queryStatement.executeUpdate();
+					
+					queryStatement.close();
+					deleteString = "DELETE FROM categories WHERE category_name = ? AND visible_to_all = ?";
+					queryStatement = connection.prepareStatement(deleteString);
+					queryStatement.setString(1, item);
+					queryStatement.setString(2, "n");
 					queryStatement.executeUpdate();
 					
 					responseToApp = "success";

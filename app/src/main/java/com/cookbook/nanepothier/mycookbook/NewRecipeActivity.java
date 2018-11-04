@@ -2,7 +2,6 @@ package com.cookbook.nanepothier.mycookbook;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.design.widget.CoordinatorLayout;
@@ -10,7 +9,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.*;
 import android.widget.*;
 import org.json.JSONArray;
@@ -21,7 +19,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.UUID;
 
-public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class NewRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private String userEmail = "haleyiron@gmail.com";
     private String statusIndicator = "NewRecipe";
@@ -123,7 +121,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         progressView = findViewById(R.id.new_recipe_progress);
         scrollView = findViewById(R.id.new_recipe_scroll_view);
 
-        inflater = (LayoutInflater) NewRecipe.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflater = (LayoutInflater) NewRecipeActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         Toolbar toolbar = findViewById(R.id.newrecipe_toolbar);
         setSupportActionBar(toolbar);
@@ -132,12 +130,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             @Override
             public void onClick(View v) {
                 if(statusIndicator.equals("NewRecipe")){
-                    Intent intent = new Intent(NewRecipe.this, MainActivity.class);
+                    Intent intent = new Intent(NewRecipeActivity.this, MainActivity.class);
                     intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_new_recipe");
                     startActivity(intent);
                 }else if(statusIndicator.equals("EditRecipe")) {
-                    Intent intent = new Intent(NewRecipe.this, ViewRecipe.class);
+                    Intent intent = new Intent(NewRecipeActivity.this, ViewRecipeActivity.class);
                     intent.putExtra("user_email", userEmail);
                     intent.putExtra("action", "back_edit_recipe");
                     intent.putExtra("recipe_id", recipe.getRecipeId());
@@ -301,7 +299,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         editText = ingredientRowView.findViewById(R.id.new_quantity);
 
         if(statusIndicator.equals("EditRecipe") && firstTime){
-            editText.setText(Double.toString(ingredientArray.get(index).getQuantity()));
+
+            if(ingredientArray.get(index).getQuantity() != -1.0){
+                editText.setText(Double.toString(ingredientArray.get(index).getQuantity()));
+            }else{
+                editText.setText("");
+            }
         }
         quantityViews.add(editText);
 
@@ -406,11 +409,37 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         recipe = (Recipe) intentReceived.getExtras().get("recipe_to_edit");
 
         recipeNameView.setText(recipe.getRecipeName());
-        servingsView.setText(Integer.toString(recipe.getServings()));
-        prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
-        ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
-        ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
-        caloriesView.setText(Integer.toString(recipe.getCalories()));
+
+        if(recipe.getServings() != -1){
+            servingsView.setText(Integer.toString(recipe.getServings()));
+        }else{
+            servingsView.setText("");
+        }
+
+        if(recipe.getPreparationTime() != -1){
+            prepTimeView.setText(Integer.toString(recipe.getPreparationTime()));
+        }else{
+            prepTimeView.setText("");
+        }
+
+        if(recipe.getOvenTime() != -1){
+            ovenTimeView.setText(Integer.toString(recipe.getOvenTime()));
+        }else{
+            ovenTimeView.setText("");
+        }
+
+        if(recipe.getOvenTemperature() != -1){
+            ovenTempView.setText(Integer.toString(recipe.getOvenTemperature()));
+        }else{
+            ovenTempView.setText("");
+        }
+
+        if(recipe.getCalories() != -1){
+            caloriesView.setText(Integer.toString(recipe.getCalories()));
+        }else{
+            caloriesView.setText("");
+        }
+
         instructionView.setText(recipe.getInstructions());
     }
 
@@ -423,15 +452,33 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
             ViewCountService.setIngredientViewCount(ingredientArray.size());
 
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
-            amountView.setText(Double.toString(ingredientArray.get(0).getQuantity()));
+
+            if(ingredientArray.get(0).getQuantity() != -1.0){
+                amountView.setText(Double.toString(ingredientArray.get(0).getQuantity()));
+            }else{
+                amountView.setText("");
+            }
+
             spinnerMeasurements.setSelection(getUnitIndex(ingredientArray.get(0).getQuantityUnit(), "us"));
 
             autoCompIngredient2.setText(ingredientArray.get(1).getName());
-            amountView2.setText(Double.toString(ingredientArray.get(1).getQuantity()));
+
+            if(ingredientArray.get(1).getQuantity() != -1.0){
+                amountView2.setText(Double.toString(ingredientArray.get(1).getQuantity()));
+            }else{
+                amountView2.setText("");
+            }
+
             spinnerMeasurements2.setSelection(getUnitIndex(ingredientArray.get(1).getQuantityUnit(), "us"));
 
             autoCompIngredient3.setText(ingredientArray.get(2).getName());
-            amountView3.setText(Double.toString(ingredientArray.get(2).getQuantity()));
+
+            if(ingredientArray.get(2).getQuantity() != -1.0){
+                amountView3.setText(Double.toString(ingredientArray.get(2).getQuantity()));
+            }else{
+                amountView3.setText("");
+            }
+
             spinnerMeasurements3.setSelection(getUnitIndex(ingredientArray.get(2).getQuantityUnit(), "us"));
 
             for(int x = 3; x < ingredientArray.size(); x++){
@@ -449,11 +496,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         if(categoryArray.size() > 1){
 
             ViewCountService.setCategoryViewCount(categoryArray.size());
-
-            TableRow tableRow;
-            int count = 2;
-            TextView countCol;
-            AutoCompleteTextView autoCompCat;
 
             for(int x = 0; x < categoryArray.size(); x++){
 
@@ -602,6 +644,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         boolean categoriesHaveNames = false;
         boolean ingredientExists = true;
         boolean categoryExists = true;
+        boolean validInstructions = false;
 
         switch(item.getItemId()){
 
@@ -613,20 +656,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 haveQuantityAndUnit = checkQuantityUnitRequirement();
                 ingredientsHaveNames = checkIngredientsHaveNames();
                 categoriesHaveNames = checkCategoriesHaveNames();
-                //hasRecipeName = true;
-                //haveQuantityAndUnit = true;
-                //ingredientsHaveNames = true;
-                //categoriesHaveNames = true;
-
-                // get text entered into textfields
-                String recipeName = recipeNameView.getText().toString();
-                String primCategory = categorySpinner.getSelectedItem().toString();
-                String prepTime = prepTimeView.getText().toString();
-                String ovenTime = ovenTimeView.getText().toString();
-                String ovenTemp = ovenTempView.getText().toString();
-                String servings = servingsView.getText().toString();
-                String calories = caloriesView.getText().toString();
-                String instructions = instructionView.getText().toString();
+                validInstructions = checkInstructionLength();
 
                 ArrayList<Ingredient> ingredients = new ArrayList<>();
 
@@ -638,11 +668,17 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         Ingredient ing = new Ingredient();
 
                         ing.setName(ingredientViews.get(i).getText().toString());
-                        ing.setQuantity(Double.parseDouble(quantityViews.get(i).getText().toString()));
                         ing.setQuantityUnit(measurementSpinners.get(i).getSelectedItem().toString());
 
+                        if(!(quantityViews.get(i).getText().toString().isEmpty())){
+                            ing.setQuantity(Double.parseDouble(quantityViews.get(i).getText().toString()));
+                        }else{
+                            ing.setQuantity(-1.0);
+                        }
+
                         ingredients.add(ing);
-                    }else{
+
+                    }else if(!(ingredientViews.get(i).getText().toString().isEmpty())){
                         ingredientViews.get(i).setError("Ingredient does not exist. Please create it first.");
                         ingredientExists = false;
                         break;
@@ -664,13 +700,25 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                         addCategories.add(cat);
 
                     }else{
-                        additionalCategories.get(j).setError("Category does not exist. Please create it first.");
+                        if(!(additionalCategories.get(j).getText().toString().isEmpty())){
+                            additionalCategories.get(j).setError("Category does not exist. Please create it first.");
+                        }
                         categoryExists = false;
                         break;
                     }
                 }
 
-                if(hasRecipeName && haveQuantityAndUnit && ingredientsHaveNames && categoriesHaveNames && ingredientExists && categoryExists) {
+                if(hasRecipeName && haveQuantityAndUnit && ingredientsHaveNames && categoriesHaveNames && ingredientExists && categoryExists && validInstructions) {
+
+                    // get text entered into textfields
+                    String recipeName = recipeNameView.getText().toString();
+                    String primCategory = categorySpinner.getSelectedItem().toString();
+                    String prepTime = prepTimeView.getText().toString();
+                    String ovenTime = ovenTimeView.getText().toString();
+                    String ovenTemp = ovenTempView.getText().toString();
+                    String servings = servingsView.getText().toString();
+                    String calories = caloriesView.getText().toString();
+                    String instructions = instructionView.getText().toString();
 
                     // execute new asynchronous save task
                     if(statusIndicator.equals("NewRecipe")){
@@ -687,13 +735,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     saveTask.execute((String) null);
 
                     return true;
+                }else if(!validInstructions){
+                    instructionView.setError("Instructions are too long. Only 500 characters are allowed.");
                 }
 
                 return true;
 
             case R.id.cancel_action:
 
-                Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
+                Intent sendIntent = new Intent(NewRecipeActivity.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "cancel_action");
                 startActivity(sendIntent);
@@ -726,9 +776,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     @Override
                     public void onClick(View v) {
 
-                        SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
-                        ingredientTask.execute();
-                        ingredientPopup.dismiss();
+                        if(newIngredientView.getText().length() > 0 && newIngredientView.getText().length() <= 25){
+
+                            SaveItemTask ingredientTask = new SaveItemTask("ingredient", newIngredientView.getText().toString(), userEmail, defaultSpinner.getSelectedItem().toString());
+                            ingredientTask.execute();
+                            ingredientPopup.dismiss();
+
+                        }
                     }
                 });
 
@@ -763,9 +817,13 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                     @Override
                     public void onClick(View v) {
 
-                        SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
-                        categoryTask.execute();
-                        categoryPopup.dismiss();
+                        if(newCategoryView.getText().length() > 0 && newCategoryView.getText().length() <= 25){
+
+                            SaveItemTask categoryTask = new SaveItemTask("category", newCategoryView.getText().toString(), userEmail, "NA");
+                            categoryTask.execute();
+                            categoryPopup.dismiss();
+
+                        }
                     }
                 });
 
@@ -853,14 +911,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         boolean valid = false;
 
-        if(recipeNameView.getText().length() > 0) {
+        if(recipeNameView.getText().length() > 0 && recipeNameView.getText().length() <= 35) {
             if(autoCompIngredient1.getText().length() > 0 && autoCompIngredient2.getText().length() > 0 && autoCompIngredient3.getText().length() > 0){
                 valid = true;
             }else{
-                autoCompIngredient3.setError("Recipe must have at least 3 ingredients");
+                autoCompIngredient3.setError("Each recipe must have at least 3 ingredients");
             }
         }else{
-            recipeNameView.setError("Recipe needs a name");
+            recipeNameView.setError("Recipe name needs to be between 1 and 35 characters");
         }
         return valid;
     }
@@ -883,11 +941,15 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         return haveQuantityAndUnit;
     }
 
+    protected boolean checkInstructionLength(){
+        return (instructionView.getText().toString().length() <= 500);
+    }
+
     protected boolean checkIngredientsHaveNames(){
 
         boolean haveNames = true;
 
-        for(int x = 0; x < ingredientViews.size(); x++){
+        for(int x = 3; x < ingredientViews.size(); x++){
 
             if(ingredientViews.get(x).getText().toString().isEmpty()){
                 haveNames = false;
@@ -914,6 +976,8 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     // when user has stored a new ingredient, update the autocomplete views so that user can choose new ingredient
     public void updateAutoCompleteViews(){
 
+        System.out.println("Size of ingredient views array: " + ingredientViews.size());
+
         for(int x = 0; x < ingredientViews.size(); x++){
             ingredientViews.get(x).setAdapter(ingredientAdapter);
         }
@@ -925,9 +989,11 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
         ingredientAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredients);
 
-        autoCompIngredient1.setAdapter(ingredientAdapter);
-        autoCompIngredient2.setAdapter(ingredientAdapter);
-        autoCompIngredient3.setAdapter(ingredientAdapter);
+        //autoCompIngredient1.setAdapter(ingredientAdapter);
+        //autoCompIngredient2.setAdapter(ingredientAdapter);
+        //autoCompIngredient3.setAdapter(ingredientAdapter);
+
+        updateAutoCompleteViews();
 
         if(statusIndicator.equals("EditRecipe")){
             setIngredientViews();
@@ -964,7 +1030,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
     }
 
     public void onBackgroundDeleteTaskNeutral(){
-        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Category to be deleted does not exist", Snackbar.LENGTH_LONG)
+        Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "This category cannot be deleted", Snackbar.LENGTH_LONG)
         .show();
     }
 
@@ -975,7 +1041,6 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         if(indicator.equals("ingredient") && finalResult.equals("success")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "New ingredient was saved", Snackbar.LENGTH_SHORT).show();
             getIngredients();
-            updateAutoCompleteViews();
         }else if(indicator.equals("ingredient") && finalResult.equals("exists")){
             Snackbar.make(findViewById(R.id.new_recipe_activity_layout), "Ingredient already exists", Snackbar.LENGTH_LONG).show();
         }else if(indicator.equals("category") && finalResult.equals("success")){
@@ -1069,8 +1134,14 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
                         JSONObject jObject = new JSONObject();
                         jObject.put("ing_name", ingredients.get(x).getName());
-                        jObject.put("quantity", ingredients.get(x).getQuantity());
                         jObject.put("quantity_unit", ingredients.get(x).getQuantityUnit());
+
+                        if(ingredients.get(x).getQuantity() != -1.0){
+
+                            jObject.put("quantity", ingredients.get(x).getQuantity());
+                        }else{
+                            jObject.put("quantity", "");
+                        }
 
                         jsonArray.put(jObject);
                     }
@@ -1156,9 +1227,12 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
 
             if(finalResult.equals("success")){
 
-                Intent sendIntent = new Intent(NewRecipe.this, MainActivity.class);
+                boolean deviceIsKnown = true;
+
+                Intent sendIntent = new Intent(NewRecipeActivity.this, MainActivity.class);
                 sendIntent.putExtra("user_email", userEmail);
                 sendIntent.putExtra("action", "save_action");
+                sendIntent.putExtra("device_is_known", deviceIsKnown);
                 startActivity(sendIntent);
             }else{
                 System.out.println("Storing of data was not successful");
@@ -1265,9 +1339,9 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
                 }
 
                 if(itemIndicator.equals("ing")){
-                    NewRecipe.this.onBackgroundTaskObtainedIngredients(listItems);
+                    NewRecipeActivity.this.onBackgroundTaskObtainedIngredients(listItems);
                 }else if(itemIndicator.equals("cat")){
-                    NewRecipe.this.onBackgroundTaskObtainedCategories(listItems);
+                    NewRecipeActivity.this.onBackgroundTaskObtainedCategories(listItems);
                 }
 
             }catch(Exception e) {
@@ -1368,7 +1442,7 @@ public class NewRecipe extends AppCompatActivity implements AdapterView.OnItemSe
         protected void onPostExecute(String result){
 
             String finalResult = ParseJSON.parseJSON(result);
-            NewRecipe.this.onBackgroundTaskSavedItem(indicator, finalResult);
+            NewRecipeActivity.this.onBackgroundTaskSavedItem(indicator, finalResult);
         }
     }
 

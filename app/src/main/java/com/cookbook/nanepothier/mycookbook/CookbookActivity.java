@@ -26,7 +26,7 @@ import java.util.Map;
  * class/activity Cookbook is responsible for displaying the user's
  * recipes in a list view
  */
-public class Cookbook extends AppCompatActivity {
+public class CookbookActivity extends AppCompatActivity {
 
     private ArrayList<String> arrayRecipeNames;
     private ArrayList<String> arrayUserCategories;
@@ -76,7 +76,7 @@ public class Cookbook extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Cookbook.this, MainActivity.class);
+                Intent intent = new Intent(CookbookActivity.this, MainActivity.class);
                 intent.putExtra("user_email", userEmail);
                 intent.putExtra("action", "cookbook");
                 startActivity(intent);
@@ -232,7 +232,7 @@ public class Cookbook extends AppCompatActivity {
 
             case R.id.action_info:
 
-                LayoutInflater inflater = (LayoutInflater) Cookbook.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                LayoutInflater inflater = (LayoutInflater) CookbookActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View infoPopupView = inflater.inflate(R.layout.app_info_popup, null);
 
                 ImageButton doneButton = infoPopupView.findViewById(R.id.info_button);

@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,17 +22,11 @@ import org.json.JSONObject;
 public class SaveItem extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
        
-    public SaveItem() {
-        
-    }
+    public SaveItem() {}
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-	}
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {}
 
-	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String line = "";
@@ -79,7 +72,6 @@ public class SaveItem extends HttpServlet {
 					
 					if(defaultMeasure.equals("weight")) {
 						defaultMeasure = "w";
-						LOGGER.info("defaultmeasure is weight");
 					}else if(defaultMeasure.equals("liquid")) {
 						defaultMeasure = "v";
 					}else {
@@ -102,8 +94,6 @@ public class SaveItem extends HttpServlet {
 			}else if(flag.equals("category")) {
 				
 				userEmail = jsonObject.getString("userEmail");
-				
-				LOGGER.info("user email: " + userEmail);
 				
 				String query = "SELECT * FROM categories WHERE category_name='" + item + "'";
 				duplicateQuery = connection.createStatement();

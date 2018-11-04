@@ -17,7 +17,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="16dp"
                 android:textStyle="bold"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="17dp"
                 android:id="@+id/share_recipe_heading"
                 android:text="Share Your Recipe"
                 app:layout_constraintTop_toTopOf="parent"
@@ -31,7 +31,9 @@
                 android:text="Enter your friend's email address below to share your recipe:"
                 android:textSize="15dp"
                 android:id="@+id/share_recipe_info"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="30dp"
+                android:paddingRight="10dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/share_recipe_heading"
@@ -43,7 +45,7 @@
                 android:background="@drawable/thin_black_border_background"
                 android:textSize="15dp"
                 android:id="@+id/enter_item_view"
-                android:layout_marginTop="6dp"
+                android:layout_marginTop="20dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/share_recipe_info"
@@ -63,7 +65,7 @@
                     android:layout_height="wrap_content"
                     android:src="@mipmap/ic_check_circle_black_24dp"
                     android:id="@+id/share_recipe_button"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="11dp"
             />
 
             <ImageButton
@@ -71,7 +73,7 @@
                     android:layout_height="wrap_content"
                     android:src="@mipmap/ic_highlight_off_black_24dp"
                     android:id="@+id/cancel_image_button"
-                    android:layout_marginTop="7dp"
+                    android:layout_marginTop="11dp"
             />
         </LinearLayout>
 

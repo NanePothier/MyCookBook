@@ -1,9 +1,8 @@
 package com.cookbook.nanepothier.mycookbook;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -26,12 +25,13 @@ import java.net.URL;
  * The login page allows the user to log into their account using
  * their email address and password
  */
-public class Login extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask userLoginTask = null;
+    private boolean deviceIsKnown = false;
 
     // Views
     private EditText mEmailView;
@@ -45,6 +45,10 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // receive data passed from SplashActivity or MainActivity
+        Intent receivedIntent = getIntent();
+        deviceIsKnown = receivedIntent.getExtras().getBoolean("device_is_known");
 
         // Set up the enter email view
         mEmailView = findViewById(R.id.email);
@@ -77,12 +81,32 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 //direct to account creation page if create account button is clicked
-                startActivity(new Intent(Login.this, AccountCreation.class));
+                startActivity(new Intent(LoginActivity.this, AccountActivity.class));
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        // if device is known, pre-populate email and password fields
+        // if device is not known, but user just created a new account, pre-populate fields with new account info
+        if(deviceIsKnown || (!deviceIsKnown && !(receivedIntent.getExtras().getString("user_email").isEmpty()))){
+
+            String userEmail = receivedIntent.getExtras().getString("user_email");
+            String password = receivedIntent.getExtras().getString("user_password");
+            String encodedPassword = decodePassword(password);
+
+            mEmailView.setText(userEmail);
+            mPasswordView.setText(encodedPassword);
+        }
+
+    }
+
+    private String decodePassword(String password){
+        byte [] decodedBytes = Base64.decode(password, Base64.DEFAULT);
+        String originalPassword = new String(decodedBytes);
+
+        return originalPassword;
     }
 
     /**
@@ -200,6 +224,15 @@ public class Login extends AppCompatActivity {
         */
     }
 
+    public void onBackgroundTaskStartMainActivity(String userEmail){
+
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        intent.putExtra("user_email", userEmail);
+        intent.putExtra("action", "login");
+        intent.putExtra("device_is_known", deviceIsKnown);
+        startActivity(intent);
+    }
+
     /**
      * Represents an asynchronous login task used to authenticate
      * the user.
@@ -300,10 +333,7 @@ public class Login extends AppCompatActivity {
 
             if(finalResult.equals("match")){
 
-                Intent intent = new Intent(Login.this, MainActivity.class);
-                intent.putExtra("user_email", email);
-                intent.putExtra("action", "login");
-                startActivity(intent);
+                onBackgroundTaskStartMainActivity(email);
 
             }else if(finalResult.equals("wrong_password")){
 
@@ -314,6 +344,9 @@ public class Login extends AppCompatActivity {
             }else if(finalResult.equals("user_does_not_exist")){
                 mEmailView.requestFocus();
                 mEmailView.setError("Account with this email address does not exist");
+            }else{
+                Snackbar.make(findViewById(R.id.login_coordinator_layout), "No network connection. Please try again later.", Snackbar.LENGTH_LONG)
+                .show();
             }
         }
 

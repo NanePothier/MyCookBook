@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +22,6 @@ import org.json.JSONObject;
 public class GetRecipeNames extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
        
     public GetRecipeNames() {}
 
@@ -148,8 +146,6 @@ public class GetRecipeNames extends HttpServlet {
 				
 				if(set.next()) {
 					
-					LOGGER.info("Recipe name: " + set.getString("recipe_name") + " belonging to this recipe ID: " + id);
-					
 					jsonOb.put("recipe_id", id);
 					jsonOb.put("recipe_name", set.getString("recipe_name"));	
 					jsonOb.put("own", "y");
@@ -176,8 +172,6 @@ public class GetRecipeNames extends HttpServlet {
 				catSet = catStatement.executeQuery(sqlCategory);
 				
 				if(catSet.next()) {
-					
-					LOGGER.info("Category name: " + catSet.getString("category_name") + " belonging to this recipe ID: " + id);
 					
 					jArray.getJSONObject(count).put("category", catSet.getString("category_name"));
 				}
