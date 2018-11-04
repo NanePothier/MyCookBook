@@ -4,7 +4,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.logging.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,9 +21,7 @@ import java.sql.Statement;
 @WebServlet("/RetrieveRecipe")
 public class RetrieveRecipe extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final Logger LOGGER = Logger.getLogger("InfoLogging");
 
-   
     public RetrieveRecipe() {
        
     }
@@ -59,10 +56,6 @@ public class RetrieveRecipe extends HttpServlet {
 			username = jsonObject.getString("email");
 			recipe = jsonObject.getString("recipe");
 			recipeId = jsonObject.getString("id");
-			
-			LOGGER.info("username: " + username);
-			LOGGER.info("recipe name: " + recipe);
-			LOGGER.info("id: " + recipeId);
 			
 			Class.forName("com.mysql.jdbc.Driver");
 			connection = DriverManager.getConnection("jdbc:mysql://173.244.1.42:3306/S0280202", "S0280202", "New2018");
@@ -106,8 +99,6 @@ public class RetrieveRecipe extends HttpServlet {
 				jsonArrayCategories = addCategoriesToJsonArray(recipeResultSet);
 				responseObject.put("categories", jsonArrayCategories);
 			}
-			
-			LOGGER.info("Sending response back to app");
 			
 			// send data stored in responseObject back to app
 			String json = responseObject.toString();

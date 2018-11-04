@@ -84,12 +84,16 @@ public class SplashActivity extends AppCompatActivity {
 
             try{
                 url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetUserCredentials");
+                        //"http://Mycookbook-env.pbfgcsak4r.us-east-2.elasticbeanstalk.com/getCredentials");
+                        //http://Mycookbook-env.pbfgcsak4r.us-east-2.elasticbeanstalk.com/GetUserCredentials");
+                //"http://10.0.0.18:9999/mycookbookservlets/GetUserCredentials"
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("device_id", deviceId);
                 device = jsonObject.toString();
 
                 connection = (HttpURLConnection) url.openConnection();
+
                 connection.setReadTimeout(10000);
                 connection.setConnectTimeout(15000);
                 connection.setRequestMethod("POST");
