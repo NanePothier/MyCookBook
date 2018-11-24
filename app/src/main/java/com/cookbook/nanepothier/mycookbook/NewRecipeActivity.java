@@ -1115,7 +1115,10 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
             String result = "";
 
                 try{
-                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
+                    //url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
+
+                    //connection to aws EC2 server instance
+                    url = new URL("http://3.16.170.8:8080/mycookbookservlets/SaveRecipe");
 
                     JSONObject jsonObject = new JSONObject();
                     JSONArray jsonArray = new JSONArray();
@@ -1264,9 +1267,16 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         try{
 
             if(itemIndicator.equals("ing")){
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveIngredients");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveIngredients");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/RetrieveIngredients");
+
             }else if(itemIndicator.equals("cat")){
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveCategories");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveCategories");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/RetrieveCategories");
             }
 
             JSONObject jsonObject = new JSONObject();
@@ -1374,7 +1384,10 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
             try{
 
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveItem");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveItem");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/SaveItem");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("indicator", indicator);
@@ -1469,7 +1482,10 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
             try{
 
                 if(itemIndicator.equals("category")){
-                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteCategory");
+                    //url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteCategory");
+
+                    //connection to aws EC2 server instance
+                    url = new URL("http://3.16.170.8:8080/mycookbookservlets/DeleteCategory");
                 }
 
                 JSONObject jsonObject = new JSONObject();

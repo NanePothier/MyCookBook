@@ -271,7 +271,10 @@ public class LoginActivity extends AppCompatActivity {
             String result = "";
 
             try{
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/ValidateUser");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/ValidateUser");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/ValidateUser");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user", email);
