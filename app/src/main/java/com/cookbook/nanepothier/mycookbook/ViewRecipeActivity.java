@@ -235,7 +235,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
 
                             metricIngredient.setQuantity(convertedNumber);
-                            metricIngredient.setQuantityUnit("g");
+                            metricIngredient.setQuantityUnit("ml");
                             metricIngredient.setName(ingArray.get(x).getName());
                             metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
 

@@ -21,7 +21,7 @@ import java.util.UUID;
 
 public class NewRecipeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    private String userEmail = "haleyiron@gmail.com";
+    private String userEmail;
     private String statusIndicator = "NewRecipe";
 
     // views
@@ -449,8 +449,6 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
 
         if(ingredientArray.size() >= 3){
 
-            ViewCountService.setIngredientViewCount(ingredientArray.size());
-
             autoCompIngredient1.setText(ingredientArray.get(0).getName());
 
             if(ingredientArray.get(0).getQuantity() != -1.0){
@@ -494,8 +492,6 @@ public class NewRecipeActivity extends AppCompatActivity implements AdapterView.
         categoryArray = recipe.getCategoriesArray();
 
         if(categoryArray.size() > 1){
-
-            ViewCountService.setCategoryViewCount(categoryArray.size());
 
             for(int x = 0; x < categoryArray.size(); x++){
 
