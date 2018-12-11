@@ -288,7 +288,10 @@ public class CookbookActivity extends AppCompatActivity {
             String result = "";
 
             try{
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/SearchRecipes");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/SearchRecipes");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/SearchRecipes");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user_email", userEmail);
@@ -371,7 +374,10 @@ public class CookbookActivity extends AppCompatActivity {
             String result = "";
 
             try{
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetRecipeNames");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetRecipeNames");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/GetRecipeNames");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("userEmail", userEmail);

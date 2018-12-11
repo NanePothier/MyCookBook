@@ -235,7 +235,7 @@ public class ViewRecipeActivity extends AppCompatActivity {
                             convertedNumber = ingArray.get(x).getQuantity() * conversionArray.get(y).getFactor();
 
                             metricIngredient.setQuantity(convertedNumber);
-                            metricIngredient.setQuantityUnit("g");
+                            metricIngredient.setQuantityUnit("ml");
                             metricIngredient.setName(ingArray.get(x).getName());
                             metricIngredient.setDefaultMeasurement(ingArray.get(x).getDefaultMeasurement());
 
@@ -702,7 +702,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
 
             try{
 
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveRecipe");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/RetrieveRecipe");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/RetrieveRecipe");
 
                 // generate json object to pass data
                 JSONObject jsonObject = new JSONObject();
@@ -837,7 +840,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
             if(indicator.equals(Indicator.DELETE)) {
 
                 try {
-                    url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteRecipe");
+                    //url = new URL("http://10.0.0.18:9999/mycookbookservlets/DeleteRecipe");
+
+                    //connection to aws EC2 server instance
+                    url = new URL("http://3.16.170.8:8080/mycookbookservlets/DeleteRecipe");
 
                     JSONObject jsonObject = new JSONObject();
                     jsonObject.put("recipeId", recipeId);
@@ -890,7 +896,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 try {
                     if(!shareEmail.equals(sharedByEmail)){
 
-                        url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
+                        //url = new URL("http://10.0.0.18:9999/mycookbookservlets/SaveRecipe");
+
+                        //connection to aws EC2 server instance
+                        url = new URL("http://3.16.170.8:8080/mycookbookservlets/SaveRecipe");
 
                         JSONObject jsonObject = new JSONObject();
                         JSONArray jsonArray = new JSONArray();
@@ -982,7 +991,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
                 try {
                     if(!shareEmail.equals(sharedByEmail)){
 
-                        url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
+                        //url = new URL("http://10.0.0.18:9999/mycookbookservlets/ShareRecipe");
+
+                        //connection to aws EC2 server instance
+                        url = new URL("http://3.16.170.8:8080/mycookbookservlets/ShareRecipe");
 
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("recipe_id", recipeId);
@@ -1091,7 +1103,10 @@ public class ViewRecipeActivity extends AppCompatActivity {
             URL url = null;
 
             try {
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetConversionFactors");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/GetConversionFactors");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/GetConversionFactors");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("retrieval", "retrieval");

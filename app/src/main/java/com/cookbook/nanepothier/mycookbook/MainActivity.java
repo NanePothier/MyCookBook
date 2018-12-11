@@ -185,7 +185,10 @@ public class MainActivity extends AppCompatActivity {
             String result = "";
 
             try{
-                url = new URL("http://10.0.0.18:9999/mycookbookservlets/StoreUserDevice");
+                //url = new URL("http://10.0.0.18:9999/mycookbookservlets/StoreUserDevice");
+
+                //connection to aws EC2 server instance
+                url = new URL("http://3.16.170.8:8080/mycookbookservlets/StoreUserDevice");
 
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("user_email", userEmail);
